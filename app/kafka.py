@@ -1,6 +1,7 @@
 import datetime
 import os
 import json
+import sys
 from collections import defaultdict
 
 from asgiref.sync import async_to_sync
@@ -8,9 +9,10 @@ from channels.layers import get_channel_layer
 from kafka import KafkaProducer, KafkaConsumer
 
 kafka_url = 'kafka:9092' if os.getenv('ENVIRONMENT', 'docker') == 'docker' else 'localhost:9093'
-producer = KafkaProducer(bootstrap_servers=kafka_url,
-                         key_serializer=lambda x: x.encode('utf-8'),
-                         value_serializer=lambda x: repr(x).encode('utf-8'))
+if 'test' not in sys.argv:
+    producer = KafkaProducer(bootstrap_servers=kafka_url,
+                             key_serializer=lambda x: x.encode('utf-8'),
+                             value_serializer=lambda x: repr(x).encode('utf-8'))
 
 
 def produce(event_type, message, topic='movie'):

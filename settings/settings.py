@@ -1,3 +1,5 @@
+import sys
+
 import mongoengine
 import os
 import mongomock
@@ -56,14 +58,21 @@ ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 environment = os.environ.get('ENVIRONMENT', 'docker')
 redis_url = 'redis' if environment == 'docker' else 'localhost'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': "channels_redis.core.RedisChannelLayer",
-        'CONFIG': {
-            'hosts': [(redis_url, 6379)],
+if 'test' in sys.argv:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
         }
     }
-}
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': "channels_redis.core.RedisChannelLayer",
+            'CONFIG': {
+                'hosts': [(redis_url, 6379)],
+            }
+        }
+    }
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
