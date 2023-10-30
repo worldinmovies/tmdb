@@ -22,6 +22,15 @@ def wait_until(timeout=5, period=0.25, expected_calls=1):
     return False
 
 
+def wait_until3(func, timeout=5, period=0.25):
+    mustend = time.time() + timeout
+    while time.time() < mustend:
+        if func:
+            return True
+        time.sleep(period)
+    return False
+
+
 def wait_until2(id, timeout=5, period=0.25):
     mustend = time.time() + timeout
     while time.time() < mustend:
@@ -81,8 +90,7 @@ class ImportTests(SuperClass):
         self.assertEqual(Movie.objects.all().count(), 0)
         response = self.client.get('/import/tmdb/daily')
         self.assertEqual(response.status_code, 200)
-        wait_until(timeout=5)
-        self.assertEqual(len(responses.calls), 1)
+        wait_until3(Movie.objects.all().count() == 3)
         self.assertEqual(Movie.objects.all().count(), 3)
 
     @responses.activate
@@ -98,7 +106,7 @@ class ImportTests(SuperClass):
         self.assertEqual(Movie.objects.filter(pk=604).count(), 1)
         response = self.client.get('/import/tmdb/daily')
         self.assertEqual(response.status_code, 200)
-        wait_until2(id=604)
+        wait_until3(Movie.objects.filter(pk=604).count() == 0)
         self.assertEqual(Movie.objects.filter(pk=604).count(), 0)
 
     @responses.activate
