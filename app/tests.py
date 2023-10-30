@@ -4,13 +4,13 @@ import io
 import os
 import responses
 import time
-import mongomock
 
 from django.test import TransactionTestCase
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
 from unittest.mock import patch
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 kafka_mock = "app.kafka.kafka.KafkaProducer"
+
 
 def wait_until(timeout=5, period=0.25, expected_calls=1):
     mustend = time.time() + timeout
