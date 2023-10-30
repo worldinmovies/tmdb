@@ -22,5 +22,5 @@ mongoengine==0.27.0
 # For tests
 responses==0.23.3
 pylint-django==2.5.3
-urllib3==2.0.6
+urllib3==1.26.18
 mongomock~=4.1.2
