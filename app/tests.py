@@ -6,6 +6,7 @@ import responses
 import time
 
 from django.test import TransactionTestCase
+from django.db import transaction
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
 from unittest.mock import patch
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,12 +48,13 @@ class SuperClass(TransactionTestCase):
         self.maxDiff = None
         self._environ = dict(os.environ)
         os.environ['TMDB_API'] = 'test'
-        SpokenLanguage(iso_639_1='en', name='English').save()
-        SpokenLanguage(iso_639_1='es', name='Spanish').save()
-        ProductionCountries(iso_3166_1='US', name='United States of america').save()
-        ProductionCountries(iso_3166_1='AU', name='Australia').save()
-        ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
-        Movie.objects.all().delete()
+        with transaction.atomic():
+            SpokenLanguage(iso_639_1='en', name='English').save()
+            SpokenLanguage(iso_639_1='es', name='Spanish').save()
+            ProductionCountries(iso_3166_1='US', name='United States of america').save()
+            ProductionCountries(iso_3166_1='AU', name='Australia').save()
+            ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
+            Movie.objects.all().delete()
 
     def tearDown(self):
         os.environ.clear()
