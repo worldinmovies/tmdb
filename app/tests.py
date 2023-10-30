@@ -64,6 +64,7 @@ class SuperClass(TransactionTestCase):
             ProductionCountries(iso_3166_1='AU', name='Australia').save()
             ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
             Movie.objects.all().delete()
+        time.sleep(1)
 
     def tearDown(self):
         os.environ.clear()
