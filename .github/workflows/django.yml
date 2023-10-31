@@ -60,7 +60,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: latest
+          tags: seppaleinen/worldinmovies_tmdb:latest
           outputs: type=image,name=seppaleinen/worldinmovies_tmdb,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
