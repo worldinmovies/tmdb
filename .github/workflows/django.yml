@@ -119,3 +119,20 @@ jobs:
         run: |
           docker buildx imagetools inspect seppaleinen/worldinmovies_tmdb:${{ steps.meta.outputs.version }}          
 
+  integration-test:
+    runs-on: ubuntu-latest
+    needs:
+      - merge
+    steps:
+      - name: Trigger integration-test workflow
+        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: worldinmovies
+          repo: integration-tests
+          github_token: ${{ secrets.AUTH_TOKEN }}
+          workflow_file_name: node.js.yml
+          ref: main
+          wait_interval: 10
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
