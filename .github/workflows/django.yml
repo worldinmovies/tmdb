@@ -60,7 +60,6 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: seppaleinen/worldinmovies_tmdb:latest
           outputs: type=image,name=seppaleinen/worldinmovies_tmdb,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
@@ -92,6 +91,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: seppaleinen/worldinmovies_tmdb
+          tags: |
+            # set latest tag for master branch
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
