@@ -1,20 +1,21 @@
-import datetime, \
-    requests, \
-    json, \
-    gzip, \
-    concurrent.futures, \
-    os, \
-    time
-
-from django.db import transaction
+import concurrent.futures
+import datetime
+import gzip
+import json
+import os
+import requests
+import time
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.db import transaction
+from itertools import chain, islice
 from mongoengine import DoesNotExist
 from requests.adapters import HTTPAdapter
 from sentry_sdk import monitor
 from urllib3.util.retry import Retry
-from app.models import Movie, SpokenLanguage, Genre, ProductionCountries
+
 from app.kafka import produce
+from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails
 
 
 @monitor(monitor_slug='base_import')
@@ -42,7 +43,7 @@ def download_files():
         movies_to_add = []
         tmdb_movie_ids = set()
         contents = __unzip_file('movies.json.gz')
-        for b in __chunks(contents, 100):
+        for b in chunks(contents, 100):
             chunk = []
             for i in b:
                 try:
@@ -59,7 +60,7 @@ def download_files():
             new_movies = (set(chunk).difference(matches))
             for c in new_movies:
                 movies_to_add.append(Movie(id=c, fetched=False))
-            __send_data_to_channel(layer=layer, message="Parsed %s out of %s movies from downloaded file" % (len(b), len(contents)))
+            __send_data_to_channel(layer=layer, message="Parsed %s out of %s movies from downloaded file" % (len(list(b)), len(contents)))
 
         a = len(movies_to_add)
         __send_data_to_channel(layer=layer, message="%s movies will be persisted" % a)
@@ -68,9 +69,8 @@ def download_files():
         b = 0
         try:
             print("Persisting %s movies" % a)
-            for chunk in __chunks(movies_to_add, 100):
-                b += len(chunk)
-                Movie.objects.insert(chunk)
+            for chunk in chunks(movies_to_add, 100):
+                Movie.objects.insert(list(chunk))
                 __send_data_to_channel(layer=layer, message="Persisted %s movies out of %s" % (b, a))
             print("Deleting %s unfetched movies not in tmdb anymore" % len(movie_ids_to_delete))
             c = 0
@@ -136,6 +136,10 @@ def fetch_tmdb_data_concurrently():
         print("No new movies to import. Going back to sleep")
         return
     print("Starting import of %s unfetched movies" % length)
+    all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+    all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+    all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = (executor.submit(__fetch_movie_with_id, movie_id, index) for index, movie_id in enumerate(movie_ids))
         i = 0
@@ -145,12 +149,19 @@ def fetch_tmdb_data_concurrently():
                 if data is not None:
                     db_movie = Movie.objects.get(pk=data['id'])
                     new_or_update = 'UPDATE' if db_movie.data else 'NEW'
-                    db_movie.add_fetched_info(data)
+                    countries = [all_countries[country['iso_3166_1']] for country in data['production_countries']]
+                    langs = [all_langs[lang['iso_639_1']] for lang in data['spoken_languages']]
+                    genres = [all_genres[genre['id']] for genre in data['genres']]
+                    data['production_countries'] = countries
+                    data['spoken_languages'] = langs
+                    data['genres'] = genres
+                    db_movie.add_fetched_info(MovieDetails(**data))
+
                     db_movie.save()
                     produce(new_or_update, data['id'])
                 i += 1
             except Exception as exc:
-                print("Exception: %s" % exc)
+                print("Could not process data: %s" % exc)
 
 
 def import_genres():
@@ -213,10 +224,10 @@ def import_languages():
         __send_data_to_channel(f"Error importing languages: {response.status_code} - {response.content}")
 
 
-def __chunks(__list, n):
-    """Yield successive n-sized chunks from list."""
-    for i in range(0, len(__list), n):
-        yield __list[i:i + n]
+def chunks(iterable, size=100):
+    iterator = iter(iterable)
+    for first in iterator:
+        yield chain([first], islice(iterator, size - 1))
 
 
 def check_which_movies_needs_update(start_date, end_date):

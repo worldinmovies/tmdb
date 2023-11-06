@@ -1,13 +1,16 @@
 import datetime
 import json
 import threading
+from mongoengine.queryset.visitor import Q
 
+from app.helper import chunks, convert_country_code, start_background_process
 from app.importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
     base_import, check_which_movies_needs_update
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
 from django.http import HttpResponse
 from app.kafka import produce
+from django.views.decorators.csrf import csrf_exempt
 
 
 def import_status(request):
@@ -47,66 +50,39 @@ def import_status(request):
                             content_type='application/json')
 
 
+@csrf_exempt
+def get_best_movies_from_country(request, country_code):
+    country_codes = convert_country_code(country_code)
+    print("COUNTRYCODES: %s" % country_codes)
+    print(list(Movie.objects.filter(Q(fetched=True) & Q(data__production_countries__iso_3166_1__in=country_codes))))
+    return Movie.objects.filter(Q(fetched=True) & Q(data__production_countries__iso_3166_1__in=country_codes)).to_json()
+
+
 # Imports
 
+
 def download_file(request):
-    if 'download_files' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=download_files, name='download_files')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB downloads"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB downloads process already started"}))
+    return HttpResponse(start_background_process(download_files, 'download_files', 'TMDB downloads'))
 
 
 def base_fetch(request):
-    if 'base_import' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=base_import, name='base_import')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB base import"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB base import process already started"}))
+    return HttpResponse(start_background_process(base_import, 'base_import', 'TMDB base'))
 
 
 def import_tmdb_data(request):
-    if 'import_tmdb_data' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=fetch_tmdb_data_concurrently, name='import_tmdb_data')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB data"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB data process already started"}))
+    return HttpResponse(start_background_process(fetch_tmdb_data_concurrently, 'import_tmdb_data', 'TMDB data'))
 
 
 def fetch_genres(request):
-    if 'import_genres' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=import_genres, name='import_genres')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB genres"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB genres process already started"}))
+    return HttpResponse(start_background_process(import_genres, 'import_genres', 'TMDB genres'))
 
 
 def fetch_countries(request):
-    if 'import_countries' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=import_countries, name='import_countries')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB countries"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB countries process already started"}))
+    return HttpResponse(start_background_process(import_countries, 'import_countries', 'TMDB countries'))
 
 
 def fetch_languages(request):
-    if 'import_languages' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=import_languages, name='import_languages')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to process TMDB languages"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "TMDB languages process already started"}))
+    return HttpResponse(start_background_process(import_languages, 'import_languages', 'TMDB languages'))
 
 
 def check_tmdb_for_changes(request):
@@ -148,20 +124,7 @@ def dump_countries(request):
 
 def generate_kafka_dump(request):
     def gen():
-        for chunk in __chunks(Movie.objects.all().values_list('id'), 1000):
+        for chunk in chunks(Movie.objects.all().values_list('id'), 1000):
             [produce('NEW', x, topic='data_dump') for x in chunk]
 
-    if 'generate_kafka_dump' not in [thread.name for thread in threading.enumerate()]:
-        thread = threading.Thread(target=gen,
-                                  name='generate_kafka_dump')
-        thread.daemon = True
-        thread.start()
-        return HttpResponse(json.dumps({"Message": "Starting to generate kafka dump"}))
-    else:
-        return HttpResponse(json.dumps({"Message": "kafka dump process already started"}))
-
-
-def __chunks(__list, n):
-    """Yield successive n-sized chunks from list."""
-    for i in range(0, len(__list), n):
-        yield __list[i:i + n]
+    return HttpResponse(start_background_process(gen, 'generate_kafka_dump', 'kafka dump'))

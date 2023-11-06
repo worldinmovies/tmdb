@@ -63,6 +63,10 @@ class SuperClass(TransactionTestCase):
             ProductionCountries(iso_3166_1='US', name='United States of america').save()
             ProductionCountries(iso_3166_1='AU', name='Australia').save()
             ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
+            Genre(id=28, name="Action").save()
+            Genre(id=12, name="Adventure").save()
+            Genre(id=14, name="Fantasy").save()
+            Genre(id=878, name="Science Fiction").save()
             Movie.objects.all().delete()
         time.sleep(1)
 
