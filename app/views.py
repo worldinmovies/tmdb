@@ -1,11 +1,10 @@
 import csv
 
-import decimal
-
 import datetime
 import json
 import threading
 
+from app.celery_tasks import flattify_movies, redo_movies_task
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
@@ -127,35 +126,18 @@ def dump_countries(request):
 
 def redo_movies(request):
     def work():
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
-
-        ids = Movie.objects.all()
-        count = 0
-        for chunk in chunks(ids, 100):
-            for movie in chunk:
-                try:
-                    Movie.add_references(all_genres, all_langs, all_countries, movie.data)
-                    movie.save()
-                except Exception as e:
-                    print("Could not persist: %s due to: %s" % (movie.id, e))
-                count += 1
-            print("Persisted: %s" % count)
+        for chunk in chunks(Movie.objects.all().values_list('id'), 100):
+            redo_movies_task.delay(list(chunk))
+        print("Sent all for processing")
 
     return HttpResponse(start_background_process(work, 'redo_persistence', 'Redoing Persistence'))
 
 
 def create_flattened_structure(request):
     def work():
-        movies = Movie.objects.all()
-        count = 0
         FlattenedMovie.objects().all().delete()
-        for chunk in chunks(movies, 100):
-            to_insert = [FlattenedMovie.create(movie) for movie in chunk]
-            FlattenedMovie.objects.insert(to_insert)
-            count += len(to_insert)
-            print("Persisted: %s" % count)
+        for chunk in chunks(Movie.objects.all().values_list('id'), 100):
+            flattify_movies.delay(list(chunk))
 
     return HttpResponse(start_background_process(work, 'flattify_movies', 'Redoing Persistence'))
 

@@ -6,9 +6,9 @@ from sentry_sdk.crons import monitor
 from django.db import transaction
 from channels.layers import get_channel_layer
 
+from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
 from app.helper import chunks, __send_data_to_channel, __unzip_file, __log_progress
 from app.models import Movie, AlternativeTitles, FlattenedMovie
-from mongoengine.queryset.visitor import Q
 
 
 @monitor(monitor_slug='import_imdb_ratings')
@@ -28,32 +28,9 @@ def import_imdb_ratings():
         contents = __unzip_file('title.ratings.tsv.gz')
         length = len(contents)
         reader = csv.reader(contents, delimiter='\t')
-        all_imdb_ids = FlattenedMovie.objects(imdb_id__exists=True).values_list('imdb_id')
         next(reader)
-
-        count = 0
         for chunk in chunks(__log_progress(reader, "Processing IMDB Titles", length), 100):
-            movies = dict()
-            for movie in chunk:
-                if movie[0] in all_imdb_ids:
-                    movies[movie[0]] = movie
-            data = Movie.objects.filter(imdb_id__in=movies.keys())
-            with transaction.atomic():
-                bulk = []
-                for db_row in data:
-                    data = movies[db_row.imdb_id]
-                    db_row.imdb_vote_average = data[1]
-                    db_row.imdb_vote_count = data[2]
-                    db_row.weighted_rating = db_row.calculate_weighted_rating_log()
-                    bulk.append(db_row)
-                if bulk:
-                    with transaction.atomic():
-                        FlattenedMovie.objects.bulk_update(bulk, ["imdb_vote_average",
-                                                                  "imdb_vote_count",
-                                                                  "weighted_rating"])
-                count += len(movies.keys())
-                __send_data_to_channel(layer=layer,
-                                       message=f"Processed {len(movies.keys())} ratings out of {count}/{length}")
+            import_imdb_ratings_task.delay(list(chunk))
     else:
         __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
 
@@ -80,25 +57,7 @@ def import_imdb_alt_titles():
         next(reader)  # Skip header
 
         for chunk in chunks(__log_progress(reader, "Processing IMDB Titles", count), 100):
-            chunked_map = dict()
-            [chunked_map.setdefault(x[0], []).append({"alt_title": x[2], "iso": x[3]}) for x in chunk]
-            fetched_movies = Movie.objects.filter(imdb_id__in=chunked_map.keys())
-
-            alt_titles = []
-            for fetched in fetched_movies:
-                for alt in chunked_map.get(fetched.imdb_id):
-                    iso = alt['iso']
-                    title = alt['alt_title']
-                    if iso != r'\N' and not fetched.alternative_titles.filter(title=title).exists():
-                        alt_title = AlternativeTitles(movie_id=fetched.id,
-                                                     iso_3166_1=iso,
-                                                     title=title,
-                                                     type='IMDB')
-                        alt_titles.append(alt_title)
-            if alt_titles:
-                with transaction.atomic():
-                    AlternativeTitles.objects.bulk_create(alt_titles)
+            import_imdb_titles_task.delay(list(chunk))
         print("Done")
     else:
         __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
-

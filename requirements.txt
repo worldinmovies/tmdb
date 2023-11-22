@@ -20,6 +20,8 @@ mongoengine==0.27.0
 
 Babel==2.13.1
 
+celery==5.3.5
+
 # For tests
 responses==0.24.1
 pylint-django==2.5.5

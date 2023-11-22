@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'app',
+    'celery',
     'corsheaders',
     'django_crontab',
 ]
@@ -64,9 +65,12 @@ CORS_ORIGIN_WHITELIST = (
 CSRF_ALLOWED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
 CSRF_TRUSTED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
 
+environment = os.environ.get('ENVIRONMENT', 'docker')
+rabbit_url = 'rabbitmq' if environment == 'docker' else 'localhost'
+CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', f"amqp://{rabbit_url}")
+CELERY_TIMEZONE = "Europe/Stockholm"
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
-environment = os.environ.get('ENVIRONMENT', 'docker')
 redis_url = 'redis' if environment == 'docker' else 'localhost'
 if 'test' in sys.argv:
     CHANNEL_LAYERS = {

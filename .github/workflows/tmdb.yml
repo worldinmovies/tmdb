@@ -119,7 +119,7 @@ jobs:
       - merge
     steps:
       - name: Trigger integration-test workflow
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: worldinmovies
           repo: integration-tests
