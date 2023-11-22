@@ -12,6 +12,7 @@ from mongoengine.fields import (ListField,
                                 BooleanField,
                                 FloatField,
                                 DateTimeField)
+from babel.languages import get_official_languages
 
 
 class Title(EmbeddedDocument):
@@ -238,7 +239,44 @@ class FlattenedMovie(DynamicDocument):
 
     meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country']}
 
-    def calculate_weighted_rating_bayes(self):
+    @staticmethod
+    def create(movie: MovieDetails):
+        return FlattenedMovie(id=movie['id'],
+                              backdrop_path=movie['backdrop_path'],
+                              belongs_to_collection=movie['belongs_to_collection'],
+                              budget=movie['budget'],
+                              genres=[x['name'] for x in movie['genres']],
+                              homepage=movie['homepage'],
+                              imdb_id=movie['imdb_id'],
+                              original_language=movie['original_language'],
+                              original_title=movie['original_title'],
+                              overview=movie['overview'],
+                              popularity=movie['popularity'],
+                              poster_path=movie['poster_path'],
+                              production_companies=movie['production_companies'],
+                              production_countries=[{"iso": x['iso_3166_1'], "name": x['name']} for x in
+                                                    movie['production_countries']],
+                              release_date=movie['release_date'],
+                              revenue=movie['revenue'],
+                              runtime=movie['runtime'],
+                              spoken_languages=[{"iso": x['iso_639_1'], "name": x['name']} for x in
+                                                movie['spoken_languages']],
+                              status=movie['status'],
+                              tagline=movie['tagline'],
+                              title=movie['title'],
+                              vote_average=movie['vote_average'],
+                              imdb_vote_average=0,
+                              vote_count=movie['vote_count'],
+                              imdb_vote_count=0,
+                              alternative_titles=movie['alternative_titles'],
+                              credits=movie['credits'],
+                              external_ids=movie['external_ids'],
+                              images=movie['images'],
+                              weighted_rating=FlattenedMovie.calculate_weighted_rating_bayes(movie),
+                              guessed_countries=FlattenedMovie.guess_countries(movie))
+
+    @staticmethod
+    def calculate_weighted_rating_bayes(movie: MovieDetails):
         """
         The formula for calculating the Top Rated 250 Titles gives a true Bayesian estimate:
         weighted rating (WR) = (v ÷ (v+m)) × R + (m ÷ (v+m)) × C where:
@@ -248,14 +286,25 @@ class FlattenedMovie(DynamicDocument):
         m = minimum votes required to be listed in the Top 250 (currently 25000)
         C = the mean vote across the whole report (currently 7.0)
         """
-
-        v = decimal.Decimal(self.vote_count) + \
-            decimal.Decimal(self.imdb_vote_count)
+        v = decimal.Decimal(movie['vote_count'])
         m = decimal.Decimal(200)
-        r = decimal.Decimal(self.vote_average) + \
-            decimal.Decimal(self.imdb_vote_average)
+        r = decimal.Decimal(movie['vote_average'])
         c = decimal.Decimal(4)
         return (v / (v + m)) * r + (m / (v + m)) * c
+
+    @staticmethod
+    def guess_countries(movie: MovieDetails):
+        orig_lang = movie['original_language']
+        countries = [x['iso_3166_1'] for x in movie['production_countries'] if x]
+
+        for country in [country for country in countries]:
+            official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
+            if orig_lang in official_langs:
+                return [country]
+        if countries:
+            return [countries[0]]
+        else:
+            return []
 
 
 class Movie(DynamicDocument):
@@ -266,7 +315,10 @@ class Movie(DynamicDocument):
     flattened_movie = ReferenceField(FlattenedMovie)
 
     @staticmethod
-    def add_references(all_genres, all_langs, all_countries, data):
+    def add_references(all_genres: dict[Genre],
+                       all_langs: dict[SpokenLanguage],
+                       all_countries: dict[ProductionCountries],
+                       data: dict):
         data['production_countries'] = [all_countries[country['iso_3166_1']] for country in
                                         data['production_countries']]
         data['spoken_languages'] = [all_langs[lang['iso_639_1']] for lang in data['spoken_languages']]

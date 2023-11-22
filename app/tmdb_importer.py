@@ -13,7 +13,7 @@ from sentry_sdk import monitor
 from urllib3.util.retry import Retry
 
 from app.helper import __send_data_to_channel, __log_progress, __unzip_file
-from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails
+from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails, FlattenedMovie
 
 
 @monitor(monitor_slug='base_import')
@@ -137,11 +137,15 @@ def fetch_tmdb_data_concurrently():
             try:
                 data = future.result()
                 if data is not None:
-                    db_movie = Movie.objects.get(pk=data['id'])
-                    new_or_update = 'UPDATE' if db_movie.data else 'NEW'
+                    movie = Movie.objects.get(pk=data['id'])
+                    new_or_update = 'UPDATE' if movie.data else 'NEW'
                     movie_details = Movie.add_references(all_genres, all_langs, all_countries, data)
-                    db_movie.add_fetched_info(MovieDetails(**movie_details))
-                    db_movie.save()
+                    movie_details = MovieDetails(**movie_details)
+                    movie.add_fetched_info(movie_details)
+                    flat_movie = FlattenedMovie.create(movie_details)
+                    flat_movie.save()
+                    movie.flattened_movie = flat_movie
+                    movie.save()
                 i += 1
             except Exception as exc:
                 print("Could not process data: %s" % exc)

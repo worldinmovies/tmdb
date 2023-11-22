@@ -9,7 +9,7 @@ import time
 
 from django.test import TransactionTestCase
 from django.db import transaction
-from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, MovieDetails
+from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, MovieDetails, FlattenedMovie
 from unittest.mock import patch
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -156,6 +156,7 @@ class ImportTests(SuperClass):
         self.assertEqual(response.status_code, 200)
         wait_until()
         self.assertEqual(Movie.objects.filter(fetched=True).count(), 1)
+        self.assertEqual(FlattenedMovie.objects(pk__exact=19995).count(), 1)
 
     @responses.activate
     def test_fetch_id_thats_removed_from_tmdb(self):
@@ -320,18 +321,15 @@ class CheckTMDBForChanges(SuperClass):
 
 class ViewBestOf(SuperClass):
     def test_verify_with_sweden(self):
-        already_fetched = Movie(id=490, fetched=True, fetched_date=datetime.datetime.now())
-        already_fetched.save()
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
-
         with open('testdata/sjunde_inseglet.json', 'rb') as img1:
             data = json.loads(img1.read())
-            data = Movie.add_references(all_genres, all_langs, all_countries, data)
-            already_fetched.data = MovieDetails(**data)
             with transaction.atomic():
-                already_fetched.save()
+                all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+                all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+                all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+
+                details = Movie.add_references(all_genres, all_langs, all_countries, data)
+                FlattenedMovie.create(details).save()
 
         response = self.client.get('/view/best/SE')
         self.assertEqual(response.status_code, 200)
@@ -339,18 +337,10 @@ class ViewBestOf(SuperClass):
         self.assertContains(response, 'Det sjunde inseglet')
 
     def test_verify_with_soviet(self):
-        already_fetched = Movie(id=1398, fetched=True, fetched_date=datetime.datetime.now())
-        already_fetched.save()
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
-
         with open('testdata/1398.json', 'rb') as img1:
             data = json.loads(img1.read())
-            data = Movie.add_references(all_genres, all_langs, all_countries, data)
-            already_fetched.data = MovieDetails(**data)
             with transaction.atomic():
-                already_fetched.save()
+                FlattenedMovie.create(MovieDetails(**data)).save()
 
         response = self.client.get('/view/best/SU')
         self.assertEqual(response.status_code, 200)
@@ -360,41 +350,25 @@ class ViewBestOf(SuperClass):
 
 class PersistMovie(SuperClass):
     def test_verify_with_sweden(self):
-        already_fetched = Movie(id=490, fetched=True, fetched_date=datetime.datetime.now())
-        already_fetched.save()
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
-
         with open('testdata/sjunde_inseglet.json', 'rb') as img1:
             data = json.loads(img1.read())
-            data = Movie.add_references(all_genres, all_langs, all_countries, data)
-            already_fetched.data = MovieDetails(**data)
-            already_fetched.save()
+            FlattenedMovie.create(MovieDetails(**data)).save()
 
         response = self.client.get('/movie/490')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"original_title": "Det sjunde inseglet"')
         self.assertContains(response, '"imdb_id": "tt0050976"')
-        self.assertContains(response, '"$id": "SE"')
+        self.assertContains(response, '"iso": "SE"')
 
     def test_verify_with_soviet(self):
-        already_fetched = Movie(id=1398, fetched=True, fetched_date=datetime.datetime.now())
-        already_fetched.save()
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
-
         with open('testdata/1398.json', 'rb') as img1:
             data = json.loads(img1.read())
-            data = Movie.add_references(all_genres, all_langs, all_countries, data)
-            already_fetched.data = MovieDetails(**data)
-            already_fetched.save()
+            FlattenedMovie.create(MovieDetails(**data)).save()
 
         response = self.client.get('/movie/1398')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"imdb_id": "tt0079944"')
-        self.assertContains(response, '"$id": "SU"')
+        self.assertContains(response, '"iso": "SU"')
 
 
 

@@ -6,7 +6,6 @@ import datetime
 import json
 import threading
 
-from babel.languages import get_official_languages
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
@@ -153,76 +152,12 @@ def create_flattened_structure(request):
         count = 0
         FlattenedMovie.objects().all().delete()
         for chunk in chunks(movies, 100):
-            to_insert = [FlattenedMovie(id=movie.id,
-                                        backdrop_path=movie.data.backdrop_path,
-                                        belongs_to_collection=movie.data.belongs_to_collection,
-                                        budget=movie.data.budget,
-                                        genres=[x.name for x in movie.data.genres],
-                                        homepage=movie.data.homepage,
-                                        imdb_id=movie.data.imdb_id,
-                                        original_language=movie.data.original_language,
-                                        original_title=movie.data.original_title,
-                                        overview=movie.data.overview,
-                                        popularity=movie.data.popularity,
-                                        poster_path=movie.data.poster_path,
-                                        production_companies=movie.data.production_companies,
-                                        production_countries=[{"iso": x.iso_3166_1, "name": x.name} for x in
-                                                              movie.data.production_countries],
-                                        release_date=movie.data.release_date,
-                                        revenue=movie.data.revenue,
-                                        runtime=movie.data.runtime,
-                                        spoken_languages=[{"iso": x.iso_639_1, "name": x.name} for x in
-                                                          movie.data.spoken_languages],
-                                        status=movie.data.status,
-                                        tagline=movie.data.tagline,
-                                        title=movie.data.title,
-                                        vote_average=movie.data.vote_average,
-                                        vote_count=movie.data.vote_count,
-                                        alternative_titles=movie.data.alternative_titles,
-                                        credits=movie.data.credits,
-                                        external_ids=movie.data.external_ids,
-                                        images=movie.data.images,
-                                        weighted_rating=calculate_weighted_rating_bayes(movie.data),
-                                        guessed_countries=guess_countries(movie.data)) for movie in chunk]
+            to_insert = [FlattenedMovie.create(movie) for movie in chunk]
             FlattenedMovie.objects.insert(to_insert)
             count += len(to_insert)
             print("Persisted: %s" % count)
 
     return HttpResponse(start_background_process(work, 'flattify_movies', 'Redoing Persistence'))
-
-
-def calculate_weighted_rating_bayes(movie):
-    """
-    The formula for calculating the Top Rated 250 Titles gives a true Bayesian estimate:
-    weighted rating (WR) = (v ÷ (v+m)) × R + (m ÷ (v+m)) × C where:
-
-    R = average for the movie (mean) = (Rating)
-    v = number of votes for the movie = (votes)
-    m = minimum votes required to be listed in the Top 250 (currently 25000)
-    C = the mean vote across the whole report (currently 7.0)
-    """
-
-    v = decimal.Decimal(movie.vote_count) + \
-        decimal.Decimal(movie.imdb_vote_count)
-    m = decimal.Decimal(200)
-    r = decimal.Decimal(movie.vote_average) + \
-        decimal.Decimal(movie.imdb_vote_average)
-    c = decimal.Decimal(4)
-    return (v / (v + m)) * r + (m / (v + m)) * c
-
-
-def guess_countries(movie):
-    orig_lang = movie.original_language
-    production_countries = [x.iso_3166_1 for x in movie.production_countries if x]
-
-    for country in [country for country in production_countries]:
-        official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
-        if orig_lang in official_langs:
-            return [country]
-    if production_countries:
-        return [production_countries[0]]
-    else:
-        return []
 
 
 @csrf_exempt
