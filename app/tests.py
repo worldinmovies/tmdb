@@ -1,3 +1,5 @@
+import json
+
 import datetime
 import gzip
 import io
@@ -7,10 +9,9 @@ import time
 
 from django.test import TransactionTestCase
 from django.db import transaction
-from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
+from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, MovieDetails
 from unittest.mock import patch
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-kafka_mock = "app.kafka.kafka.KafkaProducer"
 
 
 def wait_until(timeout=5, period=0.25, expected_calls=1):
@@ -60,13 +61,18 @@ class SuperClass(TransactionTestCase):
         with transaction.atomic():
             SpokenLanguage(iso_639_1='en', name='English').save()
             SpokenLanguage(iso_639_1='es', name='Spanish').save()
+            SpokenLanguage(iso_639_1='sv', name='Swedish').save()
+            SpokenLanguage(iso_639_1='ru', name='Russian').save()
             ProductionCountries(iso_3166_1='US', name='United States of america').save()
             ProductionCountries(iso_3166_1='AU', name='Australia').save()
             ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
+            ProductionCountries(iso_3166_1='SE', name='Sweden').save()
+            ProductionCountries(iso_3166_1='SU', name='Soviet').save()
             Genre(id=28, name="Action").save()
             Genre(id=12, name="Adventure").save()
             Genre(id=14, name="Fantasy").save()
             Genre(id=878, name="Science Fiction").save()
+            Genre(id=18, name="Drama").save()
             Movie.objects.all().delete()
         time.sleep(1)
 
@@ -312,18 +318,84 @@ class CheckTMDBForChanges(SuperClass):
         self.assertEqual(False, Movie.objects.get(pk=2).fetched)
 
 
-class GenerateDataDumpToKafka(SuperClass):
-    @responses.activate
-    def skip_test_generate_data(self):
-        for i in range(0, 5):
-            Movie(id=i, data={}, fetched=True).save()
+class ViewBestOf(SuperClass):
+    def test_verify_with_sweden(self):
+        already_fetched = Movie(id=490, fetched=True, fetched_date=datetime.datetime.now())
+        already_fetched.save()
+        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
 
-        with patch('app.views.produce') as mock:
-            response = self.client.get('/generate_kafka_dump')
-            self.assertEqual(response.status_code, 200)
-            args = mock.call_args_list
-            for i in range(0, 5):
-                self.assertEquals(args[i][0], ('NEW', i))
-                self.assertEquals(args[i][1], {'topic': 'data_dump'})
+        with open('testdata/sjunde_inseglet.json', 'rb') as img1:
+            data = json.loads(img1.read())
+            data = Movie.add_references(all_genres, all_langs, all_countries, data)
+            already_fetched.data = MovieDetails(**data)
+            with transaction.atomic():
+                already_fetched.save()
+
+        response = self.client.get('/view/best/SE')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content), "Response should contain an array but was: %s" % response.content)
+        self.assertContains(response, 'Det sjunde inseglet')
+
+    def test_verify_with_soviet(self):
+        already_fetched = Movie(id=1398, fetched=True, fetched_date=datetime.datetime.now())
+        already_fetched.save()
+        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+
+        with open('testdata/1398.json', 'rb') as img1:
+            data = json.loads(img1.read())
+            data = Movie.add_references(all_genres, all_langs, all_countries, data)
+            already_fetched.data = MovieDetails(**data)
+            with transaction.atomic():
+                already_fetched.save()
+
+        response = self.client.get('/view/best/SU')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content), "Response should contain an array but was: %s" % response.content)
+        self.assertContains(response, '"title": "Stalker"')
+
+
+class PersistMovie(SuperClass):
+    def test_verify_with_sweden(self):
+        already_fetched = Movie(id=490, fetched=True, fetched_date=datetime.datetime.now())
+        already_fetched.save()
+        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+
+        with open('testdata/sjunde_inseglet.json', 'rb') as img1:
+            data = json.loads(img1.read())
+            data = Movie.add_references(all_genres, all_langs, all_countries, data)
+            already_fetched.data = MovieDetails(**data)
+            already_fetched.save()
+
+        response = self.client.get('/movie/490')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"original_title": "Det sjunde inseglet"')
+        self.assertContains(response, '"imdb_id": "tt0050976"')
+        self.assertContains(response, '"$id": "SE"')
+
+    def test_verify_with_soviet(self):
+        already_fetched = Movie(id=1398, fetched=True, fetched_date=datetime.datetime.now())
+        already_fetched.save()
+        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
+        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+
+        with open('testdata/1398.json', 'rb') as img1:
+            data = json.loads(img1.read())
+            data = Movie.add_references(all_genres, all_langs, all_countries, data)
+            already_fetched.data = MovieDetails(**data)
+            already_fetched.save()
+
+        response = self.client.get('/movie/1398')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"imdb_id": "tt0079944"')
+        self.assertContains(response, '"$id": "SU"')
+
+
 
 

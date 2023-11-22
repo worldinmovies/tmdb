@@ -1,0 +1,608 @@
+{
+  "adult": false,
+  "backdrop_path": "/6yrbWzzrPp7pwz6zHdifspJk8t3.jpg",
+  "belongs_to_collection": null,
+  "budget": 120000,
+  "genres": [
+	{
+	  "id": 878,
+	  "name": "Science Fiction"
+	},
+	{
+	  "id": 18,
+	  "name": "Drama"
+	}
+  ],
+  "homepage": "",
+  "id": 1398,
+  "imdb_id": "tt0079944",
+  "original_language": "ru",
+  "original_title": "Сталкер",
+  "overview": "Near a gray and unnamed city is the Zone, a place guarded by barbed wire and soldiers, and where the normal laws of physics are victim to frequent anomalies. A stalker guides two men into the Zone, specifically to an area in which deep-seated desires are granted.",
+  "popularity": 27.496,
+  "poster_path": "/rem87AyEochEuhn9VvAGoMQpigz.jpg",
+  "production_companies": [
+	{
+	  "id": 344,
+	  "logo_path": "/xenuUvcunUNpbaDOYGhWZERaym7.png",
+	  "name": "Mosfilm",
+	  "origin_country": "SU"
+	}
+  ],
+  "production_countries": [
+	{
+	  "iso_3166_1": "SU",
+	  "name": "Soviet Union"
+	}
+  ],
+  "release_date": "1979-05-25",
+  "revenue": 0,
+  "runtime": 162,
+  "spoken_languages": [
+	{
+	  "english_name": "Russian",
+	  "iso_639_1": "ru",
+	  "name": "Pусский"
+	}
+  ],
+  "status": "Released",
+  "tagline": "",
+  "title": "Stalker",
+  "video": false,
+  "vote_average": 8.173,
+  "vote_count": 1895,
+  "alternative_titles": {
+	"titles": [
+	  {
+		"iso_3166_1": "AR",
+		"title": "La zona",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "TR",
+		"title": "İz Sürücü",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "KR",
+		"title": "스토커",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "KR",
+		"title": "잠입자",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "BG",
+		"title": "Сталкер",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "CN",
+		"title": "潜行者",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "DK",
+		"title": "Vandringsmanden",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "GE",
+		"title": "Stalkeri",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "GR",
+		"title": "Στάλκερ",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "HU",
+		"title": "Sztalker",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "JP",
+		"title": "ストーカー（1979）",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "LT",
+		"title": "Stalkeris",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "MX",
+		"title": "Stalker: La zona",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "RO",
+		"title": "Călăuza",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "RS",
+		"title": "Сталкер",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "TW",
+		"title": "潛行者",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "UA",
+		"title": "Сталкер",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "UY",
+		"title": "Stalker: La zona",
+		"type": ""
+	  },
+	  {
+		"iso_3166_1": "RU",
+		"title": "Roadside Picnic",
+		"type": "Novel"
+	  }
+	]
+  },
+  "credits": {
+	"cast": [
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 28078,
+		"known_for_department": "Acting",
+		"name": "Aleksandr Kaydanovskiy",
+		"original_name": "Aleksandr Kaydanovskiy",
+		"popularity": 1.942,
+		"profile_path": "/yHYfkxQu3GVKxx5ibFmEom8qAS6.jpg",
+		"cast_id": 6,
+		"character": "Stalker",
+		"credit_id": "52fe42f3c3a36847f802f15f",
+		"order": 0
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 8475,
+		"known_for_department": "Acting",
+		"name": "Anatoliy Solonitsyn",
+		"original_name": "Anatoliy Solonitsyn",
+		"popularity": 3.637,
+		"profile_path": "/n26seHxagKclpB2N7VWy8WQzyge.jpg",
+		"cast_id": 16,
+		"character": "Writer",
+		"credit_id": "52fe42f3c3a36847f802f17f",
+		"order": 1
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 1190992,
+		"known_for_department": "Acting",
+		"name": "Nikolay Grinko",
+		"original_name": "Nikolay Grinko",
+		"popularity": 2.695,
+		"profile_path": "/dvX2MO5Ewbymaz6CUl0egFulPaB.jpg",
+		"cast_id": 20,
+		"character": "Professor",
+		"credit_id": "52fe42f3c3a36847f802f187",
+		"order": 2
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 28079,
+		"known_for_department": "Acting",
+		"name": "Alisa Freyndlikh",
+		"original_name": "Alisa Freyndlikh",
+		"popularity": 2.664,
+		"profile_path": "/psK6Vqmz2e6DAjxfZb9HJuBbtWd.jpg",
+		"cast_id": 15,
+		"character": "Stalker's Wife",
+		"credit_id": "52fe42f3c3a36847f802f17b",
+		"order": 3
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 28080,
+		"known_for_department": "Acting",
+		"name": "Natasha Abramova",
+		"original_name": "Natasha Abramova",
+		"popularity": 1.388,
+		"profile_path": "/x7983v9vdcRxvG7UY8IbzWn9zqX.jpg",
+		"cast_id": 18,
+		"character": "Martha, Stalker's Daughter",
+		"credit_id": "52fe42f3c3a36847f802f183",
+		"order": 4
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 1073948,
+		"known_for_department": "Acting",
+		"name": "Faime Jurno",
+		"original_name": "Faime Jurno",
+		"popularity": 2.16,
+		"profile_path": "/g9Wm2ZkkTPghpvwdBZlAOXu7wqp.jpg",
+		"cast_id": 40,
+		"character": "Writer's Companion",
+		"credit_id": "5aee45ed0e0a261038002206",
+		"order": 5
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 1626954,
+		"known_for_department": "Acting",
+		"name": "Evgeniy Kostin",
+		"original_name": "Evgeniy Kostin",
+		"popularity": 1.22,
+		"profile_path": null,
+		"cast_id": 41,
+		"character": "Lyuger, Owner of Cafe",
+		"credit_id": "5aee4749c3a368078c001fdf",
+		"order": 6
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 2037109,
+		"known_for_department": "Acting",
+		"name": "Raymo Rendi",
+		"original_name": "Raymo Rendi",
+		"popularity": 1.407,
+		"profile_path": null,
+		"cast_id": 42,
+		"character": "Police Patrol",
+		"credit_id": "5aee47819251411983002a07",
+		"order": 7
+	  }
+	],
+	"crew": [
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 8452,
+		"known_for_department": "Directing",
+		"name": "Andrei Tarkovsky",
+		"original_name": "Andrei Tarkovsky",
+		"popularity": 8.756,
+		"profile_path": "/j0toVLrgLNuyGnUxGPnSfnPiSf5.jpg",
+		"credit_id": "599a08469251414a0d005c83",
+		"department": "Writing",
+		"job": "Screenplay"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 8452,
+		"known_for_department": "Directing",
+		"name": "Andrei Tarkovsky",
+		"original_name": "Andrei Tarkovsky",
+		"popularity": 8.756,
+		"profile_path": "/j0toVLrgLNuyGnUxGPnSfnPiSf5.jpg",
+		"credit_id": "52fe42f3c3a36847f802f143",
+		"department": "Directing",
+		"job": "Director"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 8452,
+		"known_for_department": "Directing",
+		"name": "Andrei Tarkovsky",
+		"original_name": "Andrei Tarkovsky",
+		"popularity": 8.756,
+		"profile_path": "/j0toVLrgLNuyGnUxGPnSfnPiSf5.jpg",
+		"credit_id": "599a089dc3a3683978005899",
+		"department": "Art",
+		"job": "Production Design"
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 8463,
+		"known_for_department": "Editing",
+		"name": "Lyudmila Feiginova",
+		"original_name": "Lyudmila Feiginova",
+		"popularity": 0.652,
+		"profile_path": "/RKVyuvv5ZqGf9rjIkRWepJywcy.jpg",
+		"credit_id": "52fe42f3c3a36847f802f171",
+		"department": "Editing",
+		"job": "Editor"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 8467,
+		"known_for_department": "Costume & Make-Up",
+		"name": "Nelli Fomina",
+		"original_name": "Nelli Fomina",
+		"popularity": 0.6,
+		"profile_path": null,
+		"credit_id": "56d4ff33c3a3682cef004753",
+		"department": "Costume & Make-Up",
+		"job": "Costume Design"
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 8471,
+		"known_for_department": "Acting",
+		"name": "Larisa Tarkovskaya",
+		"original_name": "Larisa Tarkovskaya",
+		"popularity": 2.799,
+		"profile_path": null,
+		"credit_id": "56d4ff4dc3a3682cef004762",
+		"department": "Directing",
+		"job": "Assistant Director"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 55518,
+		"known_for_department": "Camera",
+		"name": "Georgi Rerberg",
+		"original_name": "Georgi Rerberg",
+		"popularity": 1.265,
+		"profile_path": "/vNRuqSCtwqWGKXgS8yJYvO9RZX5.jpg",
+		"credit_id": "62e7e781fdf8b7005e739817",
+		"department": "Crew",
+		"job": "Cinematography"
+	  },
+	  {
+		"adult": false,
+		"gender": 1,
+		"id": 28081,
+		"known_for_department": "Production",
+		"name": "Aleksandra Demidova",
+		"original_name": "Aleksandra Demidova",
+		"popularity": 0.6,
+		"profile_path": null,
+		"credit_id": "52fe42f3c3a36847f802f165",
+		"department": "Production",
+		"job": "Producer"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 28082,
+		"known_for_department": "Camera",
+		"name": "Aleksandr Knyazhinsky",
+		"original_name": "Aleksandr Knyazhinsky",
+		"popularity": 0.6,
+		"profile_path": "/5qY91CvBeXxGO7FScdqvyp37Hqh.jpg",
+		"credit_id": "52fe42f3c3a36847f802f16b",
+		"department": "Camera",
+		"job": "Director of Photography"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 28083,
+		"known_for_department": "Sound",
+		"name": "Raisa Lukina",
+		"original_name": "Raisa Lukina",
+		"popularity": 0.706,
+		"profile_path": null,
+		"credit_id": "52fe42f3c3a36847f802f177",
+		"department": "Sound",
+		"job": "Music Editor"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 47917,
+		"known_for_department": "Camera",
+		"name": "Leonid Kalashnikov",
+		"original_name": "Leonid Kalashnikov",
+		"popularity": 1.164,
+		"profile_path": null,
+		"credit_id": "599a08739251414a21005ae4",
+		"department": "Camera",
+		"job": "Director of Photography"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 150634,
+		"known_for_department": "Writing",
+		"name": "Arkadiy Strugatskiy",
+		"original_name": "Arkadiy Strugatskiy",
+		"popularity": 2.557,
+		"profile_path": "/dVqqW6CzTSTGnUUr9I74wOKhy9y.jpg",
+		"credit_id": "535189710e0a2655fe0018a8",
+		"department": "Writing",
+		"job": "Writer"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 150635,
+		"known_for_department": "Writing",
+		"name": "Boris Strugatskiy",
+		"original_name": "Boris Strugatskiy",
+		"popularity": 1.655,
+		"profile_path": "/oXXFL4yQuJaVPklkWlZwiDpCMCo.jpg",
+		"credit_id": "5babec64c3a3683aa202bab2",
+		"department": "Writing",
+		"job": "Writer"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 560802,
+		"known_for_department": "Sound",
+		"name": "Eduard Artemyev",
+		"original_name": "Eduard Artemyev",
+		"popularity": 1.566,
+		"profile_path": "/y6VkMfxIpuiP8RmWCFO52ev4r2T.jpg",
+		"credit_id": "5afdb0b40e0a267ede000578",
+		"department": "Sound",
+		"job": "Original Music Composer"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 591945,
+		"known_for_department": "Directing",
+		"name": "Evgeny Tsymbal",
+		"original_name": "Evgeny Tsymbal",
+		"popularity": 1.674,
+		"profile_path": "/1cHODRwYLcRWatSG2JrOLGnAyvi.jpg",
+		"credit_id": "56d4ff459251410bd1003f5e",
+		"department": "Directing",
+		"job": "Assistant Director"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 1086268,
+		"known_for_department": "Directing",
+		"name": "Arvo Iho",
+		"original_name": "Arvo Iho",
+		"popularity": 0.84,
+		"profile_path": "/gexJWdQbtpMhwqXTAnp3MgG7ZU1.jpg",
+		"credit_id": "639c265f075288008c9692d1",
+		"department": "Directing",
+		"job": "Assistant Director"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1092909,
+		"known_for_department": "Production",
+		"name": "Willie Geller",
+		"original_name": "Willie Geller",
+		"popularity": 0.828,
+		"profile_path": null,
+		"credit_id": "61ae509baafebd009518a35a",
+		"department": "Production",
+		"job": "Production Manager"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1584740,
+		"known_for_department": "Art",
+		"name": "Shavkat Abdusalamov",
+		"original_name": "Shavkat Abdusalamov",
+		"popularity": 0.84,
+		"profile_path": null,
+		"credit_id": "56d4ff23c3a36870ac0024d1",
+		"department": "Art",
+		"job": "Art Direction"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1584741,
+		"known_for_department": "Art",
+		"name": "Rashit Safiullin",
+		"original_name": "Rashit Safiullin",
+		"popularity": 0.84,
+		"profile_path": null,
+		"credit_id": "56d4ff2a9251413932002315",
+		"department": "Art",
+		"job": "Set Decoration"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 1584742,
+		"known_for_department": "Costume & Make-Up",
+		"name": "Vitaliy Lvov",
+		"original_name": "Vitaliy Lvov",
+		"popularity": 0.84,
+		"profile_path": null,
+		"credit_id": "56d4ff3ac3a3682cef004756",
+		"department": "Costume & Make-Up",
+		"job": "Makeup Artist"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1584743,
+		"known_for_department": "Directing",
+		"name": "Mariya Chugunova",
+		"original_name": "Mariya Chugunova",
+		"popularity": 0.828,
+		"profile_path": null,
+		"credit_id": "56d4ff55c3a3681e4a0155db",
+		"department": "Directing",
+		"job": "Assistant Director"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1584744,
+		"known_for_department": "Sound",
+		"name": "Vladimir Sharun",
+		"original_name": "Vladimir Sharun",
+		"popularity": 0.84,
+		"profile_path": null,
+		"credit_id": "599a08be92514149cc005d6f",
+		"department": "Sound",
+		"job": "Sound Designer"
+	  },
+	  {
+		"adult": false,
+		"gender": 0,
+		"id": 1585388,
+		"known_for_department": "Art",
+		"name": "Aleksan",
+		"original_name": "Aleksan",
+		"popularity": 0.84,
+		"profile_path": null,
+		"credit_id": "599a08959251414a0600592f",
+		"department": "Art",
+		"job": "Production Design"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 2353458,
+		"known_for_department": "Crew",
+		"name": "Arseny Tarkovsky",
+		"original_name": "Arseny Tarkovsky",
+		"popularity": 0.84,
+		"profile_path": "/2AsxBK9pa9TMkcVXrQtOr2qLYJ6.jpg",
+		"credit_id": "6494c90ed236e6011e098ddd",
+		"department": "Crew",
+		"job": "Poem"
+	  },
+	  {
+		"adult": false,
+		"gender": 2,
+		"id": 2794161,
+		"known_for_department": "Art",
+		"name": "Aleksandr Boym",
+		"original_name": "Aleksandr Boym",
+		"popularity": 0.702,
+		"profile_path": null,
+		"credit_id": "633becd6cf48a10082245dc2",
+		"department": "Art",
+		"job": "Production Design"
+	  }
+	]
+  },
+  "external_ids": {
+	"imdb_id": "tt0079944",
+	"wikidata_id": "Q200437",
+	"facebook_id": null,
+	"instagram_id": null,
+	"twitter_id": null
+  },
+  "images": {
+	"backdrops": [],
+	"logos": [],
+	"posters": []
+  }
+}

@@ -21,3 +21,11 @@ docker cp mongo:/datadump.json .
 docker cp datadump.json mongo:/ 
 docker exec -ti mongo mongoimport -d tmdb -c movie --mode upsert --file datadump.json
 ```
+
+
+```bash
+
+docker buildx build --platform linux/amd64,linux/arm64 -t seppaleinen/worldinmovies_tmdb:latest .
+
+
+```

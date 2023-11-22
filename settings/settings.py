@@ -36,9 +36,13 @@ INSTALLED_APPS = [
 ]
 
 CRONJOBS = [
-    ('0 9 * * *', 'app.importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
-    ('0 10 * * *', 'app.importer.base_import', '>> /tmp/scheduled_job.log'),
-    ('0 */2 * * *', 'app.importer.fetch_tmdb_data_concurrently', '>> /tmp/scheduled_job.log')
+    # TMDB
+    ('0 9 * * *', 'app.tmdb_importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
+    ('0 10 * * *', 'app.tmdb_importer.base_import', '>> /tmp/scheduled_job.log'),
+    ('0 */2 * * *', 'app.tmdb_importer.fetch_tmdb_data_concurrently', '>> /tmp/scheduled_job.log'),
+    # IMDB
+    ('0 1 * * *', 'app.imdb_importer.import_imdb_ratings', '>> /tmp/scheduled_job.log'),
+    ('0 0 * * 1', 'app.imdb_importer.import_imdb_alt_titles', '>> /tmp/scheduled_job.log'),
 ]
 
 MIDDLEWARE = [
@@ -49,11 +53,17 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+)
+
+CSRF_ALLOWED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
+
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 environment = os.environ.get('ENVIRONMENT', 'docker')

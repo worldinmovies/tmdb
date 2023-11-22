@@ -12,14 +12,21 @@ urlpatterns = [
     path('import/tmdb/countries',           views.fetch_countries),
     path('import/tmdb/languages',           views.fetch_languages),
     path('import/tmdb/changes',             views.check_tmdb_for_changes),
+
+    # IMDB
+    path('import/imdb/ratings',             views.fetch_imdb_ratings),
+    path('import/imdb/titles',              views.fetch_imdb_titles),
+    path('imdb/ratings',                    views.ratings),
+
     path('dump/genres',                     views.dump_genres),
     path('dump/langs',                      views.dump_langs),
     path('dump/countries',                  views.dump_countries),
-    path('dump/movies',                     views.generate_kafka_dump),
+    path('redo/movies',                     views.redo_movies),
+    path('redo/flat',                       views.create_flattened_structure),
     path('view/best/<str:country_code>',    views.get_best_movies_from_country),
     path('movie/<str:ids>',                 views.fetch_movie_data),
     re_path(r'^status$',                    views.import_status),
-    re_path(r'^health/',                    include('health_check.urls')) # Should remove to mitigate ddos-risk
+    re_path(r'^health/',                    include('health_check.urls'))  # Should remove to mitigate ddos-risk
 ]
 
 

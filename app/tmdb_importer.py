@@ -1,11 +1,9 @@
 import concurrent.futures
 import datetime
-import gzip
 import json
 import os
 import requests
 import time
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db import transaction
 from itertools import chain, islice
@@ -14,7 +12,7 @@ from requests.adapters import HTTPAdapter
 from sentry_sdk import monitor
 from urllib3.util.retry import Retry
 
-from app.kafka import produce
+from app.helper import __send_data_to_channel, __log_progress, __unzip_file
 from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails
 
 
@@ -85,13 +83,6 @@ def download_files():
         __send_data_to_channel(layer=layer, message="Error downloading files: %s - %s" % (response.status_code, response.content))
 
 
-def __unzip_file(file_name):
-    f = gzip.open(file_name, 'rt', encoding='utf-8')
-    file_content = f.read()
-    f.close()
-    return file_content.splitlines()
-
-
 def __fetch_movie_with_id(id, index):
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/movie/{id}?api_key={api_key}&language=en-US&append_to_response=alternative_titles,credits,external_ids,images,account_states"
@@ -120,7 +111,6 @@ def __fetch_movie_with_id(id, index):
         return __fetch_movie_with_id(id, index)
     elif response.status_code == 404:
         Movie.objects.get(pk=id).delete()
-        produce('DELETED', id)
         print("Deleting movie with id: %s as it's not in tmdb anymore" % id)
         return None
     else:
@@ -149,16 +139,9 @@ def fetch_tmdb_data_concurrently():
                 if data is not None:
                     db_movie = Movie.objects.get(pk=data['id'])
                     new_or_update = 'UPDATE' if db_movie.data else 'NEW'
-                    countries = [all_countries[country['iso_3166_1']] for country in data['production_countries']]
-                    langs = [all_langs[lang['iso_639_1']] for lang in data['spoken_languages']]
-                    genres = [all_genres[genre['id']] for genre in data['genres']]
-                    data['production_countries'] = countries
-                    data['spoken_languages'] = langs
-                    data['genres'] = genres
-                    db_movie.add_fetched_info(MovieDetails(**data))
-
+                    movie_details = Movie.add_references(all_genres, all_langs, all_countries, data)
+                    db_movie.add_fetched_info(MovieDetails(**movie_details))
                     db_movie.save()
-                    produce(new_or_update, data['id'])
                 i += 1
             except Exception as exc:
                 print("Could not process data: %s" % exc)
@@ -262,23 +245,3 @@ def cron_endpoint_for_checking_updateable_movies():
     start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     end_date = (datetime.date.today()).strftime("%Y-%m-%d")
     check_which_movies_needs_update(start_date, end_date)
-
-
-def __log_progress(iterable, message, length=None):
-    datetime_format = "%Y-%m-%d %H:%M:%S"
-    count = 1
-    percentage = 0
-    total_count = length if length else len(iterable)
-    layer = get_channel_layer()
-    for i in iterable:
-        temp_perc = int(100 * count / total_count)
-        if percentage != temp_perc:
-            percentage = temp_perc
-            __send_data_to_channel(layer=layer, message=f"{message} data handling in progress - {percentage}%")
-            print(f"{datetime.datetime.now().strftime(datetime_format)} - {message} data handling in progress - {percentage}%")
-        count += 1
-        yield i
-
-
-def __send_data_to_channel(message, layer=get_channel_layer()):
-    async_to_sync(layer.group_send)('group', {"type": "events", "message": json.dumps(message)})

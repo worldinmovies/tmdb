@@ -1,8 +1,14 @@
+import gzip
+
+import datetime
+
 import json
 
 import threading
 
 from itertools import chain, islice
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 
 def convert_country_code(country_code):
@@ -50,8 +56,8 @@ def convert_country_code(country_code):
 
     for old_code, new_codes in code_dict.items():
         if country_code in new_codes:
-            return f"'{old_code}', '{country_code}'"
-    return f"'{country_code}'"
+            return [old_code, country_code]
+    return [country_code]
 
 
 def chunks(iterable, size=100):
@@ -68,3 +74,31 @@ def start_background_process(target, thread_name, log_id):
         return json.dumps({"Message": f"Starting to process {log_id}"})
     else:
         return json.dumps({"Message": f"{log_id} process already started"})
+
+
+def __send_data_to_channel(message, layer=get_channel_layer()):
+    print(message)
+    async_to_sync(layer.group_send)('group', {"type": "events", "message": json.dumps(message)})
+
+
+def __log_progress(iterable, message, length=None):
+    datetime_format = "%Y-%m-%d %H:%M:%S"
+    count = 1
+    percentage = 0
+    total_count = length if length else len(iterable)
+    layer = get_channel_layer()
+    for i in iterable:
+        temp_perc = int(100 * count / total_count)
+        if percentage != temp_perc:
+            percentage = temp_perc
+            __send_data_to_channel(layer=layer, message=f"{message} data handling in progress - {percentage}%")
+            print(f"{datetime.datetime.now().strftime(datetime_format)} - {message} data handling in progress - {percentage}%")
+        count += 1
+        yield i
+
+
+def __unzip_file(file_name):
+    f = gzip.open(file_name, 'rt', encoding='utf-8')
+    file_content = f.read()
+    f.close()
+    return file_content.splitlines()
