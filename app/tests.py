@@ -10,11 +10,11 @@ import time
 from django.test import TransactionTestCase
 from django.db import transaction
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, MovieDetails, FlattenedMovie
-from unittest.mock import patch
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from django.test.utils import override_settings
 
 
-def wait_until(timeout=5, period=0.25, expected_calls=1):
+def wait_until_calls_equals_expected(timeout=5, period=0.25, expected_calls=1):
     mustend = time.time() + timeout
     while time.time() < mustend:
         if len(responses.calls) == expected_calls:
@@ -23,7 +23,7 @@ def wait_until(timeout=5, period=0.25, expected_calls=1):
     return False
 
 
-def wait_until3(func, timeout=5, period=0.25):
+def wait_until(func, timeout=5, period=0.25):
     mustend = time.time() + timeout
     while time.time() < mustend:
         if func:
@@ -32,7 +32,7 @@ def wait_until3(func, timeout=5, period=0.25):
     return False
 
 
-def wait_until2(id, timeout=5, period=0.25):
+def wait_until_movies_zero(id, timeout=5, period=0.25):
     mustend = time.time() + timeout
     while time.time() < mustend:
         if Movie.objects.filter(pk=id).count() == 0:
@@ -54,6 +54,9 @@ def mock_response(url, path=None):
 
 
 class SuperClass(TransactionTestCase):
+    @override_settings(CELERY_TASK_EAGER_PROPAGATES=True,
+                       CELERY_TASK_ALWAYS_EAGER=True,
+                       CELERY_BROKER_URL='memory://')
     def setUp(self):
         self.maxDiff = None
         self._environ = dict(os.environ)
@@ -101,7 +104,7 @@ class ImportTests(SuperClass):
         self.assertEqual(Movie.objects.all().count(), 0)
         response = self.client.get('/import/tmdb/daily')
         self.assertEqual(response.status_code, 200)
-        wait_until3(Movie.objects.all().count() == 3)
+        wait_until(Movie.objects.all().count() == 3)
         self.assertEqual(Movie.objects.all().count(), 3)
 
     @responses.activate
@@ -117,7 +120,7 @@ class ImportTests(SuperClass):
         self.assertEqual(Movie.objects.filter(pk=604).count(), 1)
         response = self.client.get('/import/tmdb/daily')
         self.assertEqual(response.status_code, 200)
-        wait_until3(Movie.objects.filter(pk=604).count() == 0)
+        wait_until(Movie.objects.filter(pk=604).count() == 0)
         self.assertEqual(Movie.objects.filter(pk=604).count(), 0)
 
     @responses.activate
@@ -137,7 +140,7 @@ class ImportTests(SuperClass):
 
         response = self.client.get('/import/tmdb/data')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(Movie.objects.filter(fetched=False).count(), 0)
 
     @responses.activate
@@ -154,7 +157,7 @@ class ImportTests(SuperClass):
 
         response = self.client.get('/import/tmdb/data')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(Movie.objects.filter(fetched=True).count(), 1)
         self.assertEqual(FlattenedMovie.objects(pk__exact=19995).count(), 1)
 
@@ -179,7 +182,7 @@ class ImportTests(SuperClass):
         self.assertEqual(Movie.objects.filter(pk=123).count(), 1)
         response = self.client.get('/import/tmdb/data')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(Movie.objects.filter(pk=123).count(), 0)
 
     @responses.activate
@@ -197,7 +200,7 @@ class ImportTests(SuperClass):
         mock_response(url, "testdata/601.json")
 
         response = self.client.get('/import/tmdb/data')
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(len(responses.calls), 1)
         self.assertEqual(responses.calls[0].request.url, url)
         self.assertEqual(response.status_code, 200)
@@ -241,7 +244,7 @@ class FetchBaseData(SuperClass):
 
         response = self.client.get('/import/tmdb/countries')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(len(responses.calls), 1)
         self.assertEqual(responses.calls[0].request.url, url)
         self.assertEqual(ProductionCountries.objects.count(), 247)
@@ -254,7 +257,7 @@ class FetchBaseData(SuperClass):
         response = self.client.get('/import/tmdb/languages')
         self.maxDiff = None
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(len(responses.calls), 1)
         self.assertEqual(responses.calls[0].request.url, url)
         self.assertEqual(SpokenLanguage.objects.count(), 187)
@@ -266,7 +269,7 @@ class FetchBaseData(SuperClass):
 
         response = self.client.get('/import/tmdb/genres')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(len(responses.calls), 1)
         self.assertEqual(responses.calls[0].request.url, url)
         self.assertEqual(Genre.objects.count(), 19)
@@ -288,7 +291,7 @@ class FetchBaseData(SuperClass):
         response = self.client.get('/import/base')
         self.maxDiff = None
         self.assertEqual(response.status_code, 200)
-        wait_until(expected_calls=4)
+        wait_until_calls_equals_expected(expected_calls=4)
         self.assertEqual(len(responses.calls), 4)
         self.assertEqual(responses.calls[0].request.url, daily_url)
         self.assertEqual(responses.calls[1].request.url, genres_url)
@@ -312,7 +315,7 @@ class CheckTMDBForChanges(SuperClass):
 
         response = self.client.get('/import/tmdb/changes?start_date=2019-01-01&end_date=2019-01-02')
         self.assertEqual(response.status_code, 200)
-        wait_until()
+        wait_until_calls_equals_expected()
         self.assertEqual(len(responses.calls), 1)
         self.assertEqual(responses.calls[0].request.url, url)
         self.assertEqual(False, Movie.objects.get(pk=1).fetched)
