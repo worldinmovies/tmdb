@@ -5,17 +5,18 @@ import os
 import mongomock
 import sentry_sdk
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!xr(&l&-)*&!$kfj_&!ku#@%z8+ox4kb$y(k$nh8ur8b5wjshj'
-
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '!xr(&l&-)*&!$kfj_&!ku#@%z8+ox4kb$y(k$nh8ur8b5wjshj')
 DEBUG = False
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'Europe/Stockholm'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
 
 # Application definition
 
@@ -56,19 +57,33 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ['*']
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
+CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_HOSTS = ['*',]
+# ALLOWED_HOSTS = ['*']
+# CORS_ORIGIN_WHITELIST = (
+#    'http://localhost:3000',
+#    'https://webapp.localhost'
+# )
 
-CSRF_ALLOWED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
-CSRF_TRUSTED_ORIGINS = ['https://worldinmovies.duckdns.org', 'http://127.0.0.1:3000', 'http://localhost:3000']
+# CSRF_ALLOWED_ORIGINS = ['https://worldinmovies.duckdns.org',
+#                        'http://127.0.0.1:3000',
+#                        'http://localhost:3000',
+#                        'https://webapp.localhost']
+# CSRF_TRUSTED_ORIGINS = ['https://worldinmovies.duckdns.org',
+#                        'http://127.0.0.1:3000',
+#                        'http://localhost:3000',
+#                        'https://webapp.localhost']
 
 environment = os.environ.get('ENVIRONMENT', 'docker')
-rabbit_url = 'rabbitmq' if environment == 'docker' else 'localhost'
-CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', f"amqp://{rabbit_url}")
+
+# RABBITMQ
+rabbit_url = os.environ.get('RABBITMQ_URL', 'rabbitmq')
+mq_user = os.environ.get('RABBITMQ_DEFAULT_USER', 'seppa')
+mq_pass = os.environ.get('RABBITMQ_DEFAULT_PASS', 'password')
+CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', f"amqp://{mq_user}:{mq_pass}@{rabbit_url}")
 CELERY_TIMEZONE = "Europe/Stockholm"
+
+
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 redis_url = 'redis' if environment == 'docker' else 'localhost'
@@ -88,17 +103,13 @@ else:
         }
     }
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+# ---------------- MONGO -----------------
 
-PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
-
-if environment == 'docker':
+if environment == 'docker' or environment == 'localhost':
     mongo_url = 'mongo:27017'
-    mongoengine.connect(db='tmdb', host=mongo_url, username='', password='')
-elif environment == 'localhost':
-    mongo_url = 'localhost:27017'
-    mongoengine.connect(db='tmdb', host=mongo_url, username='', password='')
+    mongo_user = os.environ.get('MONGO_USER',       'seppa')
+    mongo_pass = os.environ.get('MONGO_PASSWORD',   'password')
+    mongoengine.connect(db='tmdb', host=mongo_url, port=27017, username='', password='', serverSelectionTimeoutMS=3000)
 else:
     mongo_url = 'localhost:27018'
     mongoengine.connect(db='tmdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient, username='', password='')
@@ -127,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+# ------------------ SENTRY ------------------
 sentryApi = os.getenv('SENTRY_API', '')
 if sentryApi:
     sentry_sdk.init(
@@ -142,12 +153,6 @@ if sentryApi:
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Europe/Stockholm'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
 
 LOGGING = {
     'version': 1,

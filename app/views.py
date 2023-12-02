@@ -107,8 +107,7 @@ def check_tmdb_for_changes(request):
 
 
 def fetch_movie_data(request, ids):
-    movie_ids = list(map(lambda x: int(x), ids.split(',')))
-    data_list = FlattenedMovie.objects(pk__in=movie_ids).to_json()
+    data_list = FlattenedMovie.objects(pk__in=map(lambda x: int(x), ids.split(','))).to_json()
     return HttpResponse(data_list, content_type='application/json')
 
 

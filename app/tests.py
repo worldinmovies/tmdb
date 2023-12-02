@@ -10,8 +10,9 @@ import time
 from django.test import TransactionTestCase
 from django.db import transaction
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, MovieDetails, FlattenedMovie
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 from django.test.utils import override_settings
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def wait_until_calls_equals_expected(timeout=5, period=0.25, expected_calls=1):
@@ -305,12 +306,13 @@ class FetchBaseData(SuperClass):
 
 class CheckTMDBForChanges(SuperClass):
     @responses.activate
-    def test_1(self):
+    def verify_tmdb_changes(self):
         Movie(id=1, data={}, fetched=True, fetched_date=datetime.date.fromisoformat("2018-01-01")).save()
         Movie(id=2, data={}, fetched=True, fetched_date=datetime.date.fromisoformat("2018-01-01")).save()
 
         url = "https://api.themoviedb.org/3/movie/changes?api_key=test&start_date=2019-01-01&end_date=2019-01-02&page=1"
-        body = '{"results": [{"id": 1,"adult": false},{"id": 2,"adult": false},{"id": 3,"adult": true}],"page": 1,"total_pages": 1,"total_results": 1}'
+        body = ('{"results": [{"id": 1,"adult": false},{"id": 2,"adult": false},{"id": 3,"adult": true}],"page": 1,'
+                '"total_pages": 1,"total_results": 1}')
         responses.add(responses.GET, url, body=body, status=200, stream=True)
 
         response = self.client.get('/import/tmdb/changes?start_date=2019-01-01&end_date=2019-01-02')
@@ -372,7 +374,3 @@ class PersistMovie(SuperClass):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"imdb_id": "tt0079944"')
         self.assertContains(response, '"iso": "SU"')
-
-
-
-

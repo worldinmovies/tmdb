@@ -30,4 +30,7 @@ ADD .. /app
 
 WORKDIR /app
 
+HEALTHCHECK  --interval=5m --timeout=2s --start-period=3s --retries=0 CMD curl -k --fail http://localhost:8020/health
+
+
 ENTRYPOINT ["/bin/sh", "-c", "python manage.py crontab add && crond & gunicorn --config=gunicorn.config.py -k uvicorn.workers.UvicornWorker --reload settings.asgi"]
