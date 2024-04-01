@@ -8,7 +8,7 @@ django-crontab==0.7.1
 django-health-check==3.17.0
 channels==4.0.0
 daphne==4.0.0
-uvicorn==0.24.0.post1
+uvicorn==0.29
 websockets==12.0
 channels_redis~=4.1.0
 pykerberos==1.2.4

@@ -57,11 +57,68 @@ def get_best_movies_from_country(request, country_code):
     skip = int(request.GET.get('skip', 0))
     limit = int(request.GET.get('limit', 20))
     country_codes = convert_country_code(country_code)
-    data = (FlattenedMovie.objects(guessed_countries__in=country_codes)
+    data = get_movies_from_country_codes(country_codes, limit, skip)
+    return HttpResponse(data.to_json(), content_type='application/json')
+
+
+# Get the best movie from each country until you've gone through all countries,
+# then reset the country-list, go through everything again but get the next best film, and so on...
+def get_best_randoms(request, movies=0):
+    limit = int(request.GET.get('limit', 4))
+    no_of_countries = ProductionCountries.objects.all().count()
+    countries_skip = movies % no_of_countries
+    movie_skip = int(movies / no_of_countries) + 1
+    countries = (ProductionCountries.objects()
+                 .order_by('iso_3166_1')
+                 .skip(countries_skip)
+                 .limit(limit))
+    movies = FlattenedMovie.objects.aggregate([
+        {
+            '$match': {
+                'guessed_countries': {
+                    '$in':
+                        [x['iso_3166_1'] for x in countries]
+                }
+            }
+        }, {
+            '$sort': {
+                'weighted_rating': -1
+            }
+        }, {
+            '$group': {
+                '_id': '$guessed_countries',
+                'movie': {
+                    '$firstN': {
+                        'input': '$$ROOT',
+                        'n': movie_skip
+                    }
+                }
+            }
+        }, {
+            '$unwind': {
+                'path': '$movie'
+            }
+        }, {
+            '$replaceRoot': {
+                'newRoot': '$movie'
+            }
+        }, {
+            '$project': {
+                '_id': 1, 'imdb_id': 1, 'original_title': 1, 'overview': 1,
+                'poster_path': 1, 'vote_average': 1,
+                'vote_count': 1, 'imdb_vote_average': 1,
+                'imdb_vote_count': 1, 'guessed_countries': 1
+            }
+        }
+    ])
+    return HttpResponse(json.dumps(list(movies)), content_type='application/json')
+
+
+def get_movies_from_country_codes(country_codes, limit, skip):
+    return (FlattenedMovie.objects(guessed_countries__in=country_codes)
             .order_by('-weighted_rating')
             .limit(limit)
             .skip(skip))
-    return HttpResponse(data.to_json(), content_type='application/json')
 
 
 # Imports
