@@ -1,29 +1,29 @@
-django==4.2.7
+django==5.0.3
 gunicorn==21.2.0
 requests==2.31.0
-sentry-sdk[django]==1.38.0
+sentry-sdk[django]==1.44.0
 simplejson==3.19.2
 django-cors-headers==4.3.1
 django-crontab==0.7.1
-django-health-check==3.17.0
+django-health-check==3.18.1
 channels==4.0.0
-daphne==4.0.0
+daphne==4.1.0
 uvicorn==0.29
 websockets==12.0
-channels_redis~=4.1.0
+channels_redis~=4.2.0
 pykerberos==1.2.4
-pytz==2023.3.post1
+pytz==2024.1
 
-pymongo[snappy,gssapi,srv,tls]==4.6.1
-dnspython==2.4.2
-mongoengine==0.27.0
+pymongo[snappy,gssapi,srv,tls]==4.6.3
+dnspython==2.6.1
+mongoengine==0.28.2
 
 Babel==2.13.1
 
 celery==5.3.6
 
 # For tests
-responses==0.24.1
+responses==0.25.0
 pylint-django==2.5.5
-urllib3==1.26.18
+urllib3==2.2.1
 mongomock~=4.1.2
