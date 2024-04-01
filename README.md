@@ -15,6 +15,11 @@ docker cp mongo:/mongodump .
 docker cp mongodump mongo:/ 
 docker exec -ti mongo mongorestore /mongodump
 
+# Kubernetes way
+kubectl cp ~/workspace/personal/worldinmovie/mongodump mongo-69776f664b-vctdb:/
+kubectl exec -ti mongo-69776f664b-vctdb mongorestore /mongodump
+kubectl exec -ti mongo-69776f664b-vctdb /bin/bash
+
 # The boomer way
 docker exec -ti mongo mongoexport -d tmdb -c movie  --out datadump.json
 docker cp mongo:/datadump.json .

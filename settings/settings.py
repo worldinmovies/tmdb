@@ -80,13 +80,13 @@ environment = os.environ.get('ENVIRONMENT', 'docker')
 rabbit_url = os.environ.get('RABBITMQ_URL', 'rabbitmq')
 mq_user = os.environ.get('RABBITMQ_DEFAULT_USER', 'seppa')
 mq_pass = os.environ.get('RABBITMQ_DEFAULT_PASS', 'password')
-CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', f"amqp://{mq_user}:{mq_pass}@{rabbit_url}")
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', f"amqp://{mq_user}:{mq_pass}@{rabbit_url}")
 CELERY_TIMEZONE = "Europe/Stockholm"
 
 
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
-redis_url = 'redis' if environment == 'docker' else 'localhost'
+redis_url = os.environ.get('REDIS_URL', 'redis')
 if 'test' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {
@@ -106,7 +106,7 @@ else:
 # ---------------- MONGO -----------------
 
 if environment == 'docker' or environment == 'localhost':
-    mongo_url = 'mongo:27017'
+    mongo_url = os.environ.get('MONGO_URL',         'mongo')
     mongo_user = os.environ.get('MONGO_USER',       'seppa')
     mongo_pass = os.environ.get('MONGO_PASSWORD',   'password')
     mongoengine.connect(db='tmdb', host=mongo_url, port=27017, username='', password='', serverSelectionTimeoutMS=3000)
@@ -139,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 # ------------------ SENTRY ------------------
-sentryApi = os.getenv('SENTRY_API', '')
+sentryApi = os.environ.get('SENTRY_API', '')
 if sentryApi:
     sentry_sdk.init(
         dsn=sentryApi,
@@ -147,8 +147,8 @@ if sentryApi:
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production,
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
+        traces_sample_rate=0.01,
+        profiles_sample_rate=0.01,
     )
 
 # Internationalization
