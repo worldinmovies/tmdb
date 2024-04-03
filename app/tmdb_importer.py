@@ -170,7 +170,7 @@ def import_genres():
             for genre in list(filter(lambda x: x['id'] not in all_persisted, genres_from_json)):
                 i += 1
                 Genre(id=genre['id'], name=genre['name']).save()
-        __send_data_to_channel(layer=layer, message=f"Fetched {length} genres out of")
+        __send_data_to_channel(layer=layer, message=f"Fetched {length} genres")
     else:
         __send_data_to_channel(layer=layer, message=f"Error importing countries: {response.status_code} - {response.content}")
 
