@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'celery',
     'corsheaders',
     'django_crontab',
+    'behave_django'
 ]
 
 CRONJOBS = [
@@ -46,6 +47,7 @@ CRONJOBS = [
     ('0 1 * * *', 'app.imdb_importer.import_imdb_ratings', '>> /tmp/scheduled_job.log'),
     ('0 0 * * 1', 'app.imdb_importer.import_imdb_alt_titles', '>> /tmp/scheduled_job.log'),
 ]
+STATIC_URL = '/static/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +89,7 @@ CELERY_TIMEZONE = "Europe/Stockholm"
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 redis_url = os.environ.get('REDIS_URL', 'redis')
-if 'test' in sys.argv:
+if 'test' or 'behave' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels.layers.InMemoryChannelLayer"

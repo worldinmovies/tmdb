@@ -43,7 +43,9 @@ def download_files():
         contents = __unzip_file('movies.json.gz')
         for b in chunks(contents, 100):
             chunk = []
-            for i in b:
+            u = list(b)
+            for i in u:
+                print("I: " + i)
                 try:
                     data = json.loads(i)
                     if data['video'] is False and data['adult'] is False:
@@ -58,7 +60,7 @@ def download_files():
             new_movies = (set(chunk).difference(matches))
             for c in new_movies:
                 movies_to_add.append(Movie(id=c, fetched=False))
-            __send_data_to_channel(layer=layer, message="Parsed %s out of %s movies from downloaded file" % (len(list(b)), len(contents)))
+            __send_data_to_channel(layer=layer, message="Parsed %s out of %s movies from downloaded file" % (len(u), len(contents)))
 
         a = len(movies_to_add)
         __send_data_to_channel(layer=layer, message="%s movies will be persisted" % a)
@@ -68,7 +70,9 @@ def download_files():
         try:
             print("Persisting %s movies" % a)
             for chunk in chunks(movies_to_add, 100):
-                Movie.objects.insert(list(chunk))
+                to_persist = list(chunk)
+                b += len(to_persist)
+                Movie.objects.insert(to_persist)
                 __send_data_to_channel(layer=layer, message="Persisted %s movies out of %s" % (b, a))
             print("Deleting %s unfetched movies not in tmdb anymore" % len(movie_ids_to_delete))
             c = 0

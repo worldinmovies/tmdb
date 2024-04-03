@@ -29,5 +29,14 @@ docker exec -ti mongo mongoimport -d tmdb -c movie --mode upsert --file datadump
 
 
 ```bash
+python -m venv venv
+
+source venv/bin/activate
+deactivate
+
+pip install -r requirements.txt
+
+./manage.py behave
+
 docker buildx build --platform linux/amd64,linux/arm64 -t seppaleinen/worldinmovies_tmdb:latest .
 ```

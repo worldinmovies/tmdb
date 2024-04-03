@@ -2,7 +2,7 @@
 import os
 import sys
 
-if 'test' in sys.argv:
+if 'test' or 'behave' in sys.argv:
     os.environ["ENVIRONMENT"] = "test"
 
 if __name__ == "__main__":
