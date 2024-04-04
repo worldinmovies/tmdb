@@ -142,7 +142,6 @@ def fetch_tmdb_data_concurrently():
                 data = future.result()
                 if data is not None:
                     movie = Movie.objects.get(pk=data['id'])
-                    new_or_update = 'UPDATE' if movie.data else 'NEW'
                     movie_details = Movie.add_references(all_genres, all_langs, all_countries, data)
                     movie_details = MovieDetails(**movie_details)
                     movie.add_fetched_info(movie_details)

@@ -8,7 +8,7 @@ from channels.layers import get_channel_layer
 
 from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
 from app.helper import chunks, __send_data_to_channel, __unzip_file, __log_progress
-from app.models import Movie, AlternativeTitles, FlattenedMovie
+from app.models import Movie, AlternativeTitles, FlattenedMovie, Log
 
 
 @monitor(monitor_slug='import_imdb_ratings')
@@ -31,6 +31,7 @@ def import_imdb_ratings():
         next(reader)
         for chunk in chunks(__log_progress(reader, "Processing IMDB Titles", length), 100):
             import_imdb_ratings_task.delay(list(chunk))
+        Log(type="import", message='import_imdb_ratings').save()
     else:
         __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
 
@@ -58,6 +59,7 @@ def import_imdb_alt_titles():
 
         for chunk in chunks(__log_progress(reader, "Processing IMDB Titles", count), 100):
             import_imdb_titles_task.delay(list(chunk))
+        Log(type="import", message='import_imdb_alt_titles').save()
         print("Done")
     else:
         __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")

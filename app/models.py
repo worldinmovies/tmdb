@@ -1,6 +1,6 @@
 import decimal
 
-import datetime
+from datetime import datetime, timedelta
 import pytz
 from mongoengine import DynamicDocument
 from mongoengine.fields import (ListField,
@@ -13,6 +13,8 @@ from mongoengine.fields import (ListField,
                                 FloatField,
                                 DateTimeField)
 from babel.languages import get_official_languages
+
+tz = pytz.timezone('Europe/Stockholm')
 
 
 class Title(EmbeddedDocument):
@@ -328,7 +330,7 @@ class Movie(DynamicDocument):
     def add_fetched_info(self, fetched_movie: MovieDetails):
         self.data = fetched_movie
         self.fetched = True
-        self.fetched_date = datetime.datetime.now(pytz.timezone('Europe/Stockholm'))
+        self.fetched_date = datetime.now(tz)
 
     def __str__(self):
         return (f"id: {self.id}, "
@@ -336,3 +338,26 @@ class Movie(DynamicDocument):
                 f"data: {self.data}, "
                 f"fetched_date: {self.fetched_date.isoformat() if self.fetched_date else None}"
                 )
+
+
+class Log(DynamicDocument):
+    meta = {'collection': 'log',
+            'indexes': [
+                {
+                    'name': 'TTL_index',
+                    'fields': ['ttl'],
+                    'expireAfterSeconds': 0
+                }
+            ]}
+
+    type = StringField(required=True)
+    message = StringField()
+    timestamp = DateTimeField(required=True, default=datetime.now(tz).now)
+    ttl = DateTimeField(required=True, default=(datetime.now(tz) + timedelta(days=7)).now)
+
+    @staticmethod
+    def get_now_plus(days):
+        return (datetime.now(tz) + timedelta(days=days)).now
+
+    def __str__(self):
+        return f"id:{self.pk}, type:{self.type}, message:{self.message}, timestamp: {self.timestamp}, ttl: {self.ttl}"
