@@ -193,6 +193,7 @@ class MovieDetails(EmbeddedDocument):
     imdb_vote_average = FloatField(default=0)
     vote_count = IntField(default=0)
     imdb_vote_count = IntField(default=0)
+    weighted_rating = FloatField()
     alternative_titles = EmbeddedDocumentField(AlternativeTitles)
     credits = EmbeddedDocumentField(Credits)
     external_ids = EmbeddedDocumentField(ExternalIDS)
@@ -201,9 +202,10 @@ class MovieDetails(EmbeddedDocument):
     meta = {'indexes': ['imdb_id']}
 
     def __str__(self):
-        return (f"id:{self.id}, "
+        return (f"{{id:{self.id}, "
+                f"imdb_id:{self.imdb_id}, "
                 f"genres:{self.genres}, "
-                f"title:{self.title}")
+                f"title:{self.title}}}")
 
 
 class FlattenedMovie(DynamicDocument):
@@ -239,7 +241,7 @@ class FlattenedMovie(DynamicDocument):
     weighted_rating = FloatField()
     guessed_countries = ListField(StringField())
 
-    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country']}
+    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_countries']}
 
     @staticmethod
     def create(movie: MovieDetails):
@@ -322,9 +324,9 @@ class Movie(DynamicDocument):
                        all_countries: dict[ProductionCountries],
                        data: MovieDetails):
         data['production_countries'] = [all_countries[country['iso_3166_1']] for country in
-                                        data['production_countries']]
-        data['spoken_languages'] = [all_langs[lang['iso_639_1']] for lang in data['spoken_languages']]
-        data['genres'] = [all_genres[genre['id']] for genre in data['genres']]
+                                        data.get('production_countries', [])]
+        data['spoken_languages'] = [all_langs[lang['iso_639_1']] for lang in data.get('spoken_languages', [])]
+        data['genres'] = [all_genres[genre['id']] for genre in data.get('genres', [])]
         return data
 
     def add_fetched_info(self, fetched_movie: MovieDetails):

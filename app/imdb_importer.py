@@ -3,12 +3,11 @@ import requests
 import sys
 
 from sentry_sdk.crons import monitor
-from django.db import transaction
 from channels.layers import get_channel_layer
 
 from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
 from app.helper import chunks, __send_data_to_channel, __unzip_file, __log_progress
-from app.models import Movie, AlternativeTitles, FlattenedMovie, Log
+from app.models import Log
 
 
 @monitor(monitor_slug='import_imdb_ratings')
@@ -29,7 +28,7 @@ def import_imdb_ratings():
         length = len(contents)
         reader = csv.reader(contents, delimiter='\t')
         next(reader)
-        for chunk in chunks(__log_progress(reader, "Processing IMDB Titles", length), 100):
+        for chunk in chunks(__log_progress(reader, "Processing IMDB Ratings", length), 100):
             import_imdb_ratings_task.delay(list(chunk))
         Log(type="import", message='import_imdb_ratings').save()
     else:

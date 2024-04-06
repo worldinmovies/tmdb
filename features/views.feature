@@ -12,9 +12,9 @@ Feature: Views
     Examples: /status endpoint
       | json                                    | expected_response                                   |
       | [{"id": 1}]                             | {"total": 1, "fetched": 0, "percentageDone": 0.0}   |
-      | [{"id": 1, "fetched": true}]            | {"total": 1, "fetched": 1, "percentageDone": 100.0} |
-      | [{"id": 1}, {"id": 2}]                  | {"total": 2, "fetched": 0, "percentageDone": 0.0}   |
-      | [{"id": 1, "fetched": true}, {"id": 2}] | {"total": 2, "fetched": 1, "percentageDone": 50.0}  |
+      | [{"id": 2, "fetched": true}]            | {"total": 1, "fetched": 1, "percentageDone": 100.0} |
+      | [{"id": 3}, {"id": 4}]                  | {"total": 2, "fetched": 0, "percentageDone": 0.0}   |
+      | [{"id": 5, "fetched": true}, {"id": 6}] | {"total": 2, "fetched": 1, "percentageDone": 50.0}  |
 
   Scenario Outline: View Best Endpoint
     Given movies from file:<file> is persisted
