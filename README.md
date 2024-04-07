@@ -38,7 +38,14 @@ pip install -r requirements.txt
 
 ./manage.py behave
 
-gunicorn --config=gunicorn.config.py -k uvicorn.workers.UvicornWorker --reload settings.asgi
+MONGO_URL=localhost:27017 gunicorn --config=gunicorn.config.py -k uvicorn.workers.UvicornWorker --reload settings.asgi
 
 docker buildx build --platform linux/amd64,linux/arm64 -t seppaleinen/worldinmovies_tmdb:latest .
+```
+
+### Mongo Debugging
+```
+db.setProfilingLevel(2)
+
+db.system.profile.find().pretty()
 ```
