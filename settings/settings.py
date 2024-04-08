@@ -2,7 +2,6 @@ import sys
 
 import mongoengine
 import os
-import mongomock
 import sentry_sdk
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +15,6 @@ TIME_ZONE = 'Europe/Stockholm'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
 
 # Application definition
 
@@ -60,7 +58,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['*', ]
 # ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_WHITELIST = (
 #    'http://localhost:3000',
@@ -85,7 +83,6 @@ mq_pass = os.environ.get('RABBITMQ_DEFAULT_PASS', 'password')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', f"amqp://{mq_user}:{mq_pass}@{rabbit_url}")
 CELERY_TIMEZONE = "Europe/Stockholm"
 
-
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 redis_url = os.environ.get('REDIS_URL', 'redis')
@@ -108,13 +105,19 @@ else:
 # ---------------- MONGO -----------------
 
 if environment == 'docker' or environment == 'localhost':
-    mongo_url = os.environ.get('MONGO_URL',         'mongo')
-    mongo_user = os.environ.get('MONGO_USER',       'seppa')
-    mongo_pass = os.environ.get('MONGO_PASSWORD',   'password')
-    mongoengine.connect(db='tmdb', host=mongo_url, port=27017, username='', password='', serverSelectionTimeoutMS=3000)
+    mongo_url = os.environ.get('MONGO_URL', 'mongo')
+    mongo_user = os.environ.get('MONGO_USER', 'seppa')
+    mongo_pass = os.environ.get('MONGO_PASSWORD', 'password')
+    mongoengine.connect(db='tmdb',
+                        host=mongo_url,
+                        port=27017,
+                        username='',
+                        password='',
+                        serverSelectionTimeoutMS=3000)
 else:
-    mongo_url = 'localhost:27018'
-    mongoengine.connect(db='tmdb', host='mongodb://localhost', mongo_client_class=mongomock.MongoClient, username='', password='')
+    mongoengine.connect(db='test',
+                        host=os.environ.get('MONGO_URL'),
+                        port=os.environ.get('MONGO_PORT'))
 
 DATABASES = {
     'default': {

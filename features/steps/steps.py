@@ -76,7 +76,7 @@ def verify_content(context, expected_response):
 
 @then('response should contain "{expected}"')
 def response_should_contain(context, expected):
-    context.test.assertContains(context.response, expected)
+    context.test.assertContains(response=context.response, text=expected)
 
 
 @given("tmdb file is mocked with {data}")
@@ -89,13 +89,13 @@ def mock_tmdb_file(context, data):
         context.mocker.get(daily_export_url, status_code=200, content=asd.read())
 
 
-@given("tmdb data is mocked with {data} for id {id} with status {status}")
-def mock_tmdb_data(context, data, id, status):
+@given("tmdb data is mocked with {data} for id {movie_id} with status {status}")
+def mock_tmdb_data(context, data, movie_id, status):
     url = "https://api.themoviedb.org/3/movie/{movie_id}?" \
           "api_key={api_key}&" \
           "language=en-US&" \
           "append_to_response=alternative_titles,credits,external_ids,images,account_states".format(
-        api_key='test', movie_id=id)
+            api_key='test', movie_id=movie_id)
     start_mock(context)
     with open(f"testdata/{data}", 'rb') as asd:
         context.mocker.get(url, status_code=int(status), content=asd.read())
@@ -104,7 +104,8 @@ def mock_tmdb_data(context, data, id, status):
 @then("after awhile there should be {amount} movies persisted")
 def wait_for_persistence(context, amount):
     context.test.assertTrue(
-        wait_function_is_true(Movie.objects, int(amount)), f"Movies in database: {Movie.objects.all()}, expected {amount}")
+        wait_function_is_true(Movie.objects, int(amount)),
+        f"Movies in database: {Movie.objects.all()}, expected {amount}")
 
 
 def wait_function_is_true(clazz, amount, timeout=5, period=0.5):

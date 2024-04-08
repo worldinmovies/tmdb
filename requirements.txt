@@ -26,6 +26,7 @@ celery==5.3.6
 responses==0.25.0
 pylint-django==2.5.5
 urllib3==2.2.1
-mongomock~=4.1.2
+mongomock-5~=5.0.1
 behave-django==1.4.0
 requests_mock
+testcontainers==4.3.1

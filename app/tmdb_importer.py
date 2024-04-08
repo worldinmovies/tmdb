@@ -16,6 +16,11 @@ from app.helper import __send_data_to_channel, __log_progress, __unzip_file
 from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails, FlattenedMovie
 
 
+def log(message, layer=get_channel_layer()):
+    print(message)
+    __send_data_to_channel(layer=layer, message=message)
+
+
 @monitor(monitor_slug='base_import')
 def base_import():
     download_files()
@@ -87,9 +92,10 @@ def download_files():
         __send_data_to_channel(layer=layer, message="Error downloading files: %s - %s" % (response.status_code, response.content))
 
 
-def __fetch_movie_with_id(id, index):
+def __fetch_movie_with_id(movie_id, index):
     api_key = os.getenv('TMDB_API', 'test')
-    url = f"https://api.themoviedb.org/3/movie/{id}?api_key={api_key}&language=en-US&append_to_response=alternative_titles,credits,external_ids,images,account_states"
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US&append_to_response=alternative_titles,credits,external_ids,images,account_states"
+    print(f"Calling url: {url}")
     try:
         session = requests.Session()
         retry = Retry(connect=3, backoff_factor=2)
@@ -99,26 +105,28 @@ def __fetch_movie_with_id(id, index):
 
         response = session.get(url, timeout=10)
     except requests.exceptions.Timeout as exc:
-        print("Timed out on id: %s... trying again in 10 seconds" % id)
-        print(exc)
+        log(f"Timed out on id: {movie_id}... trying again in 10 seconds\n{exc}")
         time.sleep(10)
-        return __fetch_movie_with_id(id, index)
+        return __fetch_movie_with_id(movie_id, index)
     except requests.exceptions.ConnectionError as exc:
-        print("ConnectionError: %s on url: %s\n Trying again in 10 seconds..." % (exc, url))
+        log(f"ConnectionError: {exc} on url: {url}\n Trying again in 10 seconds...")
         time.sleep(30)
-        return __fetch_movie_with_id(id, index)
+        return __fetch_movie_with_id(movie_id, index)
     if response.status_code == 200:
         return response.json()
     elif response.status_code == 429 or response.status_code == 25:
-        retryAfter = int(response.headers['Retry-After']) + 1
-        time.sleep(retryAfter)
-        return __fetch_movie_with_id(id, index)
+        retry_after = int(response.headers['Retry-After']) + 1
+        time.sleep(retry_after)
+        return __fetch_movie_with_id(movie_id, index)
     elif response.status_code == 404:
-        Movie.objects.get(pk=id).delete()
-        print("Deleting movie with id: %s as it's not in tmdb anymore" % id)
+        Movie.objects.get(pk=movie_id).delete()
+        log(f"Deleting movie with id: {movie_id} as it's not in tmdb anymore")
         return None
+    elif response.status_code == 401:
+        log(f"Unauthorized API key when calling url: {url}")
+        raise Exception(f"Unauthorized API key when calling url: {url}")
     else:
-        print("What is going on?: id:%s, status:%s, response: w%s" % (id, response.status_code, response.content))
+        log(f"What is going on?: id:{movie_id}, status:{response.status_code}, response: {response.content}")
         raise Exception("Response: %s, Content: %s" % (response.status_code, response.content))
 
 
@@ -151,7 +159,7 @@ def fetch_tmdb_data_concurrently():
                     movie.save()
                 i += 1
             except Exception as exc:
-                print("Could not process data: %s" % exc)
+                log(f"Could not process data: {exc}")
 
 
 def import_genres():

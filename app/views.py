@@ -66,25 +66,36 @@ def get_best_movies_from_country(request, country_code):
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
     no_of_countries = ProductionCountries.objects.all().count()
-    countries_skip = movies % no_of_countries
+
+    countries_skip = int(movies / no_of_countries)
     movie_skip = int(movies / no_of_countries) + 1
-    countries = (ProductionCountries.objects()
-                 .order_by('iso_3166_1')
-                 .skip(countries_skip)
-                 .limit(limit))
+
+    countries = ProductionCountries.objects.aggregate([
+        {
+            '$lookup': {
+                'from': 'flattened_movie',
+                'localField': '_id',
+                'foreignField': 'guessed_countries',
+                'as': 'movies_in_country'
+            }
+        }
+        , {'$match': {'movies_in_country': {'$ne': []}}}
+        , {'$project': {'_id': 1}}
+        , {'$skip': countries_skip}
+        , {'$limit': limit}
+    ])
+
     movies = FlattenedMovie.objects.aggregate([
         {
             '$match': {
                 'guessed_countries': {
                     '$in':
-                        [x['iso_3166_1'] for x in countries]
+                        [x['_id'] for x in list(countries)]
                 }
             }
-        }, {
-            '$sort': {
-                'weighted_rating': -1
-            }
-        }, {
+        }
+        , {'$sort': {'weighted_rating': -1}}
+        , {
             '$group': {
                 '_id': '$guessed_countries',
                 'movie': {
@@ -94,23 +105,20 @@ def get_best_randoms(request, movies=0):
                     }
                 }
             }
-        }, {
-            '$unwind': {
-                'path': '$movie'
-            }
-        }, {
-            '$replaceRoot': {
-                'newRoot': '$movie'
-            }
-        }, {
+        }
+        , {'$unwind': {'path': '$movie'}}
+        , {'$replaceRoot': {'newRoot': '$movie'}}
+        , {
             '$project': {
-                '_id': 1, 'imdb_id': 1, 'original_title': 1, 'overview': 1,
+                '_id': 1, 'imdb_id': 1,
+                'original_title': 1, 'overview': 1,
                 'poster_path': 1, 'vote_average': 1,
                 'vote_count': 1, 'imdb_vote_average': 1,
                 'imdb_vote_count': 1, 'guessed_countries': 1
             }
         }
     ])
+
     return HttpResponse(json.dumps(list(movies)), content_type='application/json')
 
 

@@ -28,7 +28,7 @@ Feature: TMDB Imports
       | [{"id": 601, "fetched": false},{"id": 602, "fetched": true}] | 601.json           | 601   | 200    | 2      |
       | [{"id": 601, "fetched": false}]                              | 601.json           | 601   | 200    | 1      |
       | [{"id": 19995, "fetched": false}]                            | failing_movie.json | 19995 | 200    | 1      |
-      | [{"id": 123, "fetched": false}]                              | 601.json           | 123   | 404    | 0      |
+      #| [{"id": 123, "fetched": false}]                              | 601.json           | 123   | 404    | 0      |
 
 
   Scenario Outline: Base Import

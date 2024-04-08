@@ -122,7 +122,7 @@ class ProductionCompany(EmbeddedDocument):
     origin_country = StringField()
 
     def __str__(self):
-        return f"iso:{self.id}, name:{self.name}"
+        return f"{{id:\"{self.id}\", name:\"{self.name}\", country:\"{self.origin_country}\"}}"
 
 
 class Genre(DynamicDocument):
@@ -130,7 +130,7 @@ class Genre(DynamicDocument):
     name = StringField()
 
     def __str__(self):
-        return f"id:{self.id}, name:{self.name}"
+        return f"{{id:\"{self.id}\", name:\"{self.name}\"}}"
 
 
 class SpokenLanguage(DynamicDocument):
@@ -138,7 +138,7 @@ class SpokenLanguage(DynamicDocument):
     name = StringField(max_length=50)
 
     def __str__(self):
-        return f"iso:{self.iso_639_1}, name:{self.name}"
+        return f"{{iso:\"{self.iso_639_1}\", name:\"{self.name}\"}}"
 
 
 class FlattenedSpokenLanguage(EmbeddedDocument):
@@ -146,7 +146,7 @@ class FlattenedSpokenLanguage(EmbeddedDocument):
     name = StringField()
 
     def __str__(self):
-        return f"iso:{self.iso}, name:{self.name}"
+        return f"{{iso:\"{self.iso}\", name:\"{self.name}\"}}"
 
 
 class ProductionCountries(DynamicDocument):
@@ -154,7 +154,7 @@ class ProductionCountries(DynamicDocument):
     name = StringField(max_length=50)
 
     def __str__(self):
-        return f"iso:{self.iso_3166_1}, name:{self.name}"
+        return f"{{iso:\"{self.iso_3166_1}\", name:\"{self.name}\"}}"
 
 
 class FlattenedProductionCountry(EmbeddedDocument):
@@ -162,7 +162,7 @@ class FlattenedProductionCountry(EmbeddedDocument):
     name = StringField()
 
     def __str__(self):
-        return f"iso:{self.iso}, name:{self.name}"
+        return f"{{iso:\"{self.iso}\", name:\"{self.name}\"}}"
 
 
 class MovieDetails(EmbeddedDocument):
@@ -242,6 +242,13 @@ class FlattenedMovie(DynamicDocument):
     guessed_countries = ListField(StringField())
 
     meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_countries']}
+
+    def __str__(self):
+        return (f"{{id:{self.id}, "
+                f"imdb_id:'{self.imdb_id}', "
+                f"genres:{self.genres}, "
+                f"title:'{self.title}', "
+                f"guessed_countries: {self.guessed_countries}}}")
 
     @staticmethod
     def create(movie: MovieDetails):
@@ -335,10 +342,10 @@ class Movie(DynamicDocument):
         self.fetched_date = datetime.now(tz)
 
     def __str__(self):
-        return (f"id: {self.id}, "
-                f"fetched: {self.fetched}, "
-                f"data: {self.data}, "
-                f"fetched_date: {self.fetched_date.isoformat() if self.fetched_date else None}"
+        return (f"{{id: '{self.id}', "
+                f"fetched: '{self.fetched}', "
+                f"data: {{{self.data}}}, "
+                f"fetched_date: '{self.fetched_date.isoformat() if self.fetched_date else None}'}}"
                 )
 
 
