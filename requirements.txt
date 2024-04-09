@@ -13,6 +13,7 @@ websockets==12.0
 channels_redis~=4.2.0
 pykerberos==1.2.4
 pytz==2024.1
+wheel==0.43.0
 
 pymongo[snappy,gssapi,srv,tls]==4.6.3
 dnspython==2.6.1
