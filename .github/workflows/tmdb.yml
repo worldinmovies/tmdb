@@ -130,6 +130,7 @@ jobs:
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
+          client_payload: '{"trigger": "tmdb"}'
 
 
   deploy:
@@ -149,5 +150,5 @@ jobs:
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
-          comment_downstream_url: Triggered by IMDB Workflow
-
+          comment_downstream_url: Triggered by TMDB Workflow
+          client_payload: '{"trigger": "tmdb"}'
