@@ -11,7 +11,7 @@ daphne==4.1.0
 uvicorn==0.29
 websockets==12.0
 channels_redis~=4.2.0
-pykerberos==1.2.4
+#pykerberos==1.2.4
 pytz==2024.1
 
 pymongo[snappy,gssapi,srv,tls]==4.6.3
