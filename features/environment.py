@@ -3,19 +3,29 @@ import os
 from django.db import transaction
 from django.conf import settings
 from app.models import Movie, FlattenedMovie
-from testcontainers.mongodb import MongoDbContainer
+from behave.fixture import use_fixture
+from behave import fixture
 
 
-def before_all(context):
-    with MongoDbContainer("mongo:7.0.7", port=29017, dbname="test") as mongo:
-        os.environ['MONGO_URL'] = mongo.get_connection_client().HOST
-        os.environ['MONGO_PORT'] = str(29017)
-    os.environ['TMDB_API'] = 'test'
+@fixture
+def setup_mongo(context):
     os.environ['ENVIRONMENT'] = 'test'
+    os.environ['TMDB_API'] = 'test'
+    os.environ['CELERY_BROKER_URL'] = 'memory://'
     settings.CELERY_TASK_EAGER_PROPAGATES = 'True'
     settings.CELERY_TASK_ALWAYS_EAGER = 'True'
     settings.CELERY_BROKER_URL = 'memory://'
-    os.environ['CELERY_BROKER_URL'] = 'memory://'
+
+    yield context
+
+    del os.environ['ENVIRONMENT']
+    del os.environ['MONGO_URL']
+    del os.environ['TMDB_API']
+    del os.environ['CELERY_BROKER_URL']
+
+
+def before_all(context):
+    use_fixture(setup_mongo, context)
 
 
 def after_scenario(context, feature):

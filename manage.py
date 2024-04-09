@@ -2,8 +2,14 @@
 import os
 import sys
 
+from testcontainers.mongodb import MongoDbContainer
+
 if 'test' or 'behave' in sys.argv:
     os.environ["ENVIRONMENT"] = "test"
+    mongo_container = MongoDbContainer("mongo:7-jammy", dbname="test")
+    mongo_container.start()
+    os.environ['MONGO_URL'] = mongo_container.get_connection_url()
+
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.settings")

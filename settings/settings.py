@@ -103,7 +103,6 @@ else:
     }
 
 # ---------------- MONGO -----------------
-
 if environment == 'docker' or environment == 'localhost':
     mongo_url = os.environ.get('MONGO_URL', 'mongo')
     mongo_user = os.environ.get('MONGO_USER', 'seppa')
@@ -115,9 +114,9 @@ if environment == 'docker' or environment == 'localhost':
                         password='',
                         serverSelectionTimeoutMS=3000)
 else:
-    mongoengine.connect(db='test',
-                        host=os.environ.get('MONGO_URL'),
-                        port=os.environ.get('MONGO_PORT'))
+    mongo_url = os.environ.get('MONGO_URL')
+    mongoengine.connect('test', host=f"{mongo_url}")
+
 
 DATABASES = {
     'default': {
