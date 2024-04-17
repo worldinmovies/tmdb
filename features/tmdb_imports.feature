@@ -21,6 +21,7 @@ Feature: TMDB Imports
     When calling /import/tmdb/data
     Then http status should be 200
     And after awhile there should be <amount> movies persisted
+    And id=<id> should have alt_titles set eventually
 
     Examples: Happy Cases
       | json                                                         | mocked_data        | id    | status | amount |
