@@ -6,7 +6,7 @@ from sentry_sdk.crons import monitor
 from channels.layers import get_channel_layer
 
 from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
-from app.helper import chunks, __send_data_to_channel, __unzip_file, __log_progress
+from app.helper import chunks, __unzip_file, __log_progress, log
 from app.models import Log
 
 
@@ -20,7 +20,7 @@ def import_imdb_ratings():
     url = 'https://datasets.imdbws.com/title.ratings.tsv.gz'
     response = requests.get(url)
     layer = get_channel_layer()
-    __send_data_to_channel(layer=layer, message=f"Downloading file: {url}")
+    log(layer=layer, message=f"Downloading file: {url}")
     with open('title.ratings.tsv.gz', 'wb') as f:
         f.write(response.content)
     if response.status_code == 200:
@@ -32,7 +32,7 @@ def import_imdb_ratings():
             import_imdb_ratings_task.delay(list(chunk))
         Log(type="import", message='import_imdb_ratings').save()
     else:
-        __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
+        log(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
 
 
 @monitor(monitor_slug='import_imdb_alt_titles')
@@ -43,7 +43,7 @@ def import_imdb_alt_titles():
     print("Dowloading title.akas.tsv.gz")
     url = 'https://datasets.imdbws.com/title.akas.tsv.gz'
     layer = get_channel_layer()
-    __send_data_to_channel(layer=layer, message=f"Downloading file: {url}")
+    log(layer=layer, message=f"Downloading file: {url}")
     response = requests.get(url)
     with open('title.akas.tsv.gz', 'wb') as f:
         f.write(response.content)
@@ -61,4 +61,4 @@ def import_imdb_alt_titles():
         Log(type="import", message='import_imdb_alt_titles').save()
         print("Done")
     else:
-        __send_data_to_channel(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
+        log(layer=layer, message=f"Exception: {response.status_code} - {response.content}")

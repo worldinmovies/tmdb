@@ -11,5 +11,5 @@ def get_db_handle(db_name, host, port, username, password):
     return db_handle, client
 
 
-def get_collection_handle(db_handle,collection_name):
+def get_collection_handle(db_handle, collection_name):
     return db_handle[collection_name]

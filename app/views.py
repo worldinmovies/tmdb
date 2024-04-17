@@ -211,14 +211,16 @@ def ratings(request):
     """This should map incoming imdb ratings file, and try to match it with our dataset,
         and return it in a format we can use in frontend
 
-        curl 'http://localhost:8000/ratings' -X POST -H 'Content-Type: multipart/form-data' -F file=@testdata/ratings.csv
+        curl 'http://localhost:8000/ratings' -X POST -H
+        'Content-Type: multipart/form-data' -F file=@testdata/ratings.csv
     """
     print("Receiving stuff")
     if request.method == 'POST':
         if 'file' in request.FILES:
             file = request.FILES['file']
             csv_as_dicts = csv.DictReader(file.read().decode('utf8').splitlines())
-            # Const,Your Rating,Date Rated,Title,URL,Title Type,IMDb Rating,Runtime (mins),Year,Genres,Num Votes,Release Date,Directors
+            # Const,Your Rating,Date Rated,Title,URL,Title Type,IMDb Rating,
+            # Runtime (mins),Year,Genres,Num Votes,Release Date,Directors
             result = {'found': {}, 'not_found': []}
             data = {}
             for i in [json.loads(json.dumps(x)) for x in csv_as_dicts]:

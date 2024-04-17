@@ -9,19 +9,14 @@ from django.db import transaction
 from itertools import chain, islice
 from mongoengine import DoesNotExist
 from requests.adapters import HTTPAdapter
-from sentry_sdk import monitor
+import sentry_sdk
 from urllib3.util.retry import Retry
 
-from app.helper import __send_data_to_channel, __log_progress, __unzip_file
+from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log
 from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails, FlattenedMovie
 
 
-def log(message, layer=get_channel_layer()):
-    print(message)
-    __send_data_to_channel(layer=layer, message=message)
-
-
-@monitor(monitor_slug='base_import')
+@sentry_sdk.monitor(monitor_slug='base_import')
 def base_import():
     download_files()
     import_genres()
@@ -41,7 +36,7 @@ def download_files():
         print("Downloading file")
         with open('movies.json.gz', 'wb') as f:
             f.write(response.content)
-        __send_data_to_channel(layer=layer, message="Downloaded %s" % daily_export_url)
+        log(layer=layer, message=f"Downloaded {daily_export_url}")
 
         movies_to_add = []
         tmdb_movie_ids = set()
@@ -50,14 +45,14 @@ def download_files():
             chunk = []
             u = list(b)
             for i in u:
-                print("I: " + i)
                 try:
                     data = json.loads(i)
                     if data['video'] is False and data['adult'] is False:
-                        id = data['id']
-                        tmdb_movie_ids.add(id)
-                        chunk.append(id)
+                        movie_id = data['id']
+                        tmdb_movie_ids.add(movie_id)
+                        chunk.append(movie_id)
                 except Exception as e:
+                    log(layer, f"This line fucked up: {i}, because of {e}", e)
                     print("This line fucked up: %s, because of %s" % (i, e))
             matches = []
             for x in Movie.objects.filter(pk__in=chunk).values_list('id'):
@@ -65,37 +60,38 @@ def download_files():
             new_movies = (set(chunk).difference(matches))
             for c in new_movies:
                 movies_to_add.append(Movie(id=c, fetched=False))
-            __send_data_to_channel(layer=layer, message="Parsed %s out of %s movies from downloaded file" % (len(u), len(contents)))
+            log(layer=layer, message=f"Parsed {len(u)} out of {len(contents)} movies from downloaded file")
 
         a = len(movies_to_add)
-        __send_data_to_channel(layer=layer, message="%s movies will be persisted" % a)
+        log(layer=layer, message=f"{a} movies will be persisted")
         all_unfetched_movie_ids = Movie.objects.filter(fetched=False).all().values_list('id')
         movie_ids_to_delete = (set(all_unfetched_movie_ids).difference(tmdb_movie_ids))
         b = 0
         try:
-            print("Persisting %s movies" % a)
+            log(layer=layer, message=f"Persisting {a} movies")
             for chunk in chunks(movies_to_add, 100):
                 to_persist = list(chunk)
                 b += len(to_persist)
                 Movie.objects.insert(to_persist)
-                __send_data_to_channel(layer=layer, message="Persisted %s movies out of %s" % (b, a))
-            print("Deleting %s unfetched movies not in tmdb anymore" % len(movie_ids_to_delete))
+                log(layer=layer, message=f"Persisted {b} movies out of {a}")
+            log(layer=layer, message=f"Deleting {len(movie_ids_to_delete)} unfetched movies not in tmdb anymore")
             c = 0
             for movie_to_delete in movie_ids_to_delete:
                 Movie.objects.get(pk=movie_to_delete).delete()
                 c += 1
-                __send_data_to_channel(layer=layer, message="Deleted %s movies out of %s" % (c, len(movie_ids_to_delete)))
+                log(layer=layer, message=f"Deleted {c} movies out of {len(movie_ids_to_delete)}")
         except Exception as e:
             print("Error: %s" % e)
-            __send_data_to_channel(layer=layer, message="Error persisting or deleting data: %s" % e)
+            log(layer=layer, message=f"Error persisting or deleting data: {e}", e=e)
     else:
-        __send_data_to_channel(layer=layer, message="Error downloading files: %s - %s" % (response.status_code, response.content))
+        log(layer=layer, message=f"Error downloading files: {response.status_code} - {response.content}")
 
 
 def __fetch_movie_with_id(movie_id, index):
     api_key = os.getenv('TMDB_API', 'test')
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US&append_to_response=alternative_titles,credits,external_ids,images,account_states"
-    print(f"Calling url: {url}")
+    url = (f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
+           f"&append_to_response=alternative_titles,credits,external_ids,images,account_states")
+    log(f"Calling url: {url}")
     try:
         session = requests.Session()
         retry = Retry(connect=3, backoff_factor=2)
@@ -130,20 +126,24 @@ def __fetch_movie_with_id(movie_id, index):
         raise Exception("Response: %s, Content: %s" % (response.status_code, response.content))
 
 
-@monitor(monitor_slug='fetch_tmdb_data_concurrently')
+@sentry_sdk.monitor(monitor_slug='fetch_tmdb_data_concurrently')
 def fetch_tmdb_data_concurrently():
     movie_ids = Movie.objects.filter(fetched__exact=False).values_list('id')
     length = len(movie_ids)
     if not length or length == 0:
-        print("No new movies to import. Going back to sleep")
+        log("No new movies to import. Going back to sleep")
         return
-    print("Starting import of %s unfetched movies" % length)
-    all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-    all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-    all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+    log(f"Starting import of {length} unfetched movies")
+    all_genres = dict[Genre]([(gen.id, gen) for gen
+                              in Genre.objects.all()])
+    all_langs = dict[SpokenLanguage]([(lang.iso_639_1, lang) for lang
+                                      in SpokenLanguage.objects.all()])
+    all_countries = dict[ProductionCountries]([(country.iso_3166_1, country) for country
+                                               in ProductionCountries.objects.all()])
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = (executor.submit(__fetch_movie_with_id, movie_id, index) for index, movie_id in enumerate(movie_ids))
+        future_to_url = (executor.submit(__fetch_movie_with_id, movie_id, index) for index, movie_id
+                         in enumerate(movie_ids))
         i = 0
         for future in __log_progress(concurrent.futures.as_completed(future_to_url), "TMDB Fetch", length=length):
             try:
@@ -159,11 +159,11 @@ def fetch_tmdb_data_concurrently():
                     movie.save()
                 i += 1
             except Exception as exc:
-                log(f"Could not process data: {exc}")
+                log(message=f"Could not process data: {exc}", e=exc)
 
 
 def import_genres():
-    print("Importing genres")
+    log("Importing genres")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={api_key}&language=en-US"
     response = requests.get(url, stream=True)
@@ -177,9 +177,9 @@ def import_genres():
             for genre in list(filter(lambda x: x['id'] not in all_persisted, genres_from_json)):
                 i += 1
                 Genre(id=genre['id'], name=genre['name']).save()
-        __send_data_to_channel(layer=layer, message=f"Fetched {length} genres")
+        log(layer=layer, message=f"Fetched {length} genres")
     else:
-        __send_data_to_channel(layer=layer, message=f"Error importing countries: {response.status_code} - {response.content}")
+        log(layer=layer, message=f"Error importing countries: {response.status_code} - {response.content}")
 
 
 def import_countries():
@@ -197,13 +197,13 @@ def import_countries():
             for country in list(filter(lambda x: x['iso_3166_1'] not in all_persisted, countries_from_json)):
                 i += 1
                 ProductionCountries(iso_3166_1=country['iso_3166_1'], name=country['english_name']).save()
-        __send_data_to_channel(layer=layer, message=f"Fetched {length} countries")
+        log(layer=layer, message=f"Fetched {length} countries")
     else:
-        __send_data_to_channel(layer=layer, message=f"Error importing countries: {response.status_code} - {response.content}")
+        log(layer=layer, message=f"Error importing countries: {response.status_code} - {response.content}")
 
 
 def import_languages():
-    print("Importing languages")
+    log("Importing languages")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/configuration/languages?api_key={api_key}"
     response = requests.get(url, stream=True)
@@ -217,9 +217,9 @@ def import_languages():
             for language in list(filter(lambda x: x['iso_639_1'] not in all_persisted, languages_from_json)):
                 i += 1
                 SpokenLanguage(iso_639_1=language['iso_639_1'], name=language['english_name']).save()
-        __send_data_to_channel(layer=layer, message=f"Fetched {length} languages")
+        log(layer=layer, message=f"Fetched {length} languages")
     else:
-        __send_data_to_channel(f"Error importing languages: {response.status_code} - {response.content}")
+        log(f"Error importing languages: {response.status_code} - {response.content}")
 
 
 def chunks(iterable, size=100):
@@ -235,7 +235,8 @@ def check_which_movies_needs_update(start_date, end_date):
     """
     api_key = os.getenv('TMDB_API', 'test')
     page = 1
-    url = f"https://api.themoviedb.org/3/movie/changes?api_key={api_key}&start_date={start_date}&end_date={end_date}&page={page}"
+    url = (f"https://api.themoviedb.org/3/movie/changes?api_key={api_key}&"
+           f"start_date={start_date}&end_date={end_date}&page={page}")
     response = requests.get(url, stream=True)
     layer = get_channel_layer()
     if response.status_code == 200:
@@ -246,16 +247,16 @@ def check_which_movies_needs_update(start_date, end_date):
                     db = Movie.objects.get(pk=movie['id'])
                     if db.fetched and db.fetched_date.strftime("%Y-%m-%d") < end_date:
                         Movie.objects.filter(pk=movie['id']).update(fetched=False)
-                        __send_data_to_channel("Scheduling movieId:%s for update" % movie['id'], layer=layer)
+                        log("Scheduling movieId:%s for update" % movie['id'], layer=layer)
                     else:
-                        __send_data_to_channel("MovieId: %s has already been scheduled for update" % movie['id'])
+                        log(layer=layer, message=f"MovieId: {movie['id']} has already been scheduled for update")
                 except DoesNotExist:
                     Movie(id=movie['id'], fetched=False).save()
     else:
-        print("Response: %s:%s" % (response.status_code, response.content))
+        log(f"Response: {response.status_code}:{response.content}")
 
 
-@monitor(monitor_slug='cron_endpoint_for_checking_updateable_movies')
+@sentry_sdk.monitor(monitor_slug='cron_endpoint_for_checking_updateable_movies')
 def cron_endpoint_for_checking_updateable_movies():
     start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     end_date = (datetime.date.today()).strftime("%Y-%m-%d")

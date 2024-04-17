@@ -329,7 +329,7 @@ class Movie(DynamicDocument):
     def add_references(all_genres: dict[Genre],
                        all_langs: dict[SpokenLanguage],
                        all_countries: dict[ProductionCountries],
-                       data: MovieDetails):
+                       data: dict):
         data['production_countries'] = [all_countries[country['iso_3166_1']] for country in
                                         data.get('production_countries', [])]
         data['spoken_languages'] = [all_langs[lang['iso_639_1']] for lang in data.get('spoken_languages', [])]

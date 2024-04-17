@@ -1,9 +1,7 @@
 import gzip
-
+import traceback
 import datetime
-
 import json
-
 import threading
 
 from itertools import chain, islice
@@ -77,8 +75,13 @@ def start_background_process(target, thread_name, log_id):
 
 
 def __send_data_to_channel(message, layer=get_channel_layer()):
-    print(message)
     async_to_sync(layer.group_send)('group', {"type": "events", "message": json.dumps(message)})
+
+
+def log(message, layer=get_channel_layer(), e: Exception = None):
+    message = f"{message}. traceback={traceback.format_exc()}" if e else message
+    print(message)
+    __send_data_to_channel(layer=layer, message=message)
 
 
 def __log_progress(iterable, message, length=None):
@@ -92,7 +95,8 @@ def __log_progress(iterable, message, length=None):
         if percentage != temp_perc:
             percentage = temp_perc
             __send_data_to_channel(layer=layer, message=f"{message} data handling in progress - {percentage}%")
-            print(f"{datetime.datetime.now().strftime(datetime_format)} - {message} data handling in progress - {percentage}%")
+            print(f"{datetime.datetime.now().strftime(datetime_format)} - {message} data handling in progress "
+                  f"- {percentage}%")
         count += 1
         yield i
 

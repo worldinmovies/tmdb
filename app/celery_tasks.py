@@ -1,10 +1,8 @@
-import pymongo
 from celery import shared_task
 
-from app.helper import __send_data_to_channel
+from app.helper import log
 from app.models import FlattenedMovie, Movie, Genre, SpokenLanguage, ProductionCountries, Title, AlternativeTitles
 from django.db import transaction
-from channels.layers import get_channel_layer
 
 
 @shared_task
@@ -19,16 +17,17 @@ def flattify_movies(json_chunk):
 @shared_task
 def redo_movies_task(movie_ids):
     def persist(movie: Movie):
-        Movie.add_references(all_genres, all_langs, all_countries, movie.data)
+        Movie.add_references(all_genres, all_langs, all_countries, dict(movie.data))
         movie.save()
 
-    all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-    all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-    all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+    all_genres = dict[Genre]([(gen.id, gen) for gen in Genre.objects.all()])
+    all_langs = dict[SpokenLanguage]([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
+    all_countries = dict[ProductionCountries](
+        [(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
 
     with transaction.atomic():
         ids = [persist(x) for x in Movie.objects(pk__in=movie_ids)]
-        print("Redone %s movies with new structure" % len(ids))
+        log(f"Redone {len(ids)} movies with new structure")
 
 
 @shared_task
@@ -53,10 +52,9 @@ def import_imdb_ratings_task(csv_rows_chunk):
                                                   set__data__weighted_rating=movie.data.weighted_rating)
 
     except Exception as e:
-        __send_data_to_channel(layer=get_channel_layer(), message=f"Failed processing ratings for ids: {movies.keys()} "
-                                                                  f"due to error: {e}")
+        log(message=f"Failed processing ratings for ids: {movies.keys()} due to error: {e}", e=e)
 
-    __send_data_to_channel(layer=get_channel_layer(), message=f"Processed {len(csv_rows_chunk)} ratings")
+    log(message=f"Processed {len(csv_rows_chunk)} ratings")
 
 
 @shared_task
@@ -75,7 +73,5 @@ def import_imdb_titles_task(chunk):
                         fetched.data.alternative_titles.titles.append(Title(iso_3166_1=iso, title=title, type='IMDB'))
                 fetched.save()
     except Exception as e:
-        __send_data_to_channel(layer=get_channel_layer(),
-                               message=f"Failed processing ratings for ids: {chunked_map.keys()} "
-                                       f"due to error: {e}")
-    __send_data_to_channel(layer=get_channel_layer(), message=f"Processed {len(chunk)} titles")
+        log(message=f"Failed processing ratings for ids: {chunked_map.keys()} due to error: {e}", e=e)
+    log(message=f"Processed {len(chunk)} titles")
