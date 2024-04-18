@@ -4,13 +4,13 @@ import datetime
 import json
 import threading
 
-from app.celery_tasks import flattify_movies, redo_movies_task
+from app.celery_tasks import flattify_movies
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
     base_import, check_which_movies_needs_update
-from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, FlattenedMovie
+from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -73,9 +73,9 @@ def get_best_randoms(request, movies=0):
     countries = ProductionCountries.objects.aggregate([
         {
             '$lookup': {
-                'from': 'flattened_movie',
+                'from': 'movie',
                 'localField': '_id',
-                'foreignField': 'guessed_countries',
+                'foreignField': 'guessed_country',
                 'as': 'movies_in_country'
             }
         }
@@ -85,10 +85,10 @@ def get_best_randoms(request, movies=0):
         , {'$limit': limit}
     ])
 
-    movies = FlattenedMovie.objects.aggregate([
+    movies = Movie.objects.aggregate([
         {
             '$match': {
-                'guessed_countries': {
+                'guessed_country': {
                     '$in':
                         [x['_id'] for x in list(countries)]
                 }
@@ -97,7 +97,7 @@ def get_best_randoms(request, movies=0):
         , {'$sort': {'weighted_rating': -1}}
         , {
             '$group': {
-                '_id': '$guessed_countries',
+                '_id': '$guessed_country',
                 'movie': {
                     '$firstN': {
                         'input': '$$ROOT',
@@ -114,7 +114,7 @@ def get_best_randoms(request, movies=0):
                 'original_title': 1, 'overview': 1,
                 'poster_path': 1, 'vote_average': 1,
                 'vote_count': 1, 'imdb_vote_average': 1,
-                'imdb_vote_count': 1, 'guessed_countries': 1
+                'imdb_vote_count': 1, 'guessed_country': 1
             }
         }
     ])
@@ -123,7 +123,7 @@ def get_best_randoms(request, movies=0):
 
 
 def get_movies_from_country_codes(country_codes, limit, skip):
-    return (FlattenedMovie.objects(guessed_countries__in=country_codes)
+    return (Movie.objects(guessed_country__in=country_codes)
             .order_by('-weighted_rating')
             .limit(limit)
             .skip(skip))
@@ -172,7 +172,7 @@ def check_tmdb_for_changes(request):
 
 
 def fetch_movie_data(request, ids):
-    data_list = FlattenedMovie.objects(pk__in=map(lambda x: int(x), ids.split(','))).to_json()
+    data_list = Movie.objects(pk__in=map(lambda x: int(x), ids.split(','))).to_json()
     return HttpResponse(data_list, content_type='application/json')
 
 
@@ -188,19 +188,9 @@ def dump_countries(request):
     return HttpResponse(ProductionCountries.objects.all().to_json(), content_type='application/json')
 
 
-def redo_movies(request):
-    def work():
-        for chunk in chunks(Movie.objects.all().values_list('id'), 100):
-            redo_movies_task.delay(list(chunk))
-        print("Sent all for processing")
-
-    return HttpResponse(start_background_process(work, 'redo_persistence', 'Redoing Persistence'))
-
-
 def create_flattened_structure(request):
     def work():
-        FlattenedMovie.objects().all().delete()
-        for chunk in chunks(Movie.objects.all().values_list('id'), 100):
+        for chunk in chunks(Movie.objects(data__exists=True).all().values_list('id'), 50):
             flattify_movies.delay(list(chunk))
 
     return HttpResponse(start_background_process(work, 'flattify_movies', 'Redoing Persistence'))
@@ -230,7 +220,7 @@ def ratings(request):
             for i in chunks(data.items(), 100):
                 u = [x[0] for x in i]
                 count = count + len(u)
-                matches = FlattenedMovie.objects(imdb_id__in=u).all()
+                matches = Movie.objects(data__imdb_id__in=u).all()
                 for match in matches:
                     if match.guessed_countries:
                         country = match.guessed_countries[0]

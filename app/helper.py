@@ -8,6 +8,8 @@ from itertools import chain, islice
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
+from app.models import Genre, SpokenLanguage, ProductionCountries
+
 
 def convert_country_code(country_code):
     code_dict = {
@@ -106,3 +108,14 @@ def __unzip_file(file_name):
     file_content = f.read()
     f.close()
     return file_content.splitlines()
+
+
+def get_statics():
+    all_genres = dict[Genre]([(gen.id, gen) for gen
+                              in Genre.objects.all()])
+    all_langs = dict[SpokenLanguage]([(lang.iso_639_1, lang) for lang
+                                      in SpokenLanguage.objects.all()])
+    all_countries = dict[ProductionCountries]([(country.iso_3166_1, country) for country
+                                               in ProductionCountries.objects.all()])
+    return all_genres, all_langs, all_countries
+

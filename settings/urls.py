@@ -21,7 +21,6 @@ urlpatterns = [
     path('dump/genres',                     views.dump_genres),
     path('dump/langs',                      views.dump_langs),
     path('dump/countries',                  views.dump_countries),
-    path('redo/movies',                     views.redo_movies),
     path('redo/flat',                       views.create_flattened_structure),
     path('view/best/<str:country_code>',    views.get_best_movies_from_country),
     path('view/random/best/<int:movies>',   views.get_best_randoms),

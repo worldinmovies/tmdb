@@ -12,8 +12,8 @@ from requests.adapters import HTTPAdapter
 import sentry_sdk
 from urllib3.util.retry import Retry
 
-from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log
-from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, MovieDetails, FlattenedMovie
+from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log, get_statics
+from app.models import Movie, SpokenLanguage, Genre, ProductionCountries
 
 
 @sentry_sdk.monitor(monitor_slug='base_import')
@@ -134,12 +134,7 @@ def fetch_tmdb_data_concurrently():
         log("No new movies to import. Going back to sleep")
         return
     log(f"Starting import of {length} unfetched movies")
-    all_genres = dict[Genre]([(gen.id, gen) for gen
-                              in Genre.objects.all()])
-    all_langs = dict[SpokenLanguage]([(lang.iso_639_1, lang) for lang
-                                      in SpokenLanguage.objects.all()])
-    all_countries = dict[ProductionCountries]([(country.iso_3166_1, country) for country
-                                               in ProductionCountries.objects.all()])
+    all_genres, all_langs, all_countries = get_statics()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = (executor.submit(__fetch_movie_with_id, movie_id, index) for index, movie_id
@@ -150,12 +145,7 @@ def fetch_tmdb_data_concurrently():
                 data = future.result()
                 if data is not None:
                     movie = Movie.objects.get(pk=data['id'])
-                    movie_details = Movie.add_references(all_genres, all_langs, all_countries, data)
-                    movie_details = MovieDetails(**movie_details)
-                    movie.add_fetched_info(movie_details)
-                    flat_movie = FlattenedMovie.create(movie_details)
-                    flat_movie.save()
-                    movie.flattened_movie = flat_movie
+                    movie.add_fetched_info(dict(data), all_genres, all_langs, all_countries)
                     movie.save()
                 i += 1
             except Exception as exc:

@@ -2,7 +2,7 @@ import os
 
 from django.db import transaction
 from django.conf import settings
-from app.models import Movie, FlattenedMovie
+from app.models import Movie
 from behave.fixture import use_fixture
 from behave import fixture
 
@@ -33,4 +33,3 @@ def after_scenario(context, feature):
         context.mocker.stop()
     with transaction.atomic():
         Movie.objects.all().delete()
-        FlattenedMovie.objects.all().delete()

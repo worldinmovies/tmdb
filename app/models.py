@@ -11,7 +11,7 @@ from mongoengine.fields import (ListField,
                                 IntField,
                                 BooleanField,
                                 FloatField,
-                                DateTimeField)
+                                DateTimeField, EmbeddedDocumentListField)
 from babel.languages import get_official_languages
 
 tz = pytz.timezone('Europe/Stockholm')
@@ -36,7 +36,7 @@ class Title(EmbeddedDocument):
 
 
 class AlternativeTitles(EmbeddedDocument):
-    titles = ListField((EmbeddedDocumentField(Title)))
+    titles = EmbeddedDocumentListField(Title)
 
     def __str__(self):
         return f"titles:{self.titles}"
@@ -88,8 +88,8 @@ class Crew(EmbeddedDocument):
 
 
 class Credits(EmbeddedDocument):
-    cast = ListField(EmbeddedDocumentField(Cast))
-    crew = ListField(EmbeddedDocumentField(Crew))
+    cast = EmbeddedDocumentListField(Cast)
+    crew = EmbeddedDocumentListField(Crew)
 
     def __str__(self):
         return f"cast:{self.cast}, crew:{self.crew}"
@@ -141,28 +141,12 @@ class SpokenLanguage(DynamicDocument):
         return f"{{iso:\"{self.iso_639_1}\", name:\"{self.name}\"}}"
 
 
-class FlattenedSpokenLanguage(EmbeddedDocument):
-    iso = StringField()
-    name = StringField()
-
-    def __str__(self):
-        return f"{{iso:\"{self.iso}\", name:\"{self.name}\"}}"
-
-
 class ProductionCountries(DynamicDocument):
     iso_3166_1 = StringField(primary_key=True, max_length=4)
     name = StringField(max_length=50)
 
     def __str__(self):
         return f"{{iso:\"{self.iso_3166_1}\", name:\"{self.name}\"}}"
-
-
-class FlattenedProductionCountry(EmbeddedDocument):
-    iso = StringField()
-    name = StringField()
-
-    def __str__(self):
-        return f"{{iso:\"{self.iso}\", name:\"{self.name}\"}}"
 
 
 class MovieDetails(EmbeddedDocument):
@@ -199,95 +183,9 @@ class MovieDetails(EmbeddedDocument):
     external_ids = EmbeddedDocumentField(ExternalIDS)
     images = EmbeddedDocumentField(Images)
 
-    meta = {'indexes': ['imdb_id']}
+    meta = {'indexes': ['imdb_id', 'weighted_rating']}
 
-    def __str__(self):
-        return (f"{{id:{self.id}, "
-                f"imdb_id:{self.imdb_id}, "
-                f"genres:{self.genres}, "
-                f"title:{self.title}}}")
-
-
-class FlattenedMovie(DynamicDocument):
-    id = IntField(primary_key=True)
-    backdrop_path = StringField()
-    belongs_to_collection = EmbeddedDocumentField(BelongsToCollection)
-    budget = IntField()
-    genres = ListField(StringField())
-    homepage = StringField()
-    imdb_id = StringField()
-    original_language = StringField()
-    original_title = StringField()
-    overview = StringField()
-    popularity = FloatField()
-    poster_path = StringField()
-    production_companies = ListField(EmbeddedDocumentField(ProductionCompany))
-    production_countries = ListField(EmbeddedDocumentField(FlattenedProductionCountry))
-    release_date = StringField()
-    revenue = IntField()
-    runtime = IntField()
-    spoken_languages = ListField(EmbeddedDocumentField(FlattenedSpokenLanguage))
-    status = StringField()
-    tagline = StringField()
-    title = StringField()
-    vote_average = FloatField(default=0)
-    imdb_vote_average = FloatField(default=0)
-    vote_count = IntField(default=0)
-    imdb_vote_count = IntField(default=0)
-    alternative_titles = EmbeddedDocumentField(AlternativeTitles)
-    credits = EmbeddedDocumentField(Credits)
-    external_ids = EmbeddedDocumentField(ExternalIDS)
-    images = EmbeddedDocumentField(Images)
-    weighted_rating = FloatField()
-    guessed_countries = ListField(StringField())
-
-    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_countries']}
-
-    def __str__(self):
-        return (f"{{id:{self.id}, "
-                f"imdb_id:'{self.imdb_id}', "
-                f"genres:{self.genres}, "
-                f"title:'{self.title}', "
-                f"guessed_countries: {self.guessed_countries}}}")
-
-    @staticmethod
-    def create(movie: MovieDetails):
-        return FlattenedMovie(id=movie['id'],
-                              backdrop_path=movie['backdrop_path'],
-                              belongs_to_collection=movie['belongs_to_collection'],
-                              budget=movie['budget'],
-                              genres=[x['name'] for x in movie['genres']],
-                              homepage=movie['homepage'],
-                              imdb_id=movie['imdb_id'],
-                              original_language=movie['original_language'],
-                              original_title=movie['original_title'],
-                              overview=movie['overview'],
-                              popularity=movie['popularity'],
-                              poster_path=movie['poster_path'],
-                              production_companies=movie['production_companies'],
-                              production_countries=[{"iso": x['iso_3166_1'], "name": x['name']} for x in
-                                                    movie['production_countries']],
-                              release_date=movie['release_date'],
-                              revenue=movie['revenue'],
-                              runtime=movie['runtime'],
-                              spoken_languages=[{"iso": x['iso_639_1'], "name": x['name']} for x in
-                                                movie['spoken_languages']],
-                              status=movie['status'],
-                              tagline=movie['tagline'],
-                              title=movie['title'],
-                              vote_average=movie['vote_average'],
-                              imdb_vote_average=0,
-                              vote_count=movie['vote_count'],
-                              imdb_vote_count=0,
-                              alternative_titles=movie['alternative_titles'],
-                              credits=movie['credits'],
-                              external_ids=movie['external_ids'],
-                              images=movie['images'],
-                              weighted_rating=FlattenedMovie.calculate_weighted_rating_bayes(movie),
-                              guessed_countries=FlattenedMovie.guess_countries(movie))
-
-    @staticmethod
-    def calculate_weighted_rating_bayes(movie: MovieDetails):
+    def calculate_weighted_rating_bayes(self):
         """
         The formula for calculating the Top Rated 250 Titles gives a true Bayesian estimate:
         weighted rating (WR) = (v ÷ (v+m)) × R + (m ÷ (v+m)) × C where:
@@ -297,55 +195,167 @@ class FlattenedMovie(DynamicDocument):
         m = minimum votes required to be listed in the Top 250 (currently 25000)
         C = the mean vote across the whole report (currently 7.0)
         """
-        v = decimal.Decimal(movie['vote_count'])
+        v = decimal.Decimal(self.vote_count) + decimal.Decimal(self.imdb_vote_count)
         m = decimal.Decimal(200)
-        r = decimal.Decimal(movie['vote_average'])
+        if self.imdb_vote_count > 0:
+            r = (decimal.Decimal(self.vote_average) + decimal.Decimal(self.imdb_vote_average)) / 2
+        else:
+            r = decimal.Decimal(self.vote_average)
         c = decimal.Decimal(4)
-        return (v / (v + m)) * r + (m / (v + m)) * c
+        self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
 
-    @staticmethod
-    def guess_countries(movie: MovieDetails):
-        orig_lang = movie['original_language']
-        countries = [x['iso_3166_1'] for x in movie['production_countries'] if x]
+    def guess_country(self):
+        orig_lang = self.original_language
+        countries = [x['iso_3166_1'] for x in self.production_countries if x]
 
-        for country in [country for country in countries]:
+        for country in list(countries):
             official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
             if orig_lang in official_langs:
-                return [country]
-        if countries:
-            return [countries[0]]
-        else:
-            return []
+                self.guessed_country = country
+                break
+        self.guessed_country = countries[0] if countries else None
+
+    def add_references(self,
+                       all_genres: dict[Genre],
+                       all_langs: dict[SpokenLanguage],
+                       all_countries: dict[ProductionCountries]):
+        self.production_countries = [all_countries[country['iso_3166_1']] for country in self.production_countries]
+        self.spoken_languages = [all_langs[lang['iso_639_1']] for lang in self.spoken_languages]
+        self.genres = [all_genres[genre['id']] for genre in self.genres]
+
+    def __str__(self):
+        return (f"{{id:'{self.id}', "
+                f"imdb_id:'{self.imdb_id}', "
+                f"genres:'{self.genres}', "
+                f"weighted_rating:'{self.weighted_rating}', "
+                f"title:'{self.title}'}}")
 
 
 class Movie(DynamicDocument):
     id = IntField(primary_key=True)
-    data = EmbeddedDocumentField(MovieDetails)
     fetched = BooleanField(required=True, default=False)
     fetched_date = DateTimeField()
-    flattened_movie = ReferenceField(FlattenedMovie)
+    # Deprecated
+    data = EmbeddedDocumentField(MovieDetails)
 
-    @staticmethod
-    def add_references(all_genres: dict[Genre],
-                       all_langs: dict[SpokenLanguage],
-                       all_countries: dict[ProductionCountries],
-                       data: dict):
-        data['production_countries'] = [all_countries[country['iso_3166_1']] for country in
-                                        data.get('production_countries', [])]
-        data['spoken_languages'] = [all_langs[lang['iso_639_1']] for lang in data.get('spoken_languages', [])]
-        data['genres'] = [all_genres[genre['id']] for genre in data.get('genres', [])]
-        return data
+    backdrop_path = StringField()
+    belongs_to_collection = EmbeddedDocumentField(BelongsToCollection)
+    budget = IntField()
+    genres = ListField(ReferenceField(Genre, dbref=True, required=True))
+    homepage = StringField()
+    imdb_id = StringField()
+    original_language = StringField()
+    original_title = StringField()
+    overview = StringField()
+    popularity = FloatField()
+    poster_path = StringField()
+    production_companies = EmbeddedDocumentListField(ProductionCompany)
+    production_countries = ListField(ReferenceField(ProductionCountries, dbref=True, required=True))
+    release_date = StringField()
+    revenue = IntField()
+    runtime = IntField()
+    spoken_languages = ListField(ReferenceField(SpokenLanguage, dbref=True, required=True))
+    status = StringField()
+    tagline = StringField()
+    title = StringField()
+    video = BooleanField()
+    vote_average = FloatField(default=0)
+    imdb_vote_average = FloatField(default=0)
+    vote_count = IntField(default=0)
+    imdb_vote_count = IntField(default=0)
+    weighted_rating = FloatField(default=0)
+    alternative_titles = EmbeddedDocumentField(AlternativeTitles)
+    credits = EmbeddedDocumentField(Credits)
+    external_ids = EmbeddedDocumentField(ExternalIDS)
+    images = EmbeddedDocumentField(Images)
+    guessed_country = StringField()
 
-    def add_fetched_info(self, fetched_movie: MovieDetails):
-        self.data = fetched_movie
+    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country']}
+
+    def add_fetched_info(self, movie: dict, all_genres: dict[Genre],
+                         all_langs: dict[SpokenLanguage],
+                         all_countries: dict[ProductionCountries]):
         self.fetched = True
         self.fetched_date = datetime.now(tz)
+        self.add_references(movie, all_genres, all_langs, all_countries)
+        self.backdrop_path = movie.get('backdrop_path')
+        self.belongs_to_collection = BelongsToCollection(**movie.get('belongs_to_collection')) if movie.get('belongs_to_collection') else None
+        self.budget = movie.get('budget')
+        self.homepage = movie.get('homepage')
+        self.imdb_id = movie.get('imdb_id')
+        self.original_language = movie.get('original_language')
+        self.original_title = movie.get('original_title')
+        self.overview = movie.get('overview')
+        self.popularity = movie.get('popularity')
+        self.poster_path = movie.get('poster_path')
+        self.production_companies = [ProductionCompany(**x) for x in movie.get('production_companies', [])]
+        self.release_date = movie.get('release_date')
+        self.revenue = movie.get('revenue')
+        self.runtime = movie.get('runtime')
+        self.status = movie.get('status')
+        self.tagline = movie.get('tagline')
+        self.title = movie.get('title')
+        self.vote_average = movie.get('vote_average')
+        self.vote_count = movie.get('vote_count', 0)
+        self.alternative_titles = AlternativeTitles(**movie.get('alternative_titles')) if movie.get('alternative_titles') else None
+        self.credits = Credits(**movie.get('credits')) if movie.get('credits') else None
+        self.external_ids = ExternalIDS(**movie.get('external_ids')) if movie.get('external_ids') else None
+        self.images = Images(**movie.get('images')) if movie.get('images') else None
+        self.calculate_weighted_rating_bayes()
+        self.guess_country()
+
+    def calculate_weighted_rating_bayes(self):
+        """
+        The formula for calculating the Top Rated 250 Titles gives a true Bayesian estimate:
+        weighted rating (WR) = (v ÷ (v+m)) × R + (m ÷ (v+m)) × C where:
+
+        R = average for the movie (mean) = (Rating)
+        v = number of votes for the movie = (votes)
+        m = minimum votes required to be listed in the Top 250 (currently 25000)
+        C = the mean vote across the whole report (currently 7.0)
+        """
+        v = decimal.Decimal(self.vote_count) + decimal.Decimal(self.imdb_vote_count)
+        m = decimal.Decimal(200)
+        if self.imdb_vote_count > 0:
+            r = (decimal.Decimal(self.vote_average) + decimal.Decimal(self.imdb_vote_average)) / 2
+        else:
+            r = decimal.Decimal(self.vote_average)
+        c = decimal.Decimal(4)
+        self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
+
+    def guess_country(self):
+        orig_lang = self.original_language
+        countries = [x['iso_3166_1'] for x in self.production_countries if x]
+
+        for country in list(countries):
+            official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
+            if orig_lang in official_langs:
+                self.guessed_country = country
+                break
+        self.guessed_country = countries[0] if countries else None
+
+    def add_references(self,
+                       data: dict,
+                       all_genres: dict[Genre],
+                       all_langs: dict[SpokenLanguage],
+                       all_countries: dict[ProductionCountries]):
+        self.production_countries = [all_countries[country['iso_3166_1']] for country
+                                     in data.get('production_countries', [])]
+        self.spoken_languages = [all_langs[lang['iso_639_1']] for lang in data.get('spoken_languages', [])]
+        self.genres = [all_genres[genre['id']] for genre in data.get('genres', [])]
 
     def __str__(self):
         return (f"{{id: '{self.id}', "
                 f"fetched: '{self.fetched}', "
-                f"data: {{{self.data}}}, "
-                f"fetched_date: '{self.fetched_date.isoformat() if self.fetched_date else None}'}}"
+                f"fetched_date: '{self.fetched_date.isoformat() if self.fetched_date else None}', "
+                f"imdb_id:'{self.imdb_id}', "
+                f"data:'{self.data}', "
+                f"genres:'{self.genres}', "
+                f"weighted_rating:'{self.weighted_rating}', "
+                f"guessed_country:'{self.guessed_country}', "
+                f"alternative_titles:'{self.alternative_titles}', "
+                f"original_title:'{self.original_title}', "
+                f"title:'{self.title}'}}"
                 )
 
 

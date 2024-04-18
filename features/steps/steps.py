@@ -4,7 +4,8 @@ import os
 import time
 import requests_mock
 
-from app.models import SpokenLanguage, ProductionCountries, Genre, Movie, FlattenedMovie, MovieDetails
+from app.helper import get_statics
+from app.models import SpokenLanguage, ProductionCountries, Genre, Movie
 from behave import *
 
 
@@ -36,12 +37,10 @@ def given_movies_are_saved(context, json_data):
         movie = Movie(id=i['id'],
                       fetched=i.get('fetched', False),
                       fetched_date=fetched_date)
-        movie_details = Movie.add_references(
-            Genre.objects.all(),
-            SpokenLanguage.objects.all(),
-            ProductionCountries.objects.all(),
-            i.get('data', {"id": i['id']}))
-        movie.add_fetched_info(fetched_movie=MovieDetails(**movie_details))
+        movie.add_fetched_info(dict(i),
+                               Genre.objects.all(),
+                               SpokenLanguage.objects.all(),
+                               ProductionCountries.objects.all())
         movie.id = i['id']
         movie.fetched = i.get('fetched', False)
         movie.fetched_date = fetched_date
@@ -52,12 +51,14 @@ def given_movies_are_saved(context, json_data):
 def persist_movie_from_file(context, file):
     with open(f"testdata/{file}", 'rb') as img1:
         data = json.loads(img1.read())
-        all_genres = dict([(gen.id, gen) for gen in Genre.objects.all()])
-        all_langs = dict([(lang.iso_639_1, lang) for lang in SpokenLanguage.objects.all()])
-        all_countries = dict([(country.iso_3166_1, country) for country in ProductionCountries.objects.all()])
+        all_genres, all_langs, all_countries = get_statics()
 
-        details = Movie.add_references(all_genres, all_langs, all_countries, data)
-        FlattenedMovie.create(details).save()
+        movie = Movie(id=data['id'],
+                      fetched=True,
+                      fetched_date=None)
+        movie.add_fetched_info(dict(data), all_genres, all_langs, all_countries)
+        print(f"MOVIE: {movie}")
+        movie.save()
 
 
 @when(u'calling {url}')
@@ -177,25 +178,25 @@ def mock_url_with_file(context, url, file):
 def expect_imdb_ratings_be_set(context, imdb_id):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(data__imdb_id=imdb_id, data__imdb_vote_average__gt=0),
+                              .filter(imdb_id=imdb_id, imdb_vote_average__gt=0),
                               1), f"Movie with imdb_id={imdb_id} "
-                                  f"should be found")
-    movie = Movie.objects.get(data__imdb_id=imdb_id)
-    context.test.assertTrue(movie.data.imdb_vote_average > 0, f"Value should have been more than 0, but was: "
-                                                              f"{movie.data.imdb_vote_average}")
-    context.test.assertTrue(movie.data.imdb_vote_count > 0, f"Value should have been more than 0, but was: "
-                                                            f"{movie.data.imdb_vote_count}")
+                                  f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
+    movie: Movie = Movie.objects.get(imdb_id=imdb_id)
+    context.test.assertTrue(movie.imdb_vote_average > 0, f"Value should have been more than 0, but was: "
+                                                              f"{movie.imdb_vote_average}")
+    context.test.assertTrue(movie.imdb_vote_count > 0, f"Value should have been more than 0, but was: "
+                                                            f"{movie.imdb_vote_count}")
 
 
 @then("imdb_id={imdb_id} should have imdb_alt_titles {expected_titles} set eventually")
 def expect_alt_titles_be_set(context, imdb_id, expected_titles):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(data__imdb_id=imdb_id, data__alternative_titles__titles__1__exists=True)
+                              .filter(imdb_id=imdb_id, alternative_titles__titles__1__exists=True)
                               , 1), f"Movie with imdb_id={imdb_id} "
-                                    f"should be found: {Movie.objects.filter(data__imdb_id=imdb_id).all()}")
-    movie = Movie.objects.get(data__imdb_id=imdb_id)
-    actual_titles = [x['title'] for x in movie.data.alternative_titles.titles]
+                                    f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
+    movie: Movie = Movie.objects.get(imdb_id=imdb_id)
+    actual_titles = [x['title'] for x in movie.alternative_titles.titles]
     context.test.assertEqual(set(expected_titles.split(',')), set(actual_titles))
 
 
@@ -203,9 +204,9 @@ def expect_alt_titles_be_set(context, imdb_id, expected_titles):
 def expect_alt_titles_be_set(context, movie_id):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(id=movie_id, data__alternative_titles__titles__1__exists=True)
+                              .filter(id=movie_id, alternative_titles__titles__1__exists=True)
                               , 1), f"Movie with id={movie_id} "
                                     f"should be found: {Movie.objects.filter(id=movie_id).all()}")
-    movie = Movie.objects.get(id=movie_id)
-    actual_titles = [x['title'] for x in movie.data.alternative_titles.titles]
+    movie: Movie = Movie.objects.get(id=movie_id)
+    actual_titles = [x['title'] for x in movie.alternative_titles.titles]
     context.test.assertTrue(actual_titles)
