@@ -1,14 +1,12 @@
 Feature: Views
 
   Background:
-    Given basics are present in mongo
+    Given all basics are present in mongo
 
-
-  Scenario Outline: View Best Endpoint2
+  Scenario Outline: View Best Endpoint
     Given movies from file:<file> is persisted
     When calling <url>
-    Then http status should be 200
-    And response should contain "<expected>"
+    Then response should contain "<expected>"
 
     Examples: /view/best endpoint
       | file                 | url           | expected            |
@@ -18,4 +16,15 @@ Feature: Views
     Examples: /view/random/best endpoint
       | file                 | url                              | expected            |
       | sjunde_inseglet.json | /view/random/best/0?countries=SE | Det sjunde inseglet |
-      | 1398.json            | /view/random/best/0?countries=SU | tt0079944  |
+      | 1398.json            | /view/random/best/0?countries=SU | tt0079944           |
+
+  Scenario Outline: View Best Endpoint
+    Given movies from file:<file> is persisted
+    When calling <url>
+    Then http status should be 200
+    And response be "<file>"
+
+    Examples: /movie/ endpoint
+      | file                 | url         |
+      | sjunde_inseglet.json | /movie/490  |
+      | 1398.json            | /movie/1398 |

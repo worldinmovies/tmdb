@@ -9,6 +9,16 @@ from app.models import SpokenLanguage, ProductionCountries, Genre, Movie
 from behave import *
 
 
+@given("all basics are present in mongo")
+def all_basics(context):
+    with open(f"testdata/genres.json", 'rb') as genres:
+        [Genre(**x).save() for x in json.loads(genres.read()).get('genres')]
+    with open(f"testdata/languages.json", 'rb') as langs:
+        [SpokenLanguage(**x).save() for x in json.loads(langs.read())]
+    with open(f"testdata/countries.json", 'rb') as countries:
+        [ProductionCountries(**x).save() for x in json.loads(countries.read())]
+
+
 @given(u'basics are present in mongo')
 def given_basics_are_present(context):
     os.environ['TMDB_API'] = 'test'
@@ -16,12 +26,20 @@ def given_basics_are_present(context):
     SpokenLanguage(iso_639_1='es', name='Spanish').save()
     SpokenLanguage(iso_639_1='sv', name='Swedish').save()
     SpokenLanguage(iso_639_1='ru', name='Russian').save()
+    SpokenLanguage(iso_639_1='da', name='Danish').save()
+    SpokenLanguage(iso_639_1='fi', name='Finnish').save()
+    SpokenLanguage(iso_639_1='pl', name='Polish').save()
+    SpokenLanguage(iso_639_1='fr', name='French').save()
+    SpokenLanguage(iso_639_1='de', name='German').save()
+    ProductionCountries(iso_3166_1='FI', name='Finland').save()
     ProductionCountries(iso_3166_1='US', name='United States of america').save()
+    ProductionCountries(iso_3166_1='DK', name='Denmark').save()
     ProductionCountries(iso_3166_1='AU', name='Australia').save()
     ProductionCountries(iso_3166_1='GB', name='Great Britain').save()
     ProductionCountries(iso_3166_1='SE', name='Sweden').save()
     ProductionCountries(iso_3166_1='SU', name='Soviet').save()
     Genre(id=28, name="Action").save()
+    Genre(id=36, name="History").save()
     Genre(id=12, name="Adventure").save()
     Genre(id=14, name="Fantasy").save()
     Genre(id=878, name="Science Fiction").save()
@@ -57,7 +75,6 @@ def persist_movie_from_file(context, file):
                       fetched=True,
                       fetched_date=None)
         movie.add_fetched_info(dict(data), all_genres, all_langs, all_countries)
-        print(f"MOVIE: {movie}")
         movie.save()
 
 
@@ -78,6 +95,7 @@ def verify_content(context, expected_response):
 
 @then('response should contain "{expected}"')
 def response_should_contain(context, expected):
+    print(f"Response was: {context.response.content.decode('utf-8')}")
     context.test.assertContains(response=context.response, text=expected)
 
 
@@ -110,7 +128,7 @@ def wait_for_persistence(context, amount):
         f"Movies in database: {Movie.objects.all()}, expected {amount}")
 
 
-def wait_function_is_true(clazz, amount, timeout=5, period=0.5):
+def wait_function_is_true(clazz, amount, timeout: float = 5, period=0.1):
     mustend = time.time() + timeout
     while time.time() < mustend:
         if clazz.all().count() == amount:
@@ -183,9 +201,9 @@ def expect_imdb_ratings_be_set(context, imdb_id):
                                   f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
     movie: Movie = Movie.objects.get(imdb_id=imdb_id)
     context.test.assertTrue(movie.imdb_vote_average > 0, f"Value should have been more than 0, but was: "
-                                                              f"{movie.imdb_vote_average}")
+                                                         f"{movie.imdb_vote_average}")
     context.test.assertTrue(movie.imdb_vote_count > 0, f"Value should have been more than 0, but was: "
-                                                            f"{movie.imdb_vote_count}")
+                                                       f"{movie.imdb_vote_count}")
 
 
 @then("imdb_id={imdb_id} should have imdb_alt_titles {expected_titles} set eventually")
@@ -210,3 +228,25 @@ def expect_alt_titles_be_set(context, movie_id):
     movie: Movie = Movie.objects.get(id=movie_id)
     actual_titles = [x['title'] for x in movie.alternative_titles.titles]
     context.test.assertTrue(actual_titles)
+
+
+@then("id={movie_id} should have country set to {guessed_country} eventually")
+def expect_guessed_country(context, movie_id, guessed_country):
+    context.test.assertTrue(
+        wait_function_is_true(Movie.objects
+                              .filter(pk=movie_id, guessed_country__exact=guessed_country)
+                              , 1, 0.5), f"Movie with id={movie_id} "
+                                         f"should be found: {Movie.objects.filter(id=movie_id)
+                                                             .only('id',
+                                                                   'original_language',
+                                                                   'guessed_country',
+                                                                   'production_countries')}")
+
+
+@then('response be "{expected}"')
+def response_should_be(context, expected):
+    with open(f"testdata/expected/{expected}", 'rb') as file:
+        expected_data = file.read()
+        print(f"RESPONSE: {context.response.content}")
+        context.test.assertEqual(json.loads(context.response.content), json.loads(expected_data))
+

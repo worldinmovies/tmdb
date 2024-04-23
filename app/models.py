@@ -1,8 +1,13 @@
 import decimal
+from collections import Counter
+from typing import override
+from bson import json_util
+import pycountry
+import pytz
 
 from datetime import datetime, timedelta
-import pytz
-from mongoengine import DynamicDocument
+
+from mongoengine import DynamicDocument, QuerySet
 from mongoengine.fields import (ListField,
                                 EmbeddedDocumentField,
                                 EmbeddedDocument,
@@ -12,7 +17,7 @@ from mongoengine.fields import (ListField,
                                 BooleanField,
                                 FloatField,
                                 DateTimeField, EmbeddedDocumentListField)
-from babel.languages import get_official_languages
+from babel.languages import get_official_languages, get_territory_language_info
 
 tz = pytz.timezone('Europe/Stockholm')
 
@@ -231,6 +236,11 @@ class MovieDetails(EmbeddedDocument):
                 f"title:'{self.title}'}}")
 
 
+class CustomQuerySet(QuerySet):
+    def to_json(self):
+        return "[%s]" % (",".join([doc.to_json() for doc in self]))
+
+
 class Movie(DynamicDocument):
     id = IntField(primary_key=True)
     fetched = BooleanField(required=True, default=False)
@@ -270,7 +280,8 @@ class Movie(DynamicDocument):
     images = EmbeddedDocumentField(Images)
     guessed_country = StringField()
 
-    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country']}
+    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country'],
+            'queryset_class': CustomQuerySet}
 
     def add_fetched_info(self, movie: dict, all_genres: dict[Genre],
                          all_langs: dict[SpokenLanguage],
@@ -279,7 +290,8 @@ class Movie(DynamicDocument):
         self.fetched_date = datetime.now(tz)
         self.add_references(movie, all_genres, all_langs, all_countries)
         self.backdrop_path = movie.get('backdrop_path')
-        self.belongs_to_collection = BelongsToCollection(**movie.get('belongs_to_collection')) if movie.get('belongs_to_collection') else None
+        self.belongs_to_collection = BelongsToCollection(**movie.get('belongs_to_collection')) if movie.get(
+            'belongs_to_collection') else None
         self.budget = movie.get('budget')
         self.homepage = movie.get('homepage')
         self.imdb_id = movie.get('imdb_id')
@@ -297,7 +309,8 @@ class Movie(DynamicDocument):
         self.title = movie.get('title')
         self.vote_average = movie.get('vote_average')
         self.vote_count = movie.get('vote_count', 0)
-        self.alternative_titles = AlternativeTitles(**movie.get('alternative_titles')) if movie.get('alternative_titles') else None
+        self.alternative_titles = AlternativeTitles(**movie.get('alternative_titles')) if movie.get(
+            'alternative_titles') else None
         self.credits = Credits(**movie.get('credits')) if movie.get('credits') else None
         self.external_ids = ExternalIDS(**movie.get('external_ids')) if movie.get('external_ids') else None
         self.images = Images(**movie.get('images')) if movie.get('images') else None
@@ -324,15 +337,56 @@ class Movie(DynamicDocument):
         self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
 
     def guess_country(self):
-        orig_lang = self.original_language
-        countries = [x['iso_3166_1'] for x in self.production_countries if x]
+        def estimate_country_of_origin(original_language, production_countries):
+            territories = []
+            for country in pycountry.countries:
+                country_languages = get_official_languages(territory=country.alpha_2)
+                if original_language in country_languages:
+                    territories.append(country.alpha_2)
 
-        for country in list(countries):
-            official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
-            if orig_lang in official_langs:
-                self.guessed_country = country
-                break
-        self.guessed_country = countries[0] if countries else None
+            territories_with_percentage = []
+            # Get all countries that has this language as an official language
+            for territory in territories:
+                infos = get_territory_language_info(territory)
+                for info in infos.items():
+                    official_status = info[1].get('official_status')
+                    percentage = info[1].get('population_percent')
+                    if info[0] == original_language and official_status == 'official':
+                        territories_with_percentage.append({"territory": territory, "percentage": percentage})
+
+            territories_with_percentage.sort(key=lambda item: item.get('percentage'))
+
+            # 1. If there's only one country related to the language
+            if len(territories_with_percentage) == 1:
+                origin_country = territories_with_percentage[0].get('territory')
+            # 2. If there's only one country among the production_countries
+            elif len(set(production_countries)) == 1:
+                origin_country = production_countries[0]
+            else:
+                # If original language is spoken in multiple countries, consider all of them
+                # Filter out countries where the language is spoken by less than 10% of the population
+
+                # Count occurrences of production countries within the filtered list of origin countries
+                production_counter = Counter(
+                    country.get('territory') for country in territories_with_percentage if country.get('territory') in production_countries)
+                # Pick the production country with the highest count
+                origin_country = production_counter.most_common(1)[0][0] if production_counter else None
+
+            # 3. There's a majority of production_countries, connected to the language
+            # 4. Highest ranked territory based on population speakers of this language
+
+            # If original language doesn't determine country, consider production countries
+            # if territories_with_percentage is None:
+            #     print(f"NASDJ: {territories_with_percentage}")
+            #     production_counter = Counter(production_countries)
+            #     # Pick the production country with the highest count
+            #     origin_country = production_counter.most_common(1)[0][0]
+
+            return origin_country
+
+        orig_lang = self.original_language
+        self.guessed_country = estimate_country_of_origin(orig_lang,
+                                                          [x['iso_3166_1'] for x in self.production_countries if x])
 
     def add_references(self,
                        data: dict,
@@ -344,6 +398,25 @@ class Movie(DynamicDocument):
         self.spoken_languages = [all_langs[lang['iso_639_1']] for lang in data.get('spoken_languages', [])]
         self.genres = [all_genres[genre['id']] for genre in data.get('genres', [])]
 
+    @override
+    def to_json(self):
+        data = self.to_mongo()
+        for i, genre in enumerate(data['genres']):
+            data['genres'][i] = self.genres[i].to_mongo()
+        for i, country in enumerate(data['production_countries']):
+            x = self.production_countries[i]
+            data['production_countries'][i] = {
+                "iso": x['iso_3166_1'],
+                "name": x['english_name'] if x['english_name'] else x['name']}
+        for i, langs in enumerate(data['spoken_languages']):
+            x = self.spoken_languages[i]
+            data['spoken_languages'][i] = {
+                "iso": x['iso_639_1'],
+                "name": x['english_name'] if x['english_name'] else x['name']
+            }
+        return json_util.dumps(data)
+
+    @override
     def __str__(self):
         return (f"{{id: '{self.id}', "
                 f"fetched: '{self.fetched}', "

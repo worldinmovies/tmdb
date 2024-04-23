@@ -65,60 +65,52 @@ def get_best_movies_from_country(request, country_code):
 # then reset the country-list, go through everything again but get the next best film, and so on...
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
-    no_of_countries = ProductionCountries.objects.all().count()
+    # no_of_countries = ProductionCountries.objects.all().count()
 
-    countries_skip = int(movies / no_of_countries)
-    movie_skip = int(movies / no_of_countries) + 1
-
-    countries = ProductionCountries.objects.aggregate([
-        {
-            '$lookup': {
-                'from': 'movie',
-                'localField': '_id',
-                'foreignField': 'guessed_country',
-                'as': 'movies_in_country'
-            }
-        }
-        , {'$match': {'movies_in_country': {'$ne': []}}}
-        , {'$project': {'_id': 1}}
-        , {'$skip': countries_skip}
-        , {'$limit': limit}
-    ])
+    # countries_skip = movies % no_of_countries
+    # movie_skip = int(movies / no_of_countries) + 1
 
     movies = Movie.objects.aggregate([
         {
             '$match': {
                 'guessed_country': {
-                    '$in':
-                        [x['_id'] for x in list(countries)]
+                    '$ne': None
                 }
             }
-        }
-        , {'$sort': {'weighted_rating': -1}}
-        , {
+        }, {
+            '$sort': {
+                'weighted_rating': -1
+            }
+        }, {
+            '$skip': movies
+        }, {
+            '$limit': limit
+        }, {
             '$group': {
                 '_id': '$guessed_country',
-                'movie': {
-                    '$firstN': {
-                        'input': '$$ROOT',
-                        'n': movie_skip
-                    }
+                'highest_rated_movie': {
+                    '$first': '$$ROOT'
                 }
             }
-        }
-        , {'$unwind': {'path': '$movie'}}
-        , {'$replaceRoot': {'newRoot': '$movie'}}
-        , {
+        }, {
+            '$replaceRoot': {
+                'newRoot': '$highest_rated_movie'
+            }
+        }, {
             '$project': {
-                '_id': 1, 'imdb_id': 1,
-                'original_title': 1, 'overview': 1,
-                'poster_path': 1, 'vote_average': 1,
-                'vote_count': 1, 'imdb_vote_average': 1,
-                'imdb_vote_count': 1, 'guessed_country': 1
+                '_id': 1,
+                'imdb_id': 1,
+                'original_title': 1,
+                'overview': 1,
+                'poster_path': 1,
+                'vote_average': 1,
+                'vote_count': 1,
+                'imdb_vote_average': 1,
+                'imdb_vote_count': 1,
+                'guessed_country': 1
             }
         }
     ])
-
     return HttpResponse(json.dumps(list(movies)), content_type='application/json')
 
 
@@ -172,8 +164,11 @@ def check_tmdb_for_changes(request):
 
 
 def fetch_movie_data(request, ids):
-    data_list = Movie.objects(pk__in=map(lambda x: int(x), ids.split(','))).to_json()
-    return HttpResponse(data_list, content_type='application/json')
+    data_list = Movie.objects(pk__in=map(lambda x: int(x), ids.split(','))).exclude(
+        'fetched',
+        'fetched_date',
+        'data').to_json()
+    return HttpResponse(list(data_list), content_type='application/json')
 
 
 def dump_genres(request):
