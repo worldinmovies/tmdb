@@ -31,3 +31,5 @@ mongomock-5~=5.0.1
 behave-django==1.4.0
 requests_mock
 testcontainers==4.3.1
+
+ruff==0.4.1

@@ -190,44 +190,6 @@ class MovieDetails(EmbeddedDocument):
 
     meta = {'indexes': ['imdb_id', 'weighted_rating']}
 
-    def calculate_weighted_rating_bayes(self):
-        """
-        The formula for calculating the Top Rated 250 Titles gives a true Bayesian estimate:
-        weighted rating (WR) = (v ÷ (v+m)) × R + (m ÷ (v+m)) × C where:
-
-        R = average for the movie (mean) = (Rating)
-        v = number of votes for the movie = (votes)
-        m = minimum votes required to be listed in the Top 250 (currently 25000)
-        C = the mean vote across the whole report (currently 7.0)
-        """
-        v = decimal.Decimal(self.vote_count) + decimal.Decimal(self.imdb_vote_count)
-        m = decimal.Decimal(200)
-        if self.imdb_vote_count > 0:
-            r = (decimal.Decimal(self.vote_average) + decimal.Decimal(self.imdb_vote_average)) / 2
-        else:
-            r = decimal.Decimal(self.vote_average)
-        c = decimal.Decimal(4)
-        self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
-
-    def guess_country(self):
-        orig_lang = self.original_language
-        countries = [x['iso_3166_1'] for x in self.production_countries if x]
-
-        for country in list(countries):
-            official_langs = get_official_languages(territory=country, de_facto=True, regional=True)
-            if orig_lang in official_langs:
-                self.guessed_country = country
-                break
-        self.guessed_country = countries[0] if countries else None
-
-    def add_references(self,
-                       all_genres: dict[Genre],
-                       all_langs: dict[SpokenLanguage],
-                       all_countries: dict[ProductionCountries]):
-        self.production_countries = [all_countries[country['iso_3166_1']] for country in self.production_countries]
-        self.spoken_languages = [all_langs[lang['iso_639_1']] for lang in self.spoken_languages]
-        self.genres = [all_genres[genre['id']] for genre in self.genres]
-
     def __str__(self):
         return (f"{{id:'{self.id}', "
                 f"imdb_id:'{self.imdb_id}', "
@@ -255,6 +217,7 @@ class Movie(DynamicDocument):
     homepage = StringField()
     imdb_id = StringField()
     original_language = StringField()
+    origin_country = ListField(StringField())
     original_title = StringField()
     overview = StringField()
     popularity = FloatField()
@@ -302,6 +265,7 @@ class Movie(DynamicDocument):
         self.poster_path = movie.get('poster_path')
         self.production_companies = [ProductionCompany(**x) for x in movie.get('production_companies', [])]
         self.release_date = movie.get('release_date')
+        self.origin_country = movie.get('origin_country')
         self.revenue = movie.get('revenue')
         self.runtime = movie.get('runtime')
         self.status = movie.get('status')
@@ -337,8 +301,10 @@ class Movie(DynamicDocument):
         self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
 
     def guess_country(self):
-        def estimate_country_of_origin(original_language, production_countries):
+        def estimate_country_of_origin(origin_country_db, original_language, production_countries,
+                                       production_companies):
             territories = []
+            country: pycountry.db.Country
             for country in pycountry.countries:
                 country_languages = get_official_languages(territory=country.alpha_2)
                 if original_language in country_languages:
@@ -356,37 +322,47 @@ class Movie(DynamicDocument):
 
             territories_with_percentage.sort(key=lambda item: item.get('percentage'))
 
+            # 0. If there's only one origin_country attribute set
+            if origin_country_db and len(origin_country_db) == 1:
+                origin_country = origin_country_db[0]
             # 1. If there's only one country related to the language
-            if len(territories_with_percentage) == 1:
+            elif len(territories_with_percentage) == 1:
                 origin_country = territories_with_percentage[0].get('territory')
             # 2. If there's only one country among the production_countries
-            elif len(set(production_countries)) == 1:
+            elif len(production_countries) == 1:
                 origin_country = production_countries[0]
             else:
                 # If original language is spoken in multiple countries, consider all of them
                 # Filter out countries where the language is spoken by less than 10% of the population
 
                 # Count occurrences of production countries within the filtered list of origin countries
-                production_counter = Counter(
-                    country.get('territory') for country in territories_with_percentage if country.get('territory') in production_countries)
-                # Pick the production country with the highest count
-                origin_country = production_counter.most_common(1)[0][0] if production_counter else None
+                territories_connected_to_production = [country for country in
+                                                       territories_with_percentage if country.get('territory')
+                                                       in production_companies]
+                production_counter = Counter([x.get('territory') for x in territories_connected_to_production])
+                commons = dict()
+                [commons.setdefault(x[1], []).append(x[0]) for x in production_counter.items()]
+                sorted(commons.items(), key=lambda x: x[0])
+                most_common = list(commons.items())[-1]
 
-            # 3. There's a majority of production_countries, connected to the language
-            # 4. Highest ranked territory based on population speakers of this language
-
-            # If original language doesn't determine country, consider production countries
-            # if territories_with_percentage is None:
-            #     print(f"NASDJ: {territories_with_percentage}")
-            #     production_counter = Counter(production_countries)
-            #     # Pick the production country with the highest count
-            #     origin_country = production_counter.most_common(1)[0][0]
+                # 3. There's a majority of production_countries, connected to the language
+                if len(most_common[1]) == 1:
+                    origin_country = most_common[1][0]
+                # 4. Highest ranked territory based on population speakers of this language
+                else:
+                    sorted(territories_connected_to_production, key=lambda x: x.get('percentage'))
+                    highest_ranked_country_on_lang = territories_connected_to_production[-1].get('territory')
+                    # Pick the production country with the highest count
+                    origin_country = highest_ranked_country_on_lang
 
             return origin_country
 
         orig_lang = self.original_language
-        self.guessed_country = estimate_country_of_origin(orig_lang,
-                                                          [x['iso_3166_1'] for x in self.production_countries if x])
+        if orig_lang:
+            self.guessed_country = estimate_country_of_origin(self.origin_country,
+                                                              orig_lang,
+                                                              [x['iso_3166_1'] for x in self.production_countries if x],
+                                                              [x['origin_country'] for x in self.production_companies])
 
     def add_references(self,
                        data: dict,
@@ -404,12 +380,12 @@ class Movie(DynamicDocument):
         for i, genre in enumerate(data['genres']):
             data['genres'][i] = self.genres[i].to_mongo()
         for i, country in enumerate(data['production_countries']):
-            x = self.production_countries[i]
+            x: dict = self.production_countries[i]
             data['production_countries'][i] = {
                 "iso": x['iso_3166_1'],
                 "name": x['english_name'] if x['english_name'] else x['name']}
         for i, langs in enumerate(data['spoken_languages']):
-            x = self.spoken_languages[i]
+            x: dict = self.spoken_languages[i]
             data['spoken_languages'][i] = {
                 "iso": x['iso_639_1'],
                 "name": x['english_name'] if x['english_name'] else x['name']

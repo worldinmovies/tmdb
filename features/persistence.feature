@@ -13,11 +13,11 @@ Feature: Persistence Logics
       # Jagten: Danish
       | 103663.json          | 103663 | DK              |
       # Borg vs McEnroe: Swedish
-      # | 397538.json          | 397538 | SE              |
+      | 397538.json          | 397538 | SE              |
       | godfather.json       | 238    | US              |
       | incendies.json       | 46738  | CA              |
       | lastnight.json       | 16129  | CA              |
-      | clockworkorange.json | 185    | GB              |
+      | clockworkorange.json | 185    | US              |
 
     Examples: Special Cases
       | mocked_data | id   | guessed_country |

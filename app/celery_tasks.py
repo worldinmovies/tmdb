@@ -1,4 +1,3 @@
-import json
 
 from celery import shared_task
 from channels.layers import get_channel_layer
@@ -16,7 +15,8 @@ def flattify_movies(movie_ids):
                 "belongs_to_collection": {"id": data.belongs_to_collection.id,
                                           "name": data.belongs_to_collection.name,
                                           "poster_path": data.belongs_to_collection.poster_path,
-                                          "backdrop_path": data.belongs_to_collection.backdrop_path} if data.belongs_to_collection else None,
+                                          "backdrop_path": data.belongs_to_collection.backdrop_path}
+                if data.belongs_to_collection else None,
                 "budget": data.budget,
                 "homepage": data.homepage,
                 "imdb_id": data.imdb_id,
@@ -26,7 +26,8 @@ def flattify_movies(movie_ids):
                 "popularity": data.popularity,
                 "poster_path": data.poster_path,
                 "production_countries": [{"iso_3166_1": x.iso_3166_1,
-                                          "name": x.name} for x in data.production_countries] if data.production_countries else [],
+                                          "name": x.name} for x in
+                                         data.production_countries] if data.production_countries else [],
                 "spoken_languages": [{"iso_639_1": x.iso_639_1,
                                       "name": x.name} for x in data.spoken_languages] if data.spoken_languages else [],
                 "genres": [{"id": x.id,
@@ -34,7 +35,8 @@ def flattify_movies(movie_ids):
                 "production_companies": [{"id": x.id,
                                           "logo_path": x.logo_path,
                                           "name": x.name,
-                                          "origin_country": x.origin_country} for x in data.production_companies] if data.production_companies else [],
+                                          "origin_country": x.origin_country} for x in
+                                         data.production_companies] if data.production_companies else [],
                 "release_date": data.release_date,
                 "revenue": data.revenue,
                 "runtime": data.runtime,
@@ -45,7 +47,8 @@ def flattify_movies(movie_ids):
                 "vote_count": data.vote_count,
                 "alternative_titles": {"titles": [{"iso_3166_1": x.iso_3166_1,
                                                    "title": x.title,
-                                                   "type": x.type} for x in data.alternative_titles.titles]} if data.alternative_titles else None,
+                                                   "type": x.type} for x in
+                                                  data.alternative_titles.titles]} if data.alternative_titles else None,
                 "credits": {"cast": [{"cast_id": x.cast_id,
                                       "character": x.character,
                                       "credit_id": x.credit_id,
@@ -67,7 +70,8 @@ def flattify_movies(movie_ids):
                                       "profile_path": x.profile_path,
                                       "popularity": x.popularity,
                                       "original_name": x.original_name,
-                                      "known_for_department": x.known_for_department} for x in data.credits.crew]} if data.credits else None,
+                                      "known_for_department": x.known_for_department} for x in
+                                     data.credits.crew]} if data.credits else None,
                 "images": {"backdrops": data.images.backdrops,
                            "posters": data.images.posters,
                            "logos": data.images.logos} if data.images else None
