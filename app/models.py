@@ -343,7 +343,7 @@ class Movie(DynamicDocument):
                 commons = dict()
                 [commons.setdefault(x[1], []).append(x[0]) for x in production_counter.items()]
                 sorted(commons.items(), key=lambda x: x[0])
-                most_common = list(commons.items())[-1]
+                most_common = list(commons.items())[-1] if len(commons.items()) > 0 else commons.items()
 
                 # 3. There's a majority of production_countries, connected to the language
                 if len(most_common[1]) == 1:
