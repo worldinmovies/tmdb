@@ -346,7 +346,7 @@ class Movie(DynamicDocument):
                 most_common = list(commons.items())[-1] if len(commons.items()) > 0 else commons.items()
 
                 # 3. There's a majority of production_countries, connected to the language
-                if len(most_common[1]) == 1:
+                if len(most_common) > 0 and len(most_common[1]) == 1:
                     origin_country = most_common[1][0]
                 # 4. Highest ranked territory based on population speakers of this language
                 else:
