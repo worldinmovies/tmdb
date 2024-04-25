@@ -351,9 +351,12 @@ class Movie(DynamicDocument):
                 # 4. Highest ranked territory based on population speakers of this language
                 else:
                     sorted(territories_connected_to_production, key=lambda x: x.get('percentage'))
-                    highest_ranked_country_on_lang = territories_connected_to_production[-1].get('territory')
-                    # Pick the production country with the highest count
-                    origin_country = highest_ranked_country_on_lang
+                    if len(territories_connected_to_production) > 0:
+                        highest_ranked_country_on_lang = territories_connected_to_production[-1].get('territory')
+                        # Pick the production country with the highest count
+                        origin_country = highest_ranked_country_on_lang
+                    else:
+                        origin_country = None
 
             return origin_country
 
