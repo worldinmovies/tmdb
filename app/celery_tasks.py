@@ -14,6 +14,21 @@ def get_num_actives_in_queue():
 
 
 @shared_task
+def redo_countries(movie_ids):
+    def work(movie: Movie):
+        Movie.objects(id=movie.id).update(set__guessed_country=movie.guess_country())
+
+    layer = get_channel_layer()
+    try:
+        with transaction.atomic():
+            [work(movie) for movie in Movie.objects(pk__in=movie_ids).all()]
+        log(f"Processed {len(movie_ids)} movies, guesstimating countries - {get_num_actives_in_queue()} "
+            f"items in queue left", layer=layer)
+    except Exception as e:
+        log(message=f"Error handling: {movie_ids} in redo_countries with error: e", layer=layer, e=e)
+
+
+@shared_task
 def flattify_movies(movie_ids):
     def work(movie: Movie):
         data: MovieDetails = movie.data

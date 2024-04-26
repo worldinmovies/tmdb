@@ -4,7 +4,7 @@ import datetime
 import json
 import threading
 
-from app.celery_tasks import flattify_movies
+from app.celery_tasks import flattify_movies, redo_countries
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
@@ -189,6 +189,14 @@ def create_flattened_structure(request):
             flattify_movies.delay(list(chunk))
 
     return HttpResponse(start_background_process(work, 'flattify_movies', 'Redoing Persistence'))
+
+
+def redo_guestimation(request):
+    def work():
+        for chunk in chunks(Movie.objects().all().values_list('id'), 50):
+            redo_countries.delay(list(chunk))
+
+    return HttpResponse(start_background_process(work, 'guestimate_countries', 'Redoing Guestimation Of Countries'))
 
 
 @csrf_exempt
