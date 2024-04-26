@@ -10,7 +10,7 @@ from celery.app.control import Inspect
 
 def get_num_actives_in_queue():
     i: Inspect = celery_app.control.inspect()
-    return sum(len(tasks) for tasks in i.active().values()) if i.active() else 0
+    return sum(len(tasks) for tasks in i.scheduled().values()) if i.scheduled() else 0
 
 
 @shared_task
