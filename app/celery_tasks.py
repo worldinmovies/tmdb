@@ -5,6 +5,12 @@ from settings import celery_app
 from app.helper import log, get_statics
 from app.models import Movie, Title, AlternativeTitles, MovieDetails
 from django.db import transaction
+from celery.app.control import Inspect
+
+
+def get_num_actives_in_queue():
+    i: Inspect = celery_app.control.inspect()
+    return sum(len(tasks) for tasks in i.active().values()) if i.active() else 0
 
 
 @shared_task
@@ -86,7 +92,7 @@ def flattify_movies(movie_ids):
 
         with transaction.atomic():
             [work(movie) for movie in Movie.objects(pk__in=movie_ids).all()]
-        log(f"Processed {len(movie_ids)} movies into new structure - {celery_app.control.inspect().active()} "
+        log(f"Processed {len(movie_ids)} movies into new structure - {get_num_actives_in_queue()} "
             f"items in queue left", layer=layer)
     except Exception as e:
         log(message=f"Error handling: {movie_ids} with error: e", layer=layer, e=e)
@@ -110,7 +116,7 @@ def import_imdb_ratings_task(csv_rows_chunk):
                 Movie.objects(id=movie.id).update(set__imdb_vote_average=movie.imdb_vote_average,
                                                   set__imdb_vote_count=movie.imdb_vote_count,
                                                   set__weighted_rating=movie.weighted_rating)
-        log(message=f"Processed {len(csv_rows_chunk)} ratings - {celery_app.control.inspect().active()} "
+        log(message=f"Processed {len(csv_rows_chunk)} ratings - {get_num_actives_in_queue()} "
                     f"items in queue left")
     except Exception as e:
         log(message=f"Failed processing ratings for ids: {movies.keys()} due to error: {e}", e=e)
@@ -131,6 +137,6 @@ def import_imdb_titles_task(chunk):
                     if iso != r'\N' and title not in fetched.alternative_titles.titles:
                         fetched.alternative_titles.titles.append(Title(iso_3166_1=iso, title=title, type='IMDB'))
                 fetched.save()
-        log(message=f"Processed {len(chunk)} titles - {celery_app.control.inspect().active()} items in queue left")
+        log(message=f"Processed {len(chunk)} titles - {get_num_actives_in_queue()} items in queue left")
     except Exception as e:
         log(message=f"Failed processing ratings for ids: {chunked_map.keys()} due to error: {e}", e=e)
