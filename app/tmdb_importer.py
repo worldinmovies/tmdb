@@ -90,7 +90,8 @@ def download_files():
 def __fetch_movie_with_id(movie_id, index):
     api_key = os.getenv('TMDB_API', 'test')
     url = (f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
-           f"&append_to_response=alternative_titles,credits,external_ids,images,account_states")
+           f"&append_to_response=alternative_titles,credits,external_ids,images,account_states,"
+           f"recommendations,watch/providers")
     log(f"Calling url: {url}")
     try:
         session = requests.Session()

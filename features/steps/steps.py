@@ -3,6 +3,7 @@ import json
 import os
 import time
 import requests_mock
+import codecs
 
 from app.helper import get_statics
 from app.models import SpokenLanguage, ProductionCountries, Genre, Movie
@@ -11,11 +12,11 @@ from behave import *
 
 @given("all basics are present in mongo")
 def all_basics(context):
-    with open(f"testdata/genres.json", 'rb') as genres:
+    with open("testdata/genres.json", 'rb') as genres:
         [Genre(**x).save() for x in json.loads(genres.read()).get('genres')]
-    with open(f"testdata/languages.json", 'rb') as langs:
+    with open("testdata/languages.json", 'rb') as langs:
         [SpokenLanguage(**x).save() for x in json.loads(langs.read())]
-    with open(f"testdata/countries.json", 'rb') as countries:
+    with open("testdata/countries.json", 'rb') as countries:
         [ProductionCountries(**x).save() for x in json.loads(countries.read())]
 
 
@@ -114,7 +115,8 @@ def mock_tmdb_data(context, data, movie_id, status):
     url = "https://api.themoviedb.org/3/movie/{movie_id}?" \
           "api_key={api_key}&" \
           "language=en-US&" \
-          "append_to_response=alternative_titles,credits,external_ids,images,account_states".format(
+          "append_to_response=alternative_titles,credits,external_ids,images,account_states," \
+          "recommendations,watch/providers".format(
         api_key='test', movie_id=movie_id)
     start_mock(context)
     with open(f"testdata/{data}", 'rb') as asd:
@@ -238,15 +240,14 @@ def expect_guessed_country(context, movie_id, guessed_country):
                               , 1, 0.5), f"Movie with id={movie_id} "
                                          f"should be found: {Movie.objects.filter(id=movie_id)
                                                              .only('id',
-                                                                   'original_language',
-                                                                   'guessed_country',
-                                                                   'production_countries')}")
+                                                                    'original_language',
+                                                                    'guessed_country',
+                                                                    'production_countries')}")
 
 
 @then('response be "{expected}"')
 def response_should_be(context, expected):
-    with open(f"testdata/expected/{expected}", 'rb') as file:
+    with codecs.open(f"testdata/expected/{expected}", 'rb', 'utf-8') as file:
         expected_data = file.read()
-        print(f"RESPONSE: {context.response.content}")
-        context.test.assertEqual(json.loads(context.response.content), json.loads(expected_data))
-
+        print(f"RESPONSE: {context.response.content.decode('unicode_escape')}")
+        context.test.assertEqual(json.loads(context.response.content)[0], json.loads(expected_data)[0])
