@@ -9,7 +9,9 @@ from django.db import transaction
 @shared_task
 def redo_countries(movie_ids):
     def work(movie: Movie):
-        movie.update(set__guessed_country=movie.guess_country())
+        movie.guessed_country = movie.guess_country()
+        print(f"MOVIE: {movie.guess_country()}")
+        Movie.objects(id=movie.id).update_one(set__guessed_country=movie.guessed_country)
 
     layer = get_channel_layer()
     try:
