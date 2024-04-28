@@ -4,8 +4,10 @@ from typing import override
 from bson import json_util
 import pycountry
 import pytz
-
+# import line_profiler
+# import atexit
 from datetime import datetime, timedelta
+from functools import lru_cache
 
 from mongoengine import DynamicDocument, QuerySet
 from mongoengine.fields import (ListField,
@@ -20,6 +22,19 @@ from mongoengine.fields import (ListField,
 from babel.languages import get_official_languages, get_territory_language_info
 
 tz = pytz.timezone('Europe/Stockholm')
+#profile = line_profiler.LineProfiler()
+#atexit.register(profile.print_stats)
+
+
+@lru_cache(maxsize=None)
+def get_all_countries():
+    country: pycountry.db.Country
+
+    territories = dict()
+    for country in pycountry.countries:
+        langs = get_official_languages(territory=country.alpha_2)
+        [territories.setdefault(lang, []).append(country.alpha_2) for lang in langs]
+    return territories
 
 
 class Title(EmbeddedDocument):
@@ -301,18 +316,17 @@ class Movie(DynamicDocument):
         self.weighted_rating = float((v / (v + m)) * r + (m / (v + m)) * c)
 
     def guess_country(self):
+        # @profile
         def estimate_country_of_origin(origin_country_db, original_language, production_countries,
                                        production_companies):
-            territories = []
-            country: pycountry.db.Country
-            for country in pycountry.countries:
-                country_languages = get_official_languages(territory=country.alpha_2)
-                if original_language in country_languages:
-                    territories.append(country.alpha_2)
+            if origin_country_db and len(origin_country_db) == 1:
+                return origin_country_db[0]
+
+            terrs = get_all_countries().get(original_language, [])
 
             territories_with_percentage = []
             # Get all countries that has this language as an official language
-            for territory in territories:
+            for territory in terrs:
                 infos = get_territory_language_info(territory)
                 for info in infos.items():
                     official_status = info[1].get('official_status')
@@ -323,14 +337,12 @@ class Movie(DynamicDocument):
             territories_with_percentage.sort(key=lambda item: item.get('percentage'))
 
             # 0. If there's only one origin_country attribute set
-            if origin_country_db and len(origin_country_db) == 1:
-                origin_country = origin_country_db[0]
             # 1. If there's only one country related to the language
-            elif len(territories_with_percentage) == 1:
-                origin_country = territories_with_percentage[0].get('territory')
+            if len(territories_with_percentage) == 1:
+                return territories_with_percentage[0].get('territory')
             # 2. If there's only one country among the production_countries
             elif len(production_countries) == 1:
-                origin_country = production_countries[0]
+                return production_countries[0]
             else:
                 # If original language is spoken in multiple countries, consider all of them
                 # Filter out countries where the language is spoken by less than 10% of the population
@@ -347,18 +359,16 @@ class Movie(DynamicDocument):
 
                 # 3. There's a majority of production_countries, connected to the language
                 if len(most_common) > 0 and len(most_common[1]) == 1:
-                    origin_country = most_common[1][0]
+                    return most_common[1][0]
                 # 4. Highest ranked territory based on population speakers of this language
                 else:
                     sorted(territories_connected_to_production, key=lambda x: x.get('percentage'))
                     if len(territories_connected_to_production) > 0:
                         highest_ranked_country_on_lang = territories_connected_to_production[-1].get('territory')
                         # Pick the production country with the highest count
-                        origin_country = highest_ranked_country_on_lang
+                        return highest_ranked_country_on_lang
                     else:
-                        origin_country = None
-
-            return origin_country
+                        return None
 
         orig_lang = self.original_language
         if orig_lang:

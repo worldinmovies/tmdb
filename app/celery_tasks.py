@@ -1,29 +1,25 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 
-from settings import celery_app
 from app.helper import log, get_statics
 from app.models import Movie, Title, AlternativeTitles, MovieDetails
 from django.db import transaction
-from celery.app.control import Inspect
-
-
-def get_num_actives_in_queue():
-    i: Inspect = celery_app.control.inspect()
-    return sum(len(tasks) for tasks in i.scheduled().values()) if i.scheduled() else 0
 
 
 @shared_task
 def redo_countries(movie_ids):
     def work(movie: Movie):
-        Movie.objects(id=movie.id).update(set__guessed_country=movie.guess_country())
+        movie.update(set__guessed_country=movie.guess_country())
 
     layer = get_channel_layer()
     try:
         with transaction.atomic():
-            [work(movie) for movie in Movie.objects(pk__in=movie_ids).all()]
-        log(f"Processed {len(movie_ids)} movies, guesstimating countries - {get_num_actives_in_queue()} "
-            f"items in queue left", layer=layer)
+            [work(movie) for movie in Movie.objects(pk__in=movie_ids).only('id',
+                                                                           'original_language',
+                                                                           'origin_country',
+                                                                           'production_countries',
+                                                                           'production_companies')]
+        log(message=f"Processed {len(movie_ids)} movies, guestimating countries", layer=layer)
     except Exception as e:
         log(message=f"Error handling: {movie_ids} in redo_countries with error: e", layer=layer, e=e)
 
@@ -107,8 +103,7 @@ def flattify_movies(movie_ids):
 
         with transaction.atomic():
             [work(movie) for movie in Movie.objects(pk__in=movie_ids).all()]
-        log(f"Processed {len(movie_ids)} movies into new structure - {get_num_actives_in_queue()} "
-            f"items in queue left", layer=layer)
+        log(f"Processed {len(movie_ids)} movies into new structure", layer=layer)
     except Exception as e:
         log(message=f"Error handling: {movie_ids} with error: e", layer=layer, e=e)
 
@@ -152,6 +147,6 @@ def import_imdb_titles_task(chunk):
                     if iso != r'\N' and title not in fetched.alternative_titles.titles:
                         fetched.alternative_titles.titles.append(Title(iso_3166_1=iso, title=title, type='IMDB'))
                 fetched.save()
-        log(message=f"Processed {len(chunk)} titles - {get_num_actives_in_queue()} items in queue left")
+        log(message=f"Processed {len(chunk)} titles")
     except Exception as e:
         log(message=f"Failed processing ratings for ids: {chunked_map.keys()} due to error: {e}", e=e)
