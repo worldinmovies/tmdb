@@ -14,11 +14,11 @@
 		"name": "Drama"
 	  }
 	],
-	"origin_country": [],
 	"homepage": "",
 	"imdb_id": "tt0079944",
 	"original_language": "ru",
-	"original_title": "\u0421\u0442\u0430\u043b\u043a\u0435\u0440",
+	"origin_country": [],
+	"original_title": "Сталкер",
 	"overview": "Near a gray and unnamed city is the Zone, a place guarded by barbed wire and soldiers, and where the normal laws of physics are victim to frequent anomalies. A stalker guides two men into the Zone, specifically to an area in which deep-seated desires are granted.",
 	"popularity": 27.496,
 	"poster_path": "/rem87AyEochEuhn9VvAGoMQpigz.jpg",
@@ -62,27 +62,27 @@
 		},
 		{
 		  "iso_3166_1": "TR",
-		  "title": "\u0130z S\u00fcr\u00fcc\u00fc",
+		  "title": "İz Sürücü",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "KR",
-		  "title": "\uc2a4\ud1a0\ucee4",
+		  "title": "스토커",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "KR",
-		  "title": "\uc7a0\uc785\uc790",
+		  "title": "잠입자",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "BG",
-		  "title": "\u0421\u0442\u0430\u043b\u043a\u0435\u0440",
+		  "title": "Сталкер",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "CN",
-		  "title": "\u6f5c\u884c\u8005",
+		  "title": "潜行者",
 		  "type": ""
 		},
 		{
@@ -97,7 +97,7 @@
 		},
 		{
 		  "iso_3166_1": "GR",
-		  "title": "\u03a3\u03c4\u03ac\u03bb\u03ba\u03b5\u03c1",
+		  "title": "Στάλκερ",
 		  "type": ""
 		},
 		{
@@ -107,7 +107,7 @@
 		},
 		{
 		  "iso_3166_1": "JP",
-		  "title": "\u30b9\u30c8\u30fc\u30ab\u30fc\uff081979\uff09",
+		  "title": "ストーカー（1979）",
 		  "type": ""
 		},
 		{
@@ -122,22 +122,22 @@
 		},
 		{
 		  "iso_3166_1": "RO",
-		  "title": "C\u0103l\u0103uza",
+		  "title": "Călăuza",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "RS",
-		  "title": "\u0421\u0442\u0430\u043b\u043a\u0435\u0440",
+		  "title": "Сталкер",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "TW",
-		  "title": "\u6f5b\u884c\u8005",
+		  "title": "潛行者",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "UA",
-		  "title": "\u0421\u0442\u0430\u043b\u043a\u0435\u0440",
+		  "title": "Сталкер",
 		  "type": ""
 		},
 		{

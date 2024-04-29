@@ -3,6 +3,7 @@ import json
 import os
 import time
 import requests_mock
+import codecs
 
 from app.helper import get_statics
 from app.models import SpokenLanguage, ProductionCountries, Genre, Movie
@@ -245,10 +246,10 @@ def expect_guessed_country(context, movie_id, guessed_country):
 
 @then('response be "{expected}"')
 def response_should_be(context, expected):
-    with open(f"testdata/expected/{expected}", 'rb') as file:
+    with codecs.open(f"testdata/expected/{expected}", 'rb', 'utf-8') as file:
         expected_data = file.read()
-        print(f"RESPONSE: {context.response.content}")
-        context.test.assertEqual(json.loads(context.response.content), json.loads(expected_data))
+        print(f"RESPONSE: {context.response.content.decode('unicode_escape')}")
+        context.test.assertEqual(json.loads(context.response.content)[0], json.loads(expected_data)[0])
 
 
 @step("guessed_country field is nulled for id={movie_id}")

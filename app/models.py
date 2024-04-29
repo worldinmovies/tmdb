@@ -398,12 +398,13 @@ class Movie(DynamicDocument):
             x: dict = self.production_countries[i]
             data['production_countries'][i] = {
                 "iso": x['iso_3166_1'],
-                "name": x['english_name'] if x['english_name'] else x['name']}
+                "name": x['english_name'] if hasattr(x, 'english_name') else x['name']
+            }
         for i, langs in enumerate(data['spoken_languages']):
             x: dict = self.spoken_languages[i]
             data['spoken_languages'][i] = {
                 "iso": x['iso_639_1'],
-                "name": x['english_name'] if x['english_name'] else x['name']
+                "name": x['english_name'] if hasattr(x, 'english_name') else x['name']
             }
         return json_util.dumps(data)
 
