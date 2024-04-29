@@ -65,10 +65,26 @@ def get_best_movies_from_country(request, country_code):
 # then reset the country-list, go through everything again but get the next best film, and so on...
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
-    # no_of_countries = ProductionCountries.objects.all().count()
 
-    # countries_skip = movies % no_of_countries
-    # movie_skip = int(movies / no_of_countries) + 1
+    no_of_countries = list(Movie.objects.aggregate([
+        {
+            '$group': {
+                '_id': '$guessed_country',
+                'count': {
+                    '$sum': 1
+                }
+            }
+        }, {
+            '$group': {
+                '_id': None,
+                'unique_values': {
+                    '$sum': 1
+                }
+            }
+        }
+    ]))[0]['unique_values']
+    countries_skip = movies % no_of_countries
+    movie_skip = int(movies / no_of_countries)
 
     movies = Movie.objects.aggregate([
         {
@@ -78,36 +94,68 @@ def get_best_randoms(request, movies=0):
                 }
             }
         }, {
+            '$project': {
+                '_id': 1,
+                'guessed_country': 1,
+                'weighted_rating': 1
+            }
+        }, {
             '$sort': {
+                'guessed_country': 1,
                 'weighted_rating': -1
             }
         }, {
-            '$skip': movies
-        }, {
-            '$limit': limit
-        }, {
             '$group': {
                 '_id': '$guessed_country',
-                'highest_rated_movie': {
-                    '$first': '$$ROOT'
+                'movies': {
+                    '$push': {
+                        '_id': '$_id'
+                    }
                 }
             }
         }, {
-            '$replaceRoot': {
-                'newRoot': '$highest_rated_movie'
+            '$sort': {
+                '_id': 1
             }
         }, {
+            '$skip': countries_skip
+        }, {
+            '$limit': limit
+        }, {
             '$project': {
-                '_id': 1,
-                'imdb_id': 1,
-                'original_title': 1,
-                'overview': 1,
-                'poster_path': 1,
-                'vote_average': 1,
-                'vote_count': 1,
-                'imdb_vote_average': 1,
-                'imdb_vote_count': 1,
-                'guessed_country': 1
+                'movies': {
+                    '$slice': [
+                        '$movies', movie_skip, 1
+                    ]
+                }
+            }
+        }, {
+            '$unwind': '$movies'
+        }, {
+            '$replaceRoot': {
+                'newRoot': '$movies'
+            }
+        }, {
+            '$lookup': {
+                'from': 'movie',
+                'localField': '_id',
+                'foreignField': '_id',
+                'as': 'movie'
+            }
+        }, {
+            '$unwind': '$movie'
+        }, {
+            '$project': {
+                '_id': '$movie._id',
+                'imdb_id': '$movie.imdb_id',
+                'original_title': '$movie.original_title',
+                'overview': '$movie.overview',
+                'poster_path': '$movie.poster_path',
+                'vote_average': '$movie.vote_average',
+                'vote_count': '$movie.vote_count',
+                'imdb_vote_average': '$movie.imdb_vote_average',
+                'imdb_vote_count': '$movie.imdb_vote_count',
+                'guessed_country': '$movie.guessed_country'
             }
         }
     ])
