@@ -5,9 +5,9 @@ import sys
 
 if 'test' in sys.argv or 'behave' in sys.argv:
     from testcontainers.mongodb import MongoDbContainer
-
+    
     os.environ["ENVIRONMENT"] = "test"
-    mongo_container = MongoDbContainer("mongasdo:7-jammy", dbname="test")
+    mongo_container = MongoDbContainer("mongo:7-jammy", dbname="test")
     mongo_container.start()
     os.environ['MONGO_URL'] = mongo_container.get_connection_url()
 
