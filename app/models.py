@@ -22,8 +22,10 @@ from mongoengine.fields import (ListField,
 from babel.languages import get_official_languages, get_territory_language_info
 
 tz = pytz.timezone('Europe/Stockholm')
-#profile = line_profiler.LineProfiler()
-#atexit.register(profile.print_stats)
+
+
+# profile = line_profiler.LineProfiler()
+# atexit.register(profile.print_stats)
 
 
 @lru_cache(maxsize=None)
@@ -294,7 +296,7 @@ class Movie(DynamicDocument):
         self.external_ids = ExternalIDS(**movie.get('external_ids')) if movie.get('external_ids') else None
         self.images = Images(**movie.get('images')) if movie.get('images') else None
         self.calculate_weighted_rating_bayes()
-        self.guess_country()
+        self.guessed_country = self.guess_country()
 
     def calculate_weighted_rating_bayes(self):
         """
@@ -372,10 +374,10 @@ class Movie(DynamicDocument):
 
         orig_lang = self.original_language
         if orig_lang:
-            self.guessed_country = estimate_country_of_origin(self.origin_country,
-                                                              orig_lang,
-                                                              [x['iso_3166_1'] for x in self.production_countries if x],
-                                                              [x['origin_country'] for x in self.production_companies])
+            return estimate_country_of_origin(self.origin_country,
+                                              orig_lang,
+                                              [x['iso_3166_1'] for x in self.production_countries if x],
+                                              [x['origin_country'] for x in self.production_companies])
 
     def add_references(self,
                        data: dict,
