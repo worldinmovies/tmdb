@@ -171,62 +171,28 @@ class ProductionCountries(DynamicDocument):
         return f"{{iso:\"{self.iso_3166_1}\", name:\"{self.name}\"}}"
 
 
-class MovieDetails(EmbeddedDocument):
-    adult = BooleanField()
-    backdrop_path = StringField()
-    belongs_to_collection = EmbeddedDocumentField(BelongsToCollection)
-    budget = IntField()
-    genres = ListField(ReferenceField(Genre, dbref=True, required=True))
-    homepage = StringField()
-    id = IntField()
-    imdb_id = StringField()
-    original_language = StringField()
-    original_title = StringField()
-    overview = StringField()
-    popularity = FloatField()
-    poster_path = StringField()
-    production_companies = ListField(EmbeddedDocumentField(ProductionCompany))
-    production_countries = ListField(ReferenceField(ProductionCountries, dbref=True, required=True))
-    release_date = StringField()
-    revenue = IntField()
-    runtime = IntField()
-    spoken_languages = ListField(ReferenceField(SpokenLanguage, dbref=True, required=True))
-    status = StringField()
-    tagline = StringField()
-    title = StringField()
-    video = BooleanField()
-    vote_average = FloatField(default=0)
-    imdb_vote_average = FloatField(default=0)
-    vote_count = IntField(default=0)
-    imdb_vote_count = IntField(default=0)
-    weighted_rating = FloatField()
-    alternative_titles = EmbeddedDocumentField(AlternativeTitles)
-    credits = EmbeddedDocumentField(Credits)
-    external_ids = EmbeddedDocumentField(ExternalIDS)
-    images = EmbeddedDocumentField(Images)
-
-    meta = {'indexes': ['imdb_id', 'weighted_rating']}
-
-    def __str__(self):
-        return (f"{{id:'{self.id}', "
-                f"imdb_id:'{self.imdb_id}', "
-                f"genres:'{self.genres}', "
-                f"weighted_rating:'{self.weighted_rating}', "
-                f"title:'{self.title}'}}")
-
-
 class CustomQuerySet(QuerySet):
     def to_json(self):
         return "[%s]" % (",".join([doc.to_json() for doc in self]))
+
+
+class WatchProvider(DynamicDocument):
+    provider_id = IntField(primary_key=True)
+    logo_path = StringField()
+    name = StringField()
+
+
+class ProvidersByCountry(EmbeddedDocument):
+    country_code = StringField()
+    flatrate = ListField(ReferenceField(WatchProvider, dbref=True))
+    buy = ListField(ReferenceField(WatchProvider, dbref=True))
+    rent = ListField(ReferenceField(WatchProvider, dbref=True))
 
 
 class Movie(DynamicDocument):
     id = IntField(primary_key=True)
     fetched = BooleanField(required=True, default=False)
     fetched_date = DateTimeField()
-    # Deprecated
-    data = EmbeddedDocumentField(MovieDetails)
-
     backdrop_path = StringField()
     belongs_to_collection = EmbeddedDocumentField(BelongsToCollection)
     budget = IntField()
@@ -258,6 +224,8 @@ class Movie(DynamicDocument):
     credits = EmbeddedDocumentField(Credits)
     external_ids = EmbeddedDocumentField(ExternalIDS)
     images = EmbeddedDocumentField(Images)
+    recommended_movies = ListField(IntField())
+    providers = ListField(ProvidersByCountry)
     guessed_country = StringField()
 
     meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country'],
@@ -297,6 +265,7 @@ class Movie(DynamicDocument):
         self.images = Images(**movie.get('images')) if movie.get('images') else None
         self.calculate_weighted_rating_bayes()
         self.guessed_country = self.guess_country()
+        self.recommended_movies = [x['id'] for x in movie.get('recommendations', {}).get('results', [])]
 
     def calculate_weighted_rating_bayes(self):
         """
@@ -414,7 +383,6 @@ class Movie(DynamicDocument):
                 f"fetched: '{self.fetched}', "
                 f"fetched_date: '{self.fetched_date.isoformat() if self.fetched_date else None}', "
                 f"imdb_id:'{self.imdb_id}', "
-                f"data:'{self.data}', "
                 f"genres:'{self.genres}', "
                 f"weighted_rating:'{self.weighted_rating}', "
                 f"guessed_country:'{self.guessed_country}', "

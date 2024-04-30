@@ -2,7 +2,7 @@
   {
 	"_id": 490,
 	"fetched": false,
-	"backdrop_path": "/6s2BqtDvp1BMiP70zCDU5OW6hMy.jpg",
+	"backdrop_path": "/7tBfYcZH4P4AA1oFzjflUTSDZgx.jpg",
 	"budget": 0,
 	"genres": [
 	  {
@@ -17,10 +17,13 @@
 	"homepage": "",
 	"imdb_id": "tt0050976",
 	"original_language": "sv",
+	"origin_country": [
+	  "SE"
+	],
 	"original_title": "Det sjunde inseglet",
 	"overview": "When disillusioned Swedish knight Antonius Block returns home from the Crusades to find his country in the grips of the Black Death, he challenges Death to a chess match for his life. Tormented by the belief that God does not exist, Block sets off on a journey, meeting up with traveling players Jof and his wife, Mia, and becoming determined to evade Death long enough to commit one redemptive act while he still lives.",
-	"popularity": 22.345,
-	"poster_path": "/wcZ21zrOsy0b52AfAF50XpTiv75.jpg",
+	"popularity": 34.527,
+	"poster_path": "/j6z3c6dGXtPHUATJX8J7Y70mM1S.jpg",
 	"production_companies": [
 	  {
 		"id": 6181,
@@ -35,7 +38,6 @@
 		"name": "Sweden"
 	  }
 	],
-	"origin_country": [],
 	"release_date": "1957-02-16",
 	"revenue": 0,
 	"runtime": 96,
@@ -48,31 +50,31 @@
 	"status": "Released",
 	"tagline": "The story of a challenge to death",
 	"title": "The Seventh Seal",
-	"vote_average": 8.193,
+	"vote_average": 8.195,
 	"imdb_vote_average": 0.0,
-	"vote_count": 2723,
+	"vote_count": 2834,
 	"imdb_vote_count": 0,
-	"weighted_rating": 7.9061029763941155,
+	"weighted_rating": 7.918467369808834,
 	"alternative_titles": {
 	  "titles": [
 		{
 		  "iso_3166_1": "FR",
-		  "title": "Le 7\u00e8me sceau",
+		  "title": "Le 7ème sceau",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "ES",
-		  "title": "El s\u00e9ptimo sello",
+		  "title": "El séptimo sello",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "TR",
-		  "title": "Yedinci M\u00fch\u00fcr",
+		  "title": "Yedinci Mühür",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "KR",
-		  "title": "\uc81c7\uc758 \ubd09\uc778",
+		  "title": "제7의 봉인",
 		  "type": ""
 		},
 		{
@@ -82,17 +84,17 @@
 		},
 		{
 		  "iso_3166_1": "RS",
-		  "title": "\u0421\u0435\u0434\u043c\u0438 \u043f\u0435\u0447\u0430\u0442",
+		  "title": "Седми печат",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "BR",
-		  "title": "O S\u00e9timo Selo",
+		  "title": "O Sétimo Selo",
 		  "type": ""
 		},
 		{
 		  "iso_3166_1": "AZ",
-		  "title": "Yeddinci M\u00f6h\u00fcr",
+		  "title": "Yeddinci Möhür",
 		  "type": ""
 		}
 	  ]
@@ -108,8 +110,8 @@
 		  "id": 2201,
 		  "name": "Max von Sydow",
 		  "order": 0,
-		  "profile_path": "/u16BsGyT6v9yuO7wWAF62NayDth.jpg",
-		  "popularity": 29.296,
+		  "profile_path": "/fOzSDFqMx84NR7PSv36P7j0Qf1q.jpg",
+		  "popularity": 26.02,
 		  "original_name": "Max von Sydow",
 		  "known_for_department": "Acting"
 		},
@@ -123,22 +125,22 @@
 		  "name": "Bengt Ekerot",
 		  "order": 1,
 		  "profile_path": "/4UxoMzIdE9PR4THNr3U2PL17veu.jpg",
-		  "popularity": 2.947,
+		  "popularity": 6.285,
 		  "original_name": "Bengt Ekerot",
 		  "known_for_department": "Acting"
 		},
 		{
 		  "adult": false,
 		  "cast_id": 2,
-		  "character": "J\u00f6ns",
+		  "character": "Jöns",
 		  "credit_id": "52fe4249c3a36847f80127ab",
 		  "gender": 2,
 		  "id": 6649,
-		  "name": "Gunnar Bj\u00f6rnstrand",
+		  "name": "Gunnar Björnstrand",
 		  "order": 2,
 		  "profile_path": "/vkEY3nex3G0PMMnJ11Kamt4yod.jpg",
-		  "popularity": 6.43,
-		  "original_name": "Gunnar Bj\u00f6rnstrand",
+		  "popularity": 9.129,
+		  "original_name": "Gunnar Björnstrand",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -151,7 +153,7 @@
 		  "name": "Nils Poppe",
 		  "order": 3,
 		  "profile_path": "/qPXSktfOnVn2zlGFSoYUn8BQUhf.jpg",
-		  "popularity": 2.496,
+		  "popularity": 6.871,
 		  "original_name": "Nils Poppe",
 		  "known_for_department": "Acting"
 		},
@@ -165,7 +167,7 @@
 		  "name": "Bibi Andersson",
 		  "order": 4,
 		  "profile_path": "/1oVFJtQSOv6mG8HjsReDy3aipt8.jpg",
-		  "popularity": 7.632,
+		  "popularity": 17.423,
 		  "original_name": "Bibi Andersson",
 		  "known_for_department": "Acting"
 		},
@@ -176,11 +178,11 @@
 		  "credit_id": "52fe4249c3a36847f80127f1",
 		  "gender": 1,
 		  "id": 6661,
-		  "name": "Inga Landgr\u00e9",
+		  "name": "Inga Landgré",
 		  "order": 5,
 		  "profile_path": "/dp6F73XAbjtki5zZoUiOcq6sS0Z.jpg",
-		  "popularity": 8.56,
-		  "original_name": "Inga Landgr\u00e9",
+		  "popularity": 5.387,
+		  "original_name": "Inga Landgré",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -190,11 +192,11 @@
 		  "credit_id": "52fe4249c3a36847f8012801",
 		  "gender": 2,
 		  "id": 6665,
-		  "name": "\u00c5ke Fridell",
+		  "name": "Åke Fridell",
 		  "order": 6,
 		  "profile_path": "/6uUCqabY28cJquzorlEANzJ2mMl.jpg",
-		  "popularity": 3.197,
-		  "original_name": "\u00c5ke Fridell",
+		  "popularity": 3.186,
+		  "original_name": "Åke Fridell",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -207,7 +209,7 @@
 		  "name": "Inga Gill",
 		  "order": 7,
 		  "profile_path": "/vyAAK3pxc4F8cwlG52wIJ834P9S.jpg",
-		  "popularity": 6.625,
+		  "popularity": 7.083,
 		  "original_name": "Inga Gill",
 		  "known_for_department": "Acting"
 		},
@@ -221,7 +223,7 @@
 		  "name": "Maud Hansson",
 		  "order": 8,
 		  "profile_path": "/91sveuL9d3Lasq7V0ryWEvmda98.jpg",
-		  "popularity": 5.28,
+		  "popularity": 7.901,
 		  "original_name": "Maud Hansson",
 		  "known_for_department": "Acting"
 		},
@@ -235,7 +237,7 @@
 		  "name": "Gunnel Lindblom",
 		  "order": 9,
 		  "profile_path": "/93heWge7LBJtmTlvVUvCHRogcmJ.jpg",
-		  "popularity": 6.696,
+		  "popularity": 8.992,
 		  "original_name": "Gunnel Lindblom",
 		  "known_for_department": "Acting"
 		},
@@ -248,7 +250,7 @@
 		  "id": 6663,
 		  "name": "Bertil Anderberg",
 		  "order": 10,
-		  "popularity": 2.778,
+		  "popularity": 3.23,
 		  "original_name": "Bertil Anderberg",
 		  "known_for_department": "Acting"
 		},
@@ -262,7 +264,7 @@
 		  "name": "Anders Ek",
 		  "order": 11,
 		  "profile_path": "/h3PjEay9gNA6RLOOZTDBavN6fQN.jpg",
-		  "popularity": 2.061,
+		  "popularity": 3.79,
 		  "original_name": "Anders Ek",
 		  "known_for_department": "Acting"
 		},
@@ -276,7 +278,7 @@
 		  "name": "Gunnar Olsson",
 		  "order": 12,
 		  "profile_path": "/zBX6RY9177eE5WXkA3bKdH5dh9t.jpg",
-		  "popularity": 1.796,
+		  "popularity": 2.899,
 		  "original_name": "Gunnar Olsson",
 		  "known_for_department": "Acting"
 		},
@@ -290,7 +292,7 @@
 		  "name": "Erik Strandmark",
 		  "order": 13,
 		  "profile_path": "/2NSQALE8130NUvMgOpNyd6EfNAh.jpg",
-		  "popularity": 2.661,
+		  "popularity": 3.846,
 		  "original_name": "Erik Strandmark",
 		  "known_for_department": "Acting"
 		},
@@ -304,7 +306,7 @@
 		  "name": "Lars Lind",
 		  "order": 14,
 		  "profile_path": "/7vfPGzJLJq6QQ0CWzI1ts9Akm1r.jpg",
-		  "popularity": 4.361,
+		  "popularity": 4.22,
 		  "original_name": "Lars Lind",
 		  "known_for_department": "Acting"
 		},
@@ -315,11 +317,11 @@
 		  "credit_id": "52fe4249c3a36847f8012819",
 		  "gender": 2,
 		  "id": 550014,
-		  "name": "Benkt-\u00c5ke Benktsson",
+		  "name": "Benkt-Åke Benktsson",
 		  "order": 15,
 		  "profile_path": "/rcvoOrv9y1tlmMl4vCAWtXpFSs0.jpg",
-		  "popularity": 2.935,
-		  "original_name": "Benkt-\u00c5ke Benktsson",
+		  "popularity": 2.69,
+		  "original_name": "Benkt-Åke Benktsson",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -332,7 +334,7 @@
 		  "name": "Tor Borong",
 		  "order": 16,
 		  "profile_path": "/B4d4QSPYyL5pcAG5VkKh5B4XjJ.jpg",
-		  "popularity": 2.188,
+		  "popularity": 1.398,
 		  "original_name": "Tor Borong",
 		  "known_for_department": "Acting"
 		},
@@ -346,7 +348,7 @@
 		  "name": "Gudrun Brost",
 		  "order": 17,
 		  "profile_path": "/eVqJNK796VYGaq4imWAFMr38NfT.jpg",
-		  "popularity": 6.402,
+		  "popularity": 3.501,
 		  "original_name": "Gudrun Brost",
 		  "known_for_department": "Acting"
 		},
@@ -359,7 +361,7 @@
 		  "id": 1194870,
 		  "name": "Harry Asklund",
 		  "order": 18,
-		  "popularity": 0.652,
+		  "popularity": 0.794,
 		  "original_name": "Harry Asklund",
 		  "known_for_department": "Acting"
 		},
@@ -373,7 +375,7 @@
 		  "name": "Ulf Johansson",
 		  "order": 19,
 		  "profile_path": "/oBiRcRihJM8bqeK35BBP9oSp6jk.jpg",
-		  "popularity": 3.032,
+		  "popularity": 7.402,
 		  "original_name": "Ulf Johansson",
 		  "known_for_department": "Acting"
 		},
@@ -387,7 +389,7 @@
 		  "name": "Sten Ardenstam",
 		  "order": 20,
 		  "profile_path": "/g8TgcMaGIqLffUE4TkxZRSdW7aa.jpg",
-		  "popularity": 2.268,
+		  "popularity": 3.176,
 		  "original_name": "Sten Ardenstam",
 		  "known_for_department": "Acting"
 		},
@@ -398,10 +400,10 @@
 		  "credit_id": "52fe4249c3a36847f8012849",
 		  "gender": 2,
 		  "id": 1194875,
-		  "name": "Gordon L\u00f6wenadler",
+		  "name": "Gordon Löwenadler",
 		  "order": 21,
-		  "popularity": 0.608,
-		  "original_name": "Gordon L\u00f6wenadler",
+		  "popularity": 1.574,
+		  "original_name": "Gordon Löwenadler",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -426,7 +428,7 @@
 		  "id": 1194871,
 		  "name": "Tommy Karlsson",
 		  "order": 23,
-		  "popularity": 1.38,
+		  "popularity": 1.4,
 		  "original_name": "Tommy Karlsson",
 		  "known_for_department": "Acting"
 		},
@@ -439,7 +441,7 @@
 		  "id": 3103525,
 		  "name": "Siv Aleros",
 		  "order": 24,
-		  "popularity": 0.98,
+		  "popularity": 0.6,
 		  "original_name": "Siv Aleros",
 		  "known_for_department": "Acting"
 		},
@@ -452,7 +454,7 @@
 		  "id": 3103524,
 		  "name": "Bengt Gillberg",
 		  "order": 25,
-		  "popularity": 1.052,
+		  "popularity": 0.6,
 		  "original_name": "Bengt Gillberg",
 		  "known_for_department": "Acting"
 		},
@@ -477,11 +479,11 @@
 		  "credit_id": "60ad525b1108a800573b660a",
 		  "gender": 1,
 		  "id": 1334013,
-		  "name": "Gunl\u00f6g Hagberg",
+		  "name": "Gunlög Hagberg",
 		  "order": 27,
 		  "profile_path": "/zTszKOQtFYY8lhONvPhazacB6nv.jpg",
-		  "popularity": 0.6,
-		  "original_name": "Gunl\u00f6g Hagberg",
+		  "popularity": 1.135,
+		  "original_name": "Gunlög Hagberg",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -493,7 +495,7 @@
 		  "id": 3103522,
 		  "name": "Gun Hammargren",
 		  "order": 28,
-		  "popularity": 0.6,
+		  "popularity": 0.652,
 		  "original_name": "Gun Hammargren",
 		  "known_for_department": "Acting"
 		},
@@ -506,7 +508,7 @@
 		  "id": 1490711,
 		  "name": "Uno Larsson",
 		  "order": 29,
-		  "popularity": 0.781,
+		  "popularity": 1.646,
 		  "original_name": "Uno Larsson",
 		  "known_for_department": "Acting"
 		},
@@ -519,7 +521,7 @@
 		  "id": 2537227,
 		  "name": "Lennart Lilja",
 		  "order": 30,
-		  "popularity": 0.648,
+		  "popularity": 2.233,
 		  "original_name": "Lennart Lilja",
 		  "known_for_department": "Acting"
 		},
@@ -543,10 +545,10 @@
 		  "credit_id": "60ad5225d7fbda00407f4804",
 		  "gender": 2,
 		  "id": 3103519,
-		  "name": "Helge Sj\u00f6kvist",
+		  "name": "Helge Sjökvist",
 		  "order": 32,
-		  "popularity": 1.052,
-		  "original_name": "Helge Sj\u00f6kvist",
+		  "popularity": 1.094,
+		  "original_name": "Helge Sjökvist",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -559,7 +561,7 @@
 		  "name": "Georg Skarstedt",
 		  "order": 33,
 		  "profile_path": "/6ClV2EelFAoLxNTTK9Fzw91HjFL.jpg",
-		  "popularity": 2.153,
+		  "popularity": 3.947,
 		  "original_name": "Georg Skarstedt",
 		  "known_for_department": "Acting"
 		},
@@ -570,10 +572,10 @@
 		  "credit_id": "60ad521b8c44b900792cb893",
 		  "gender": 2,
 		  "id": 1927308,
-		  "name": "Ragnar S\u00f6rman",
+		  "name": "Ragnar Sörman",
 		  "order": 34,
-		  "popularity": 0.6,
-		  "original_name": "Ragnar S\u00f6rman",
+		  "popularity": 1.208,
+		  "original_name": "Ragnar Sörman",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -583,10 +585,10 @@
 		  "credit_id": "60ad521007faa20029fc4673",
 		  "gender": 2,
 		  "id": 1024941,
-		  "name": "Lennart Toll\u00e9n",
+		  "name": "Lennart Tollén",
 		  "order": 35,
-		  "popularity": 0.84,
-		  "original_name": "Lennart Toll\u00e9n",
+		  "popularity": 1.487,
+		  "original_name": "Lennart Tollén",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -596,10 +598,10 @@
 		  "credit_id": "60ad5202efe37c0040f93761",
 		  "gender": 1,
 		  "id": 3103516,
-		  "name": "Caya Wickstr\u00f6m",
+		  "name": "Caya Wickström",
 		  "order": 36,
 		  "popularity": 0.6,
-		  "original_name": "Caya Wickstr\u00f6m",
+		  "original_name": "Caya Wickström",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -611,7 +613,7 @@
 		  "id": 1186207,
 		  "name": "Catherine Berg",
 		  "order": 37,
-		  "popularity": 0.98,
+		  "popularity": 1.244,
 		  "original_name": "Catherine Berg",
 		  "known_for_department": "Acting"
 		},
@@ -625,7 +627,7 @@
 		  "name": "Mona Malm",
 		  "order": 38,
 		  "profile_path": "/pcJ8MMBwh48ETX58A7DqyDxqJS7.jpg",
-		  "popularity": 4.288,
+		  "popularity": 4.158,
 		  "original_name": "Mona Malm",
 		  "known_for_department": "Acting"
 		},
@@ -639,7 +641,7 @@
 		  "name": "Tor Isedal",
 		  "order": 39,
 		  "profile_path": "/3nvZpF9lWfnZPFMA3rvCYaswZaY.jpg",
-		  "popularity": 4.087,
+		  "popularity": 6.179,
 		  "original_name": "Tor Isedal",
 		  "known_for_department": "Acting"
 		},
@@ -652,7 +654,7 @@
 		  "id": 1194872,
 		  "name": "Josef Norman",
 		  "order": 40,
-		  "popularity": 0.98,
+		  "popularity": 1.216,
 		  "original_name": "Josef Norman",
 		  "known_for_department": "Acting"
 		},
@@ -663,11 +665,11 @@
 		  "credit_id": "52fe4249c3a36847f8012829",
 		  "gender": 2,
 		  "id": 34774,
-		  "name": "G\u00f6sta Pr\u00fczelius",
+		  "name": "Gösta Prüzelius",
 		  "order": 41,
 		  "profile_path": "/tVJEosWBRRdl9qI6tUp8ga9DQnS.jpg",
-		  "popularity": 3.285,
-		  "original_name": "G\u00f6sta Pr\u00fczelius",
+		  "popularity": 4.223,
+		  "original_name": "Gösta Prüzelius",
 		  "known_for_department": "Acting"
 		},
 		{
@@ -679,7 +681,7 @@
 		  "id": 1194873,
 		  "name": "Fritjof Tall",
 		  "order": 42,
-		  "popularity": 1.052,
+		  "popularity": 0.98,
 		  "original_name": "Fritjof Tall",
 		  "known_for_department": "Acting"
 		},
@@ -692,7 +694,7 @@
 		  "id": 1194876,
 		  "name": "Nils Whiten",
 		  "order": 43,
-		  "popularity": 0.828,
+		  "popularity": 0.753,
 		  "original_name": "Nils Whiten",
 		  "known_for_department": "Production"
 		},
@@ -705,7 +707,7 @@
 		  "id": 1194874,
 		  "name": "Lena Bergman",
 		  "order": 44,
-		  "popularity": 0.764,
+		  "popularity": 1.381,
 		  "original_name": "Lena Bergman",
 		  "known_for_department": "Acting"
 		},
@@ -719,64 +721,12 @@
 		  "name": "Marc Smith",
 		  "order": 45,
 		  "profile_path": "/vOfPHxs2M1g4ziksVr7MNiOK964.jpg",
-		  "popularity": 0.694,
+		  "popularity": 1.176,
 		  "original_name": "Marc Smith",
 		  "known_for_department": "Acting"
 		}
 	  ],
 	  "crew": [
-		{
-		  "adult": false,
-		  "credit_id": "61e29fe715dea00069d20733",
-		  "department": "Directing",
-		  "gender": 1,
-		  "id": 5983,
-		  "job": "Script Supervisor",
-		  "name": "Katinka Farag\u00f3",
-		  "profile_path": "/d44H5s71h7sR4aJJb7aCJlGV4Jq.jpg",
-		  "popularity": 2.299,
-		  "original_name": "Katinka Farag\u00f3",
-		  "known_for_department": "Production"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "52fe4249c3a36847f80127d5",
-		  "department": "Writing",
-		  "gender": 2,
-		  "id": 6648,
-		  "job": "Screenplay",
-		  "name": "Ingmar Bergman",
-		  "profile_path": "/nkmOaXNRoioViN9OQf2n9Iu6akA.jpg",
-		  "popularity": 18.043,
-		  "original_name": "Ingmar Bergman",
-		  "known_for_department": "Directing"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "52fe4249c3a36847f80127a7",
-		  "department": "Directing",
-		  "gender": 2,
-		  "id": 6648,
-		  "job": "Director",
-		  "name": "Ingmar Bergman",
-		  "profile_path": "/nkmOaXNRoioViN9OQf2n9Iu6akA.jpg",
-		  "popularity": 18.043,
-		  "original_name": "Ingmar Bergman",
-		  "known_for_department": "Directing"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "52fe4249c3a36847f80127b1",
-		  "department": "Production",
-		  "gender": 2,
-		  "id": 6650,
-		  "job": "Producer",
-		  "name": "Allan Ekelund",
-		  "profile_path": "/mJqjS8brEuF5prkLkNeaeYDTFee.jpg",
-		  "popularity": 1.632,
-		  "original_name": "Allan Ekelund",
-		  "known_for_department": "Production"
-		},
 		{
 		  "adult": false,
 		  "credit_id": "52fe4249c3a36847f80127b7",
@@ -786,7 +736,7 @@
 		  "job": "Original Music Composer",
 		  "name": "Erik Nordgren",
 		  "profile_path": "/xE1LsOerpFnO5OQyh4FwtHYcARo.jpg",
-		  "popularity": 1.557,
+		  "popularity": 0.988,
 		  "original_name": "Erik Nordgren",
 		  "known_for_department": "Sound"
 		},
@@ -799,9 +749,22 @@
 		  "job": "Director of Photography",
 		  "name": "Gunnar Fischer",
 		  "profile_path": "/hQReSi6DaGxuKbi1ZTrFcil9M24.jpg",
-		  "popularity": 3.599,
+		  "popularity": 2.912,
 		  "original_name": "Gunnar Fischer",
 		  "known_for_department": "Camera"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "52fe4249c3a36847f80127d5",
+		  "department": "Writing",
+		  "gender": 2,
+		  "id": 6648,
+		  "job": "Screenplay",
+		  "name": "Ingmar Bergman",
+		  "profile_path": "/nkmOaXNRoioViN9OQf2n9Iu6akA.jpg",
+		  "popularity": 14.199,
+		  "original_name": "Ingmar Bergman",
+		  "known_for_department": "Directing"
 		},
 		{
 		  "adult": false,
@@ -810,11 +773,49 @@
 		  "gender": 2,
 		  "id": 6653,
 		  "job": "Editor",
-		  "name": "Lennart Wall\u00e9n",
+		  "name": "Lennart Wallén",
 		  "profile_path": "/8h4LFUYsflycKUDbVABd7dyYLJ8.jpg",
-		  "popularity": 0.6,
-		  "original_name": "Lennart Wall\u00e9n",
+		  "popularity": 1.555,
+		  "original_name": "Lennart Wallén",
 		  "known_for_department": "Editing"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "52fe4249c3a36847f80127b1",
+		  "department": "Production",
+		  "gender": 2,
+		  "id": 6650,
+		  "job": "Producer",
+		  "name": "Allan Ekelund",
+		  "profile_path": "/mJqjS8brEuF5prkLkNeaeYDTFee.jpg",
+		  "popularity": 3.694,
+		  "original_name": "Allan Ekelund",
+		  "known_for_department": "Production"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "52fe4249c3a36847f80127cf",
+		  "department": "Costume & Make-Up",
+		  "gender": 0,
+		  "id": 6655,
+		  "job": "Costume Design",
+		  "name": "Manne Lindholm",
+		  "popularity": 1.153,
+		  "original_name": "Manne Lindholm",
+		  "known_for_department": "Costume & Make-Up"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "52fe4249c3a36847f80127a7",
+		  "department": "Directing",
+		  "gender": 2,
+		  "id": 6648,
+		  "job": "Director",
+		  "name": "Ingmar Bergman",
+		  "profile_path": "/nkmOaXNRoioViN9OQf2n9Iu6akA.jpg",
+		  "popularity": 14.199,
+		  "original_name": "Ingmar Bergman",
+		  "known_for_department": "Directing"
 		},
 		{
 		  "adult": false,
@@ -825,21 +826,9 @@
 		  "job": "Production Design",
 		  "name": "P.A. Lundgren",
 		  "profile_path": "/sXMUQJrrGN8GdjXfClWluYXbK8R.jpg",
-		  "popularity": 2.149,
+		  "popularity": 1.38,
 		  "original_name": "P.A. Lundgren",
 		  "known_for_department": "Art"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "52fe4249c3a36847f80127cf",
-		  "department": "Costume & Make-Up",
-		  "gender": 0,
-		  "id": 6655,
-		  "job": "Costume Design",
-		  "name": "Manne Lindholm",
-		  "popularity": 0.6,
-		  "original_name": "Manne Lindholm",
-		  "known_for_department": "Costume & Make-Up"
 		},
 		{
 		  "adult": false,
@@ -849,9 +838,21 @@
 		  "id": 8738,
 		  "job": "Makeup Artist",
 		  "name": "Nils Nittel",
-		  "popularity": 0.648,
+		  "popularity": 0.753,
 		  "original_name": "Nils Nittel",
 		  "known_for_department": "Costume & Make-Up"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "60ad42910f2ae1007801a6ce",
+		  "department": "Sound",
+		  "gender": 0,
+		  "id": 1914335,
+		  "job": "Sound",
+		  "name": "Lennart Wallin",
+		  "popularity": 1.456,
+		  "original_name": "Lennart Wallin",
+		  "known_for_department": "Sound"
 		},
 		{
 		  "adult": false,
@@ -861,32 +862,8 @@
 		  "id": 8740,
 		  "job": "Sound",
 		  "name": "Aaby Wedin",
-		  "popularity": 0.652,
+		  "popularity": 1.16,
 		  "original_name": "Aaby Wedin",
-		  "known_for_department": "Sound"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "61e29f25b9a0bd00425ca232",
-		  "department": "Production",
-		  "gender": 2,
-		  "id": 1026108,
-		  "job": "Unit Manager",
-		  "name": "Carl-Henry Cagarp",
-		  "popularity": 0.98,
-		  "original_name": "Carl-Henry Cagarp",
-		  "known_for_department": "Production"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "61e29d1212425c0044932380",
-		  "department": "Sound",
-		  "gender": 0,
-		  "id": 1612810,
-		  "job": "Sound Effects",
-		  "name": "Evald Andersson",
-		  "popularity": 1.443,
-		  "original_name": "Evald Andersson",
 		  "known_for_department": "Sound"
 		},
 		{
@@ -897,21 +874,9 @@
 		  "id": 1736118,
 		  "job": "Assistant Director",
 		  "name": "Lennart Olsson",
-		  "popularity": 0.6,
+		  "popularity": 1.902,
 		  "original_name": "Lennart Olsson",
 		  "known_for_department": "Directing"
-		},
-		{
-		  "adult": false,
-		  "credit_id": "60ad42910f2ae1007801a6ce",
-		  "department": "Sound",
-		  "gender": 0,
-		  "id": 1914335,
-		  "job": "Sound",
-		  "name": "Lennart Wallin",
-		  "popularity": 0.648,
-		  "original_name": "Lennart Wallin",
-		  "known_for_department": "Sound"
 		},
 		{
 		  "adult": false,
@@ -920,9 +885,9 @@
 		  "gender": 0,
 		  "id": 2084520,
 		  "job": "Assistant Camera",
-		  "name": "\u00c5ke Nilsson",
-		  "popularity": 0.6,
-		  "original_name": "\u00c5ke Nilsson",
+		  "name": "Åke Nilsson",
+		  "popularity": 0.692,
+		  "original_name": "Åke Nilsson",
 		  "known_for_department": "Camera"
 		},
 		{
@@ -933,7 +898,7 @@
 		  "id": 2594263,
 		  "job": "Conductor",
 		  "name": "Sixten Ehrling",
-		  "popularity": 0.608,
+		  "popularity": 1.473,
 		  "original_name": "Sixten Ehrling",
 		  "known_for_department": "Sound"
 		},
@@ -945,20 +910,81 @@
 		  "id": 3221786,
 		  "job": "Choreographer",
 		  "name": "Else Fisher",
-		  "popularity": 2.188,
+		  "popularity": 1.794,
 		  "original_name": "Else Fisher",
 		  "known_for_department": "Acting"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "61e29d1212425c0044932380",
+		  "department": "Sound",
+		  "gender": 0,
+		  "id": 1612810,
+		  "job": "Sound Effects",
+		  "name": "Evald Andersson",
+		  "popularity": 2.094,
+		  "original_name": "Evald Andersson",
+		  "known_for_department": "Sound"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "61e29f25b9a0bd00425ca232",
+		  "department": "Production",
+		  "gender": 2,
+		  "id": 1026108,
+		  "job": "Unit Manager",
+		  "name": "Carl-Henry Cagarp",
+		  "popularity": 1.066,
+		  "original_name": "Carl-Henry Cagarp",
+		  "known_for_department": "Production"
+		},
+		{
+		  "adult": false,
+		  "credit_id": "61e29fe715dea00069d20733",
+		  "department": "Directing",
+		  "gender": 1,
+		  "id": 5983,
+		  "job": "Script Supervisor",
+		  "name": "Katinka Faragó",
+		  "profile_path": "/d44H5s71h7sR4aJJb7aCJlGV4Jq.jpg",
+		  "popularity": 3.232,
+		  "original_name": "Katinka Faragó",
+		  "known_for_department": "Production"
 		}
 	  ]
 	},
 	"external_ids": {
-	  "imdb_id": "tt0050976"
+	  "imdb_id": "tt0050976",
+	  "wikidata_id": "Q217189"
 	},
 	"images": {
 	  "backdrops": [],
 	  "posters": [],
 	  "logos": []
 	},
+	"recommended_movies": [
+	  614,
+	  797,
+	  18333,
+	  11602,
+	  10238,
+	  47473,
+	  422,
+	  11878,
+	  832,
+	  5156,
+	  19,
+	  426,
+	  47735,
+	  11424,
+	  29453,
+	  11656,
+	  1093,
+	  10098,
+	  439,
+	  377273
+	],
+	"providers": [],
 	"guessed_country": "SE"
   }
 ]

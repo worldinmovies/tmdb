@@ -6,8 +6,8 @@ import requests_mock
 import codecs
 
 from app.helper import get_statics
-from app.models import SpokenLanguage, ProductionCountries, Genre, Movie
-from behave import *
+from app.models import SpokenLanguage, ProductionCountries, Genre, Movie, WatchProvider
+from behave import given, when, then
 
 
 @given("all basics are present in mongo")
@@ -172,6 +172,12 @@ def genres_persisted(context, genres):
     context.test.assertEqual(Genre.objects.count(), int(genres))
 
 
+@then("there should be {providers} providers persisted")
+def providers_persisted(context, providers):
+    wait_function_is_true(WatchProvider.objects, int(providers))
+    context.test.assertEqual(WatchProvider.objects.count(), int(providers))
+
+
 @given("basics are removed from mongo")
 def clean_before(context):
     ProductionCountries.objects.all().delete()
@@ -252,7 +258,8 @@ def response_should_be(context, expected):
         print(f"RESPONSE: {context.response.content.decode('unicode_escape')}")
         context.test.assertEqual(json.loads(context.response.content)[0], json.loads(expected_data)[0])
 
-@step("guessed_country field is nulled for id={movie_id}")
+
+@given("guessed_country field is nulled for id={movie_id}")
 def null_guessed_country(context, movie_id):
     movie = Movie.objects.get(id=movie_id)
     movie.guessed_country = None

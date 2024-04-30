@@ -13,7 +13,7 @@ import sentry_sdk
 from urllib3.util.retry import Retry
 
 from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log, get_statics
-from app.models import Movie, SpokenLanguage, Genre, ProductionCountries
+from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, WatchProvider
 
 
 @sentry_sdk.monitor(monitor_slug='base_import')
@@ -211,6 +211,32 @@ def import_languages():
         log(layer=layer, message=f"Fetched {length} languages")
     else:
         log(f"Error importing languages: {response.status_code} - {response.content}")
+
+
+def import_providers():
+    log("Importing providers")
+    api_key = os.getenv('TMDB_API', 'test')
+    url = f"https://api.themoviedb.org/3/watch/providers/movie?language=en-US?api_key={api_key}"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    response = requests.get(url, stream=True)
+    layer = get_channel_layer()
+    if response.status_code == 200:
+        providers_from_json = json.loads(response.content)['results']
+        length = len(providers_from_json)
+        i = 0
+        all_persisted = WatchProvider.objects.all().values_list('provider_id')
+        with transaction.atomic():
+            for provider in (x for x in providers_from_json if x['provider_id'] not in all_persisted):
+                i += 1
+                WatchProvider(provider_id=provider['provider_id'],
+                              logo_path=provider['logo_path'],
+                              name=provider['provider_name']).save()
+        log(layer=layer, message=f"Fetched {length} providers")
+    else:
+        log(f"Error importing providers: {response.status_code} - {response.content}")
 
 
 def chunks(iterable, size=100):

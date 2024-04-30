@@ -40,12 +40,14 @@ Feature: TMDB Imports
     And there should be <countries> countries persisted
     And there should be <languages> languages persisted
     And there should be <genres> genres persisted
+    And there should be <providers> providers persisted
 
     Examples: Happy Cases
-      | mock_url                                      | path      | mocked_data    | countries | languages | genres |
-      | /configuration/countries?api_key=test         | countries | countries.json | 247       | 0         | 0      |
-      | /configuration/languages?api_key=test         | languages | languages.json | 0         | 187       | 0      |
-      | /genre/movie/list?api_key=test&language=en-US | genres    | genres.json    | 0         | 0         | 19     |
+      | mock_url                                           | path      | mocked_data          | countries | languages | genres | providers |
+      | /configuration/countries?api_key=test              | countries | countries.json       | 247       | 0         | 0      | 0         |
+      | /configuration/languages?api_key=test              | languages | languages.json       | 0         | 187       | 0      | 0         |
+      | /genre/movie/list?api_key=test&language=en-US      | genres    | genres.json          | 0         | 0         | 19     | 0         |
+      | /watch/providers/movie?language=en-US?api_key=test | providers | watch_providers.json | 0         | 0         | 0      | 557       |
 
   Scenario: All Base Imports
     Given base data /configuration/countries?api_key=test is mocked with countries.json

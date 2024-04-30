@@ -4,12 +4,12 @@ import datetime
 import json
 import threading
 
-from app.celery_tasks import flattify_movies, redo_countries
+from app.celery_tasks import redo_countries
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
-    base_import, check_which_movies_needs_update
+    base_import, check_which_movies_needs_update, import_providers
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -196,6 +196,10 @@ def fetch_languages(request):
     return HttpResponse(start_background_process(import_languages, 'import_languages', 'TMDB languages'))
 
 
+def fetch_providers(request):
+    return HttpResponse(start_background_process(import_providers, 'import_providers', 'TMDB Providers'))
+
+
 def check_tmdb_for_changes(request):
     start_date = request.GET.get('start_date',
                                  (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d"))
@@ -229,14 +233,6 @@ def dump_langs(request):
 
 def dump_countries(request):
     return HttpResponse(ProductionCountries.objects.all().to_json(), content_type='application/json')
-
-
-def create_flattened_structure(request):
-    def work():
-        for chunk in chunks(Movie.objects(data__exists=True).all().values_list('id'), 50):
-            flattify_movies.delay(list(chunk))
-
-    return HttpResponse(start_background_process(work, 'flattify_movies', 'Redoing Persistence'))
 
 
 def redo_guestimation(request):
