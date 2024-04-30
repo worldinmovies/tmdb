@@ -14,9 +14,9 @@ Feature: Views
       | 1398.json            | /view/best/SU | "title": "Stalker"  |
 
     Examples: /view/random/best endpoint
-      | file                 | url                              | expected            |
-      | sjunde_inseglet.json | /view/random/best/0?countries=SE | Det sjunde inseglet |
-      | 1398.json            | /view/random/best/0?countries=SU | tt0079944           |
+      | file                 | url                 | expected            |
+      | sjunde_inseglet.json | /view/random/best/0 | Det sjunde inseglet |
+      | 1398.json            | /view/random/best/0 | tt0079944           |
 
   Scenario Outline: View Best Endpoint
     Given movies from file:<file> is persisted

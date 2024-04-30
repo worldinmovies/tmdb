@@ -2,9 +2,10 @@
 import os
 import sys
 
-from testcontainers.mongodb import MongoDbContainer
 
-if 'test' or 'behave' in sys.argv:
+if 'test' in sys.argv or 'behave' in sys.argv:
+    from testcontainers.mongodb import MongoDbContainer
+
     os.environ["ENVIRONMENT"] = "test"
     mongo_container = MongoDbContainer("mongo:7-jammy", dbname="test")
     mongo_container.start()

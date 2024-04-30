@@ -23,3 +23,9 @@ Feature: Persistence Logics
       | mocked_data | id   | guessed_country |
       # Stalker: Made by Soviet
       | 1398.json   | 1398 | SU              |
+
+  Scenario: Guessed country update
+    Given movies from file:sjunde_inseglet.json is persisted
+    And guessed_country field is nulled for id=490
+    When calling /redo/guestimation
+    Then id=490 should have country set to SE eventually

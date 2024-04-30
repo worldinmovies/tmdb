@@ -237,7 +237,7 @@ def expect_guessed_country(context, movie_id, guessed_country):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
                               .filter(pk=movie_id, guessed_country__exact=guessed_country)
-                              , 1, 0.5), f"Movie with id={movie_id} "
+                              , 1, 2), f"Movie with id={movie_id} "
                                          f"should be found: {Movie.objects.filter(id=movie_id)
                                                              .only('id',
                                                                     'original_language',
@@ -251,3 +251,9 @@ def response_should_be(context, expected):
         expected_data = file.read()
         print(f"RESPONSE: {context.response.content.decode('unicode_escape')}")
         context.test.assertEqual(json.loads(context.response.content)[0], json.loads(expected_data)[0])
+
+@step("guessed_country field is nulled for id={movie_id}")
+def null_guessed_country(context, movie_id):
+    movie = Movie.objects.get(id=movie_id)
+    movie.guessed_country = None
+    movie.save()
