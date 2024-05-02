@@ -18,6 +18,8 @@ def all_basics(context):
         [SpokenLanguage(**x).save() for x in json.loads(langs.read())]
     with open("testdata/countries.json", 'rb') as countries:
         [ProductionCountries(**x).save() for x in json.loads(countries.read())]
+    with open("testdata/watch_providers.json", 'rb') as providers:
+        [WatchProvider(**x).save() for x in json.loads(providers.read())["results"]]
 
 
 @given(u'basics are present in mongo')
@@ -183,6 +185,7 @@ def clean_before(context):
     ProductionCountries.objects.all().delete()
     SpokenLanguage.objects.all().delete()
     Genre.objects.all().delete()
+    WatchProvider.objects.all().delete()
 
 
 @then('{movie_id} should have "fetched" set to "False"')

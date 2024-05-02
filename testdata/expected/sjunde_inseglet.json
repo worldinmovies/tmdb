@@ -984,7 +984,973 @@
 	  439,
 	  377273
 	],
-	"providers": [],
+	"providers": [
+	  {
+		"country_code": "AG",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "AR",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "QubitTV",
+			"logo_path": "/kE2LiK4LzsBWD8nJXRr0FbXZ4Mf.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "AT",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Amazon Arthaus Channel",
+			"logo_path": "/9MABvFilVMUAV86vLUgBgeM5LQQ.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Canal+",
+			"logo_path": "/eBXzkFEupZjKaIKY7zBUaSdCY8I.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "maxdome Store",
+			"logo_path": "/9lFSDdj10l7QAXyTZPDWuwkKJT3.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "maxdome Store",
+			"logo_path": "/9lFSDdj10l7QAXyTZPDWuwkKJT3.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "AU",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "BB",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "BE",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "BS",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "CA",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Criterion Channel",
+			"logo_path": "/yhrtzYd43pFIhRq0ruO8umJPuyn.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "CH",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "CL",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "QubitTV",
+			"logo_path": "/kE2LiK4LzsBWD8nJXRr0FbXZ4Mf.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "DE",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Amazon Arthaus Channel",
+			"logo_path": "/9MABvFilVMUAV86vLUgBgeM5LQQ.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Arthaus+ Apple TV channel",
+			"logo_path": "/as1NArQkfAnptYQP3VS03GOJPdm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "maxdome Store",
+			"logo_path": "/9lFSDdj10l7QAXyTZPDWuwkKJT3.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "maxdome Store",
+			"logo_path": "/9lFSDdj10l7QAXyTZPDWuwkKJT3.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Behind the Tree",
+			"logo_path": "/fxYgfnsrUWa7e9aNr3j3RERpm66.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "DK",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Netflix",
+			"logo_path": "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Filmstriben",
+			"logo_path": "/eRRc8n7fzQewjh15d2fao45Xxvi.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "ES",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Amazon Prime Video",
+			"logo_path": "/dQeAar5H991VYporEjUspolDarG.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Filmin",
+			"logo_path": "/kO2SWXvDCHAquaUuTJBuZkTBAuU.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Movistar Plus",
+			"logo_path": "/7K6rVbpWXB6ByDI0PRzGGRXRBSY.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Acontra Plus",
+			"logo_path": "/8vES2nJNwOF57muvqLByDLm6snp.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Acontra Plus",
+			"logo_path": "/8vES2nJNwOF57muvqLByDLm6snp.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "FI",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Netflix",
+			"logo_path": "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Telia Play",
+			"logo_path": "/7QzLA6rsML2rKxhuagWlDl7Zxlm.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "FR",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Orange VOD",
+			"logo_path": "/9Fyo6njYvroAIxAzTBbLgnjgYga.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Canal VOD",
+			"logo_path": "/cAUTwxqoI7zc9XtYr1SMtWZEsXg.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Universcine",
+			"logo_path": "/11Yzww3g6lYZznKrom3cSrKP4St.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Orange VOD",
+			"logo_path": "/9Fyo6njYvroAIxAzTBbLgnjgYga.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Canal VOD",
+			"logo_path": "/cAUTwxqoI7zc9XtYr1SMtWZEsXg.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Bbox VOD",
+			"logo_path": "/s7mg9n4UHrcdJQL78JmaU6oAdHt.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "LaCinetek",
+			"logo_path": "/1syoSwH2yIskHUqeOiK9re8AMJC.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Universcine",
+			"logo_path": "/11Yzww3g6lYZznKrom3cSrKP4St.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "GB",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "BFI Player",
+			"logo_path": "/nIm8xq1JYgHfusIcDnccEBQkoWp.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "BFI Player Amazon Channel",
+			"logo_path": "/4SJW6thrCvN6ya2hO6naksfRZDF.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "BFI Player Apple TV Channel",
+			"logo_path": "/kohVS01u3sP5IkqsSaAKdBit6aP.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "HN",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "IE",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "IT",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Chili",
+			"logo_path": "/rVEXDsaHzpwK1YhXEZrsmvfpdOR.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Chili",
+			"logo_path": "/rVEXDsaHzpwK1YhXEZrsmvfpdOR.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "JP",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "U-NEXT",
+			"logo_path": "/a5T7vNaGvoeckYO6rQkHolvyYf4.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "KR",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Naver Store",
+			"logo_path": "/crFbxg6jkiKc14gpIGMkre9Y3mu.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "NI",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "NO",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Netflix",
+			"logo_path": "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Viaplay",
+			"logo_path": "/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Blockbuster",
+			"logo_path": "/auWzottqpExOHUlJwDZ4DvdHGoL.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "TV 2 Play",
+			"logo_path": "/tpfmd22xEapb1aW2gzjSM5104rx.jpg"
+		  },
+		  {
+			"provider_type": "free",
+			"name": "Filmoteket",
+			"logo_path": "/rTLyVzy9lyPpujUQ026CiRDqQrF.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "NZ",
+		"providers": [
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "PT",
+		"providers": [
+		  {
+			"provider_type": "rent",
+			"name": "Meo",
+			"logo_path": "/ldkEX7JzLoWBvMP0GUHEfwAnK3B.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "SE",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Netflix",
+			"logo_path": "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Draken Films",
+			"logo_path": "/vyu1bwP7H0p7B8BLB3QRwHVmvlA.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "TriArt Play",
+			"logo_path": "/sgws7qaFHYTEeYhc8RCjZ5D7IlH.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Rakuten TV",
+			"logo_path": "/bZvc9dXrXNly7cA0V4D9pR8yJwm.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "SF Anytime",
+			"logo_path": "/sNmIwrniZZORvNJOmEuWGhwBJNf.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "TriArt Play",
+			"logo_path": "/sgws7qaFHYTEeYhc8RCjZ5D7IlH.jpg"
+		  },
+		  {
+			"provider_type": "free",
+			"name": "Cineasterna",
+			"logo_path": "/k35BlS63LM7D0Q8e0jktRyEsnTq.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "SK",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Edisonline",
+			"logo_path": "/hsuv1uc7SUr9YjCXRlLQNELt4UU.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "TT",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max",
+			"logo_path": "/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+		  }
+		]
+	  },
+	  {
+		"country_code": "US",
+		"providers": [
+		  {
+			"provider_type": "flatrate",
+			"name": "Max Amazon Channel",
+			"logo_path": "/erfmV26akboHUerxGjpl8pBwww3.jpg"
+		  },
+		  {
+			"provider_type": "flatrate",
+			"name": "Criterion Channel",
+			"logo_path": "/yhrtzYd43pFIhRq0ruO8umJPuyn.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  },
+		  {
+			"provider_type": "buy",
+			"name": "Vudu",
+			"logo_path": "/uRz9N2l4jopIYfn30YNWwpHmaaS.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Apple TV",
+			"logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Amazon Video",
+			"logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Google Play Movies",
+			"logo_path": "/8z7rC8uIDaTM91X0ZfkRf04ydj2.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "YouTube",
+			"logo_path": "/pTnn5JwWr4p3pG8H6VrpiQo7Vs0.jpg"
+		  },
+		  {
+			"provider_type": "rent",
+			"name": "Vudu",
+			"logo_path": "/uRz9N2l4jopIYfn30YNWwpHmaaS.jpg"
+		  },
+		  {
+			"provider_type": "free",
+			"name": "Kanopy",
+			"logo_path": "/rcBwnERpNfPfWB5DaSTyEMCZbCA.jpg"
+		  }
+		]
+	  }
+	],
 	"guessed_country": "SE"
   }
 ]

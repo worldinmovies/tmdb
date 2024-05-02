@@ -231,9 +231,7 @@ def import_providers():
         with transaction.atomic():
             for provider in (x for x in providers_from_json if x['provider_id'] not in all_persisted):
                 i += 1
-                WatchProvider(provider_id=provider['provider_id'],
-                              logo_path=provider['logo_path'],
-                              name=provider['provider_name']).save()
+                WatchProvider(**provider).save()
         log(layer=layer, message=f"Fetched {length} providers")
     else:
         log(f"Error importing providers: {response.status_code} - {response.content}")

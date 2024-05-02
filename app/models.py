@@ -4,6 +4,7 @@ from typing import override
 from bson import json_util
 import pycountry
 import pytz
+import mongoengine
 # import line_profiler
 # import atexit
 from datetime import datetime, timedelta
@@ -179,14 +180,46 @@ class CustomQuerySet(QuerySet):
 class WatchProvider(DynamicDocument):
     provider_id = IntField(primary_key=True)
     logo_path = StringField()
-    name = StringField()
+    provider_name = StringField()
+
+    def __init__(self, provider_id, logo_path, provider_name, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.provider_id = provider_id
+        self.logo_path = logo_path
+        self.provider_name = provider_name
+
+    def __str__(self):
+        return (f'{{"id":"{self.provider_id}", '
+                f'"logo_path":"{self.logo_path}", '
+                f'"provider_name":"{self.provider_name}"}}')
+
+
+class EmbeddedProvider(EmbeddedDocument):
+    provider = ReferenceField(WatchProvider, dbref=True)
+    provider_type = StringField()
+
+    def __init__(self, provider, provider_type, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.provider = provider
+        self.provider_type = provider_type
+
+    def __str__(self):
+        return (f'{{"provider":"{self.provider}", '
+                f'"provider_type":"{self.provider_type}"}}')
 
 
 class ProvidersByCountry(EmbeddedDocument):
     country_code = StringField()
-    flatrate = ListField(ReferenceField(WatchProvider, dbref=True))
-    buy = ListField(ReferenceField(WatchProvider, dbref=True))
-    rent = ListField(ReferenceField(WatchProvider, dbref=True))
+    providers = ListField(EmbeddedDocumentField(EmbeddedProvider))
+
+    def __init__(self, country_code: str, providers, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.country_code = country_code
+        self.providers = providers
+
+    def __str__(self):
+        return (f'{{"country_code":"{self.country_code}", '
+                f'"providers":"{self.providers}"}}')
 
 
 class Movie(DynamicDocument):
@@ -225,7 +258,7 @@ class Movie(DynamicDocument):
     external_ids = EmbeddedDocumentField(ExternalIDS)
     images = EmbeddedDocumentField(Images)
     recommended_movies = ListField(IntField())
-    providers = ListField(ProvidersByCountry)
+    providers = ListField(EmbeddedDocumentField(ProvidersByCountry))
     guessed_country = StringField()
 
     meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country'],
@@ -266,6 +299,24 @@ class Movie(DynamicDocument):
         self.calculate_weighted_rating_bayes()
         self.guessed_country = self.guess_country()
         self.recommended_movies = [x['id'] for x in movie.get('recommendations', {}).get('results', [])]
+        self.providers = self.get_providers(movie)
+
+    @staticmethod
+    def get_providers(movie: dict):
+        def get_embedded_providers(value, provider_type):
+            return [EmbeddedProvider(provider_type=provider_type,
+                                     provider=WatchProvider(**x)) for x in value.get(provider_type, [])]
+        providers_by_country = []
+        for k, v in movie.get('watch/providers', {}).get('results', dict()).items():
+            providers = []
+            providers.extend(get_embedded_providers(v, 'flatrate'))
+            providers.extend(get_embedded_providers(v, 'buy'))
+            providers.extend(get_embedded_providers(v, 'rent'))
+            providers.extend(get_embedded_providers(v, 'free'))
+            providers.extend(get_embedded_providers(v, 'ads'))
+            if providers:
+                providers_by_country.append(ProvidersByCountry(country_code=k, providers=providers))
+        return providers_by_country
 
     def calculate_weighted_rating_bayes(self):
         """
@@ -375,6 +426,16 @@ class Movie(DynamicDocument):
                 "iso": x['iso_639_1'],
                 "name": x['english_name'] if hasattr(x, 'english_name') else x['name']
             }
+        for a, providers_by_country in enumerate(data['providers']):
+            for b, provider in enumerate(providers_by_country['providers']):
+                try:
+                    x: dict = self.providers[a].providers[b].provider
+                    data['providers'][a]['providers'][b] = dict(provider_type=provider['provider_type'],
+                                                                name=x['provider_name'],
+                                                                logo_path=x['logo_path'])
+                except mongoengine.errors.DoesNotExist:
+                    pass
+
         return json_util.dumps(data)
 
     @override
