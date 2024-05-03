@@ -86,7 +86,7 @@ CELERY_TIMEZONE = "Europe/Stockholm"
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 redis_url = os.environ.get('REDIS_URL', 'redis')
-if 'test' or 'behave' in sys.argv:
+if 'test' in sys.argv or 'behave' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels.layers.InMemoryChannelLayer"

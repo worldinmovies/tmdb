@@ -16,7 +16,7 @@ class TextRoomConsumer(AsyncWebsocketConsumer):
     Helper method
     """
     async def send_data(self, text_data):
-        event = f"{datetime.datetime.now(tz)} - TMDB - {text_data}"
+        event = f"{datetime.datetime.now(tz).strftime('%Y-%m-%dT%H:%M:%S.%f')} - TMDB - {text_data}"
         Log(type="log", message=text_data).save()
         try:
             await self.send(text_data=event)

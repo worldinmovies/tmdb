@@ -1,7 +1,7 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 
-from app.helper import log, get_statics
+from app.helper import log
 from app.models import Movie, Title, AlternativeTitles
 from django.db import transaction
 
