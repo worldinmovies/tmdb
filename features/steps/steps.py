@@ -1,4 +1,6 @@
 import datetime
+import gzip
+import io
 import json
 import os
 import time
@@ -7,7 +9,7 @@ import codecs
 
 from app.helper import get_statics
 from app.models import SpokenLanguage, ProductionCountries, Genre, Movie, WatchProvider
-from behave import given, when, then
+from behave import given, then, step
 
 
 @given("all basics are present in mongo")
@@ -81,12 +83,12 @@ def persist_movie_from_file(context, file):
         movie.save()
 
 
-@when(u'calling {url}')
+@step(u'calling {url}')
 def calling_url(context, url):
     context.response = context.test.client.get(url)
 
 
-@then(u'http status should be {http_status}')
+@step(u'http status should be {http_status}')
 def verify_http_status(context, http_status):
     context.test.assertEqual(str(context.response.status_code), http_status)
 
@@ -203,25 +205,33 @@ def mock_url_with_file(context, url, file):
         context.mocker.get(url, status_code=200, content=asd.read())
 
 
-@then("imdb_id={imdb_id} should have imdb_ratings set eventually")
-def expect_imdb_ratings_be_set(context, imdb_id):
+@given('"{url}" is zip-mocked with "{file}"')
+def mock_url_with_zipped_file(context, url, file):
+    start_mock(context)
+    with open(f"testdata/{file}", 'rb') as asd:
+        with io.BytesIO() as f_out:
+            with gzip.GzipFile(fileobj=f_out, mode='wb') as gz_out:
+                gz_out.write(asd.read())
+            context.mocker.get(url, status_code=200, content=f_out.getvalue())
+
+
+@step("imdb_id={imdb_id} should have imdb_ratings set to {average_rating} eventually")
+def expect_imdb_ratings_be_set(context, imdb_id, average_rating):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(imdb_id=imdb_id, imdb_vote_average__gt=0),
+                              .filter(imdb_id=imdb_id, imdb_vote_average__exact=float(average_rating)),
                               1), f"Movie with imdb_id={imdb_id} "
-                                  f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
+                                  f"should be but was: {Movie.objects.filter(imdb_id=imdb_id).all()}")
     movie: Movie = Movie.objects.get(imdb_id=imdb_id)
-    context.test.assertTrue(movie.imdb_vote_average > 0, f"Value should have been more than 0, but was: "
-                                                         f"{movie.imdb_vote_average}")
     context.test.assertTrue(movie.imdb_vote_count > 0, f"Value should have been more than 0, but was: "
                                                        f"{movie.imdb_vote_count}")
 
 
-@then("imdb_id={imdb_id} should have imdb_alt_titles {expected_titles} set eventually")
-def expect_alt_titles_be_set(context, imdb_id, expected_titles):
+@step("imdb_id={imdb_id} should have imdb_alt_titles \"{expected_titles}\" set eventually")
+def expect_alt_titles_be_set_to(context, imdb_id, expected_titles):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(imdb_id=imdb_id, alternative_titles__titles__1__exists=True)
+                              .filter(imdb_id=imdb_id, alternative_titles__titles__title__all=expected_titles.split(','))
                               , 1), f"Movie with imdb_id={imdb_id} "
                                     f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
     movie: Movie = Movie.objects.get(imdb_id=imdb_id)
@@ -230,7 +240,7 @@ def expect_alt_titles_be_set(context, imdb_id, expected_titles):
 
 
 @then("id={movie_id} should have alt_titles set eventually")
-def expect_alt_titles_be_set(context, movie_id):
+def expect_alt_titles_be_set_at_all(context, movie_id):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
                               .filter(id=movie_id, alternative_titles__titles__1__exists=True)

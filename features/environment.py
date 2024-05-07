@@ -28,8 +28,24 @@ def before_all(context):
     use_fixture(setup_mongo, context)
 
 
+def before_scenario(context, feature):
+    for i in ['title.akas.tsv.gz', 'title.ratings.tsv.gz']:
+        old = f"{i}.old"
+    if os.path.exists(i):
+        os.remove(i)
+    if os.path.exists(old):
+        os.remove(old)
+
+
 def after_scenario(context, feature):
     if hasattr(context, 'mocker'):
         context.mocker.stop()
     with transaction.atomic():
         Movie.objects.all().delete()
+    for i in ['title.akas.tsv.gz', 'title.ratings.tsv.gz']:
+        old = f"{i}.old"
+        if os.path.exists(i):
+            os.remove(i)
+        if os.path.exists(old):
+            os.remove(old)
+

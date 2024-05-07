@@ -3,24 +3,38 @@ Feature: IMDB Imports
   Background:
     Given basics are present in mongo
 
-  Scenario Outline: Import Ratings
-    Given movies "<json>" is persisted
-    And https://datasets.imdbws.com/title.ratings.tsv.gz is mocked with mini_ratings.tsv.gz
+  Scenario: Import Ratings Happy Case
+    Given movies "[{"id": 1, "imdb_id": "tt0000001"}]" is persisted
+    And "https://datasets.imdbws.com/title.ratings.tsv.gz" is zip-mocked with "mini_ratings.tsv"
     When calling /import/imdb/ratings
     Then http status should be 200
-    And imdb_id=<imdb_id> should have imdb_ratings set eventually
+    And imdb_id=tt0000001 should have imdb_ratings set to 5.8 eventually
 
-    Examples: Happy Cases
-      | json                                | imdb_id   |
-      | [{"id": 1, "imdb_id": "tt0000001"}] | tt0000001 |
+  Scenario: Import Ratings Rerun should ignore same values
+    Given movies "[{"id": 1, "imdb_id": "tt0000001"}]" is persisted
+    And "https://datasets.imdbws.com/title.ratings.tsv.gz" is zip-mocked with "mini_ratings.tsv"
+    And calling /import/imdb/ratings
+    And http status should be 200
+    And imdb_id=tt0000001 should have imdb_ratings set to 5.8 eventually
+    And "https://datasets.imdbws.com/title.ratings.tsv.gz" is zip-mocked with "mini_ratings2.tsv"
+    When calling /import/imdb/ratings
+    Then http status should be 200
+    And imdb_id=tt0000001 should have imdb_ratings set to 0.1 eventually
 
-  Scenario Outline: Import Titles
-    Given movies "<json>" is persisted
-    And https://datasets.imdbws.com/title.akas.tsv.gz is mocked with title.akas.tsv.gz
+  Scenario: Import Titles Happy Case
+    Given movies "[{"id": 1, "imdb_id": "tt0000001"}]" is persisted
+    And "https://datasets.imdbws.com/title.akas.tsv.gz" is zip-mocked with "mini_akas.tsv"
     When calling /import/imdb/titles
     Then http status should be 200
-    And imdb_id=<imdb_id> should have imdb_alt_titles <alt_titles> set eventually
+    And imdb_id=tt0000001 should have imdb_alt_titles "Carmencita - spanyol tánc,Καρμενσίτα,Карменсита" set eventually
 
-    Examples: Happy Cases
-      | json                                | imdb_id   | alt_titles                                      |
-      | [{"id": 1, "imdb_id": "tt0000001"}] | tt0000001 | Carmencita - spanyol tánc,Καρμενσίτα,Карменсита |
+  Scenario: Import Titles Rerun should ignore same values
+    Given movies "[{"id": 1, "imdb_id": "tt0000001"}]" is persisted
+    And "https://datasets.imdbws.com/title.akas.tsv.gz" is zip-mocked with "mini_akas.tsv"
+    And calling /import/imdb/titles
+    And http status should be 200
+    And imdb_id=tt0000001 should have imdb_alt_titles "Carmencita - spanyol tánc,Καρμενσίτα,Карменсита" set eventually
+    And "https://datasets.imdbws.com/title.akas.tsv.gz" is zip-mocked with "mini_akas2.tsv"
+    When calling /import/imdb/titles
+    Then http status should be 200
+    And imdb_id=tt0000001 should have imdb_alt_titles "Carmencita,Καρμενσίτα,Карменсита" set eventually

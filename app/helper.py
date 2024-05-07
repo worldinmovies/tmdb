@@ -66,6 +66,14 @@ def chunks(iterable, size=100):
         yield chain([first], islice(iterator, size - 1))
 
 
+def buffer(generator, size=100):
+    while True:
+        chunk = list(islice(generator, size))
+        if not chunk:
+            break
+        return chunk
+
+
 def start_background_process(target, thread_name, log_id):
     if thread_name not in [thread.name for thread in threading.enumerate()]:
         thread = threading.Thread(target=target, name=thread_name)
@@ -104,10 +112,11 @@ def __log_progress(iterable, message, length=None):
 
 
 def __unzip_file(file_name):
-    f = gzip.open(file_name, 'rt', encoding='utf-8')
-    file_content = f.read()
-    f.close()
-    return file_content.splitlines()
+#    with gzip.open(file_name, 'rt', encoding='utf-8') as f:
+#        for line in f:
+#            yield line
+    with gzip.open(file_name, 'rt', encoding='utf-8') as file:
+        return file.readlines()
 
 
 def get_statics():
