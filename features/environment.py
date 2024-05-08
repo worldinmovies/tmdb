@@ -30,11 +30,8 @@ def before_all(context):
 
 def before_scenario(context, feature):
     for i in ['title.akas.tsv.gz', 'title.ratings.tsv.gz']:
-        old = f"{i}.old"
-    if os.path.exists(i):
-        os.remove(i)
-    if os.path.exists(old):
-        os.remove(old)
+        if os.path.exists(i):
+            os.remove(i)
 
 
 def after_scenario(context, feature):
@@ -43,9 +40,6 @@ def after_scenario(context, feature):
     with transaction.atomic():
         Movie.objects.all().delete()
     for i in ['title.akas.tsv.gz', 'title.ratings.tsv.gz']:
-        old = f"{i}.old"
         if os.path.exists(i):
             os.remove(i)
-        if os.path.exists(old):
-            os.remove(old)
 
