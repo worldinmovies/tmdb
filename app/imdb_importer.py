@@ -1,6 +1,4 @@
 import csv
-import difflib
-import os
 import requests
 import sys
 
@@ -9,37 +7,7 @@ from channels.layers import get_channel_layer
 
 from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
 from app.helper import chunks, __unzip_file, log
-from app.models import Log
-
-
-def diff_files_and_exclude_same_lines(filename):
-    new_contents = __unzip_file(filename)
-    if os.path.exists(f"{filename}.old"):
-        old_contents = __unzip_file(f"{filename}.old")
-        included_count = 0
-        # Process the difference and yield each line
-
-        new_contents_list = list(new_contents)
-        for line in difflib.ndiff(list(old_contents), new_contents_list):
-            if line.startswith('+ '):
-                included_count += 1
-                yield line[2:]
-
-        total_new_lines = len(new_contents_list)
-        log(f"Excluded {(total_new_lines - included_count)} "
-            f"lines that have already been imported from {total_new_lines}")
-    else:
-        yield from new_contents
-
-
-def rename_file_to_old(filename):
-    old = f"{filename}.old"
-    try:
-        if os.path.exists(old):
-            os.remove(old)
-        os.rename(filename, old)
-    except FileNotFoundError:
-        pass
+from app.models import Log, Movie
 
 
 @monitor(monitor_slug='import_imdb_ratings')
@@ -56,12 +24,18 @@ def import_imdb_ratings():
     if response.status_code == 200:
         with open('title.ratings.tsv.gz', 'wb') as f:
             f.write(response.content)
-        contents = diff_files_and_exclude_same_lines('title.ratings.tsv.gz')
+        contents = __unzip_file('title.ratings.tsv.gz')
+
         reader = csv.reader(contents, delimiter='\t')
+        next(reader)
         for chunk in chunks(reader, 100):
-            import_imdb_ratings_task.delay(list(chunk))
+            chunk_list = list(chunk)
+            ids = [x[0] for x in chunk_list]
+            found_ids = [x.imdb_id for x in Movie.objects(imdb_id__in=ids).only('imdb_id')]
+            data = [x for x in chunk_list if x[0] in found_ids]
+            if data:
+                import_imdb_ratings_task.delay(data)
         Log(type="import", message='import_imdb_ratings').save()
-        rename_file_to_old('title.ratings.tsv.gz')
     else:
         log(layer=layer, message=f"Exception: {response.status_code} - {response.content}")
 
@@ -79,16 +53,21 @@ def import_imdb_alt_titles():
     with open('title.akas.tsv.gz', 'wb') as f:
         f.write(response.content)
     if response.status_code == 200:
-        contents = diff_files_and_exclude_same_lines('title.akas.tsv.gz')
+        contents = __unzip_file('title.akas.tsv.gz')
         csv.field_size_limit(sys.maxsize)
 
         reader = csv.reader(contents, delimiter='\t', quoting=csv.QUOTE_NONE)
         print("Processing IMDB Titles")
 
+        next(reader)
         for chunk in chunks(reader, 100):
-            import_imdb_titles_task.delay(list(chunk))
+            chunk_list = list(chunk)
+            ids = [x[0] for x in chunk_list]
+            found_ids = [x.imdb_id for x in Movie.objects(imdb_id__in=ids).only('imdb_id')]
+            data = [x for x in chunk_list if x[0] in found_ids]
+            if data:
+                import_imdb_titles_task.delay(data)
         Log(type="import", message='import_imdb_alt_titles').save()
-        rename_file_to_old('title.akas.tsv.gz')
         print("Done")
     else:
         log(layer=layer, message=f"Exception: {response.status_code} - {response.content}")

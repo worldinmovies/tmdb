@@ -60,7 +60,8 @@ def import_imdb_titles_task(chunk):
                     if not fetched.alternative_titles:
                         fetched.alternative_titles = AlternativeTitles()
                     if iso != r'\N' and title not in fetched.alternative_titles.titles:
-                        for t in [title for title in fetched.alternative_titles.titles if title.iso_3166_1 == iso and title.type == 'IMDB']:
+                        for t in [title for title in fetched.alternative_titles.titles if
+                                  title.iso_3166_1 == iso and title.type == 'IMDB']:
                             fetched.alternative_titles.titles.remove(t)
                         fetched.alternative_titles.titles.append(Title(iso_3166_1=iso, title=title, type='IMDB'))
                 fetched.save()

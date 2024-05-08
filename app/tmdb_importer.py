@@ -217,10 +217,6 @@ def import_providers():
     log("Importing providers")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/watch/providers/movie?language=en-US?api_key={api_key}"
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
     response = requests.get(url, stream=True)
     layer = get_channel_layer()
     if response.status_code == 200:

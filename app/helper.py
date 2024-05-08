@@ -112,9 +112,6 @@ def __log_progress(iterable, message, length=None):
 
 
 def __unzip_file(file_name):
-#    with gzip.open(file_name, 'rt', encoding='utf-8') as f:
-#        for line in f:
-#            yield line
     with gzip.open(file_name, 'rt', encoding='utf-8') as file:
         return file.readlines()
 

@@ -7,6 +7,8 @@ import time
 import requests_mock
 import codecs
 
+from mongoengine import DoesNotExist
+
 from app.helper import get_statics
 from app.models import SpokenLanguage, ProductionCountries, Genre, Movie, WatchProvider
 from behave import given, then, step
@@ -121,7 +123,7 @@ def mock_tmdb_data(context, data, movie_id, status):
           "language=en-US&" \
           "append_to_response=alternative_titles,credits,external_ids,images,account_states," \
           "recommendations,watch/providers".format(
-        api_key='test', movie_id=movie_id)
+            api_key='test', movie_id=movie_id)
     start_mock(context)
     with open(f"testdata/{data}", 'rb') as asd:
         context.mocker.get(url, status_code=int(status), content=asd.read())
@@ -231,7 +233,8 @@ def expect_imdb_ratings_be_set(context, imdb_id, average_rating):
 def expect_alt_titles_be_set_to(context, imdb_id, expected_titles):
     context.test.assertTrue(
         wait_function_is_true(Movie.objects
-                              .filter(imdb_id=imdb_id, alternative_titles__titles__title__all=expected_titles.split(','))
+                              .filter(imdb_id=imdb_id,
+                                      alternative_titles__titles__title__all=expected_titles.split(','))
                               , 1), f"Movie with imdb_id={imdb_id} "
                                     f"should be found: {Movie.objects.filter(imdb_id=imdb_id).all()}")
     movie: Movie = Movie.objects.get(imdb_id=imdb_id)
@@ -257,11 +260,11 @@ def expect_guessed_country(context, movie_id, guessed_country):
         wait_function_is_true(Movie.objects
                               .filter(pk=movie_id, guessed_country__exact=guessed_country)
                               , 1, 2), f"Movie with id={movie_id} "
-                                         f"should be found: {Movie.objects.filter(id=movie_id)
-                                                             .only('id',
-                                                                    'original_language',
-                                                                    'guessed_country',
-                                                                    'production_countries')}")
+                                       f"should be found: {Movie.objects.filter(id=movie_id)
+                                                           .only('id',
+                                                                 'original_language',
+                                                                 'guessed_country',
+                                                                 'production_countries')}")
 
 
 @then('response be "{expected}"')
@@ -277,3 +280,12 @@ def null_guessed_country(context, movie_id):
     movie = Movie.objects.get(id=movie_id)
     movie.guessed_country = None
     movie.save()
+
+
+@step("imdb_id={imdb_id} should not be found")
+def imdb_id_should_not_be_found(context, imdb_id):
+    try:
+        Movie.objects.get(imdb_id=imdb_id)
+        context.test.fail("Should have thrown DoesNotExist error here")
+    except DoesNotExist:
+        pass

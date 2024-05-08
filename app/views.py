@@ -5,7 +5,7 @@ import json
 import threading
 
 from app.celery_tasks import redo_countries
-from app.helper import chunks, convert_country_code, start_background_process, log
+from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
