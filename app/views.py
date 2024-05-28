@@ -267,10 +267,13 @@ def ratings(request):
             for i in chunks(data.items(), 100):
                 u = [x[0] for x in i]
                 count = count + len(u)
-                matches = Movie.objects(data__imdb_id__in=u).all()
+                matches = Movie.objects(imdb_id__in=u).only('guessed_country', 'imdb_id',
+                                                            'id', 'original_title',
+                                                            'release_date', 'poster_path',
+                                                            'vote_average', 'vote_count')
                 for match in matches:
-                    if match.guessed_countries:
-                        country = match.guessed_countries[0]
+                    if match.guessed_country:
+                        country = match.guessed_country
                         result['found'].setdefault(country, []).append({
                             'imdb_id': match.imdb_id,
                             'id': match.id,
