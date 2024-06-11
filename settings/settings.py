@@ -82,6 +82,7 @@ mq_user = os.environ.get('RABBITMQ_DEFAULT_USER', 'seppa')
 mq_pass = os.environ.get('RABBITMQ_DEFAULT_PASS', 'password')
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', f"amqp://{mq_user}:{mq_pass}@{rabbit_url}")
 CELERY_TIMEZONE = "Europe/Stockholm"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
@@ -147,10 +148,6 @@ sentryApi = os.environ.get('SENTRY_API', '')
 if sentryApi:
     sentry_sdk.init(
         dsn=sentryApi,
-
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production,
         traces_sample_rate=0.01,
         profiles_sample_rate=0.01,
     )
