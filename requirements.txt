@@ -1,36 +1,37 @@
-django==5.0.3
-gunicorn==21.2.0
-requests==2.31.0
-sentry-sdk[django]==1.44.0
+django==5.0.6
+gunicorn==22.0.0
+requests==2.32.3
+sentry-sdk[django]==2.5.1
 simplejson==3.19.2
 django-cors-headers==4.3.1
 django-crontab==0.7.1
-django-health-check==3.18.1
-channels==4.0.0
-daphne==4.1.0
-uvicorn==0.29
+django-health-check==3.18.2
+channels==4.1.0
+daphne==4.1.2
+uvicorn==0.30.1
 websockets==12.0
 channels_redis~=4.2.0
 #pykerberos==1.2.4
 pytz==2024.1
-pycountry==23.12.11
+pycountry==24.6.1
 
-pymongo[snappy,rsrv,tls]==4.6.3
+pymongo[snappy,rsrv,tls]==4.7.3
 dnspython==2.6.1
 mongoengine==0.28.2
 
-Babel==2.13.1
+Babel==2.15.0
 
-celery==5.3.6
+celery==5.4.0
 
 # For tests
-responses==0.25.0
-pylint-django==2.5.5
+responses==0.25.2
 urllib3==2.2.1
 mongomock-5~=5.0.1
 behave-django==1.4.0
 requests_mock
-testcontainers==4.3.1
+testcontainers==4.5.1
 
-ruff==0.4.1
-line-profiler==4.1.2
+# For dev
+pylint-django==2.5.5
+ruff==0.4.8
+line-profiler==4.1.3

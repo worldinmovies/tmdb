@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'health_check.cache',
     'health_check.storage',
     'health_check.contrib.migrations',
+    'health_check.contrib.rabbitmq',            # requires RabbitMQ broker
+    'health_check.contrib.redis',               # requires Redis broker
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -35,7 +37,12 @@ INSTALLED_APPS = [
     'django_crontab',
     'behave_django'
 ]
-
+# Only to enable healthcheck...
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+    }
+]
 CRONJOBS = [
     # TMDB
     ('0 9 * * *', 'app.tmdb_importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
@@ -87,6 +94,9 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 redis_url = os.environ.get('REDIS_URL', 'redis')
+BROKER_URL = CELERY_BROKER_URL
+REDIS_URL = redis_url
+
 if 'test' in sys.argv or 'behave' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {
