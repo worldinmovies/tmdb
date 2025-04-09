@@ -18,15 +18,18 @@ USE_TZ = True
 
 # Application definition
 
+HEALTH_CHECKS = {
+    'DISABLE': ['health_check.db'],
+}
 INSTALLED_APPS = [
     'daphne',
     'channels',
     'health_check',
     'health_check.cache',
-    'health_check.storage',
-    'health_check.contrib.migrations',
-    'health_check.contrib.rabbitmq',            # requires RabbitMQ broker
-    'health_check.contrib.redis',               # requires Redis broker
+    #'health_check.storage',
+    #'health_check.contrib.migrations',
+    'health_check.contrib.rabbitmq',
+    'health_check.contrib.redis',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -41,6 +44,8 @@ INSTALLED_APPS = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True
     }
 ]
 CRONJOBS = [
@@ -93,10 +98,8 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
-redis_url = os.environ.get('REDIS_URL', 'redis')
 BROKER_URL = CELERY_BROKER_URL
-REDIS_URL = redis_url
-
+REDIS_URL = os.environ.get('REDIS_CONNECTION', 'redis')
 if 'test' in sys.argv or 'behave' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {
@@ -108,7 +111,7 @@ else:
         'default': {
             'BACKEND': "channels_redis.core.RedisChannelLayer",
             'CONFIG': {
-                'hosts': [(redis_url, 6379)],
+                'hosts': [REDIS_URL],
             }
         }
     }
@@ -118,11 +121,9 @@ if environment == 'docker' or environment == 'localhost':
     mongo_url = os.environ.get('MONGO_URL', 'mongo')
     mongo_user = os.environ.get('MONGO_USER', 'seppa')
     mongo_pass = os.environ.get('MONGO_PASSWORD', 'password')
+    super_url = "mongodb://%s:%s@%s:27017/tmdb?authSource=tmdb" % (mongo_user, mongo_pass, mongo_url)
     mongoengine.connect(db='tmdb',
-                        host=mongo_url,
-                        port=27017,
-                        username='',
-                        password='',
+                        host=super_url,
                         serverSelectionTimeoutMS=3000)
 else:
     mongo_url = os.environ.get('MONGO_URL')

@@ -41,6 +41,7 @@ def download_files():
         movies_to_add = []
         tmdb_movie_ids = set()
         contents = __unzip_file('movies.json.gz')
+        count = 0
         for b in chunks(contents, 100):
             chunk = []
             u = list(b)
@@ -60,7 +61,8 @@ def download_files():
             new_movies = (set(chunk).difference(matches))
             for c in new_movies:
                 movies_to_add.append(Movie(id=c, fetched=False))
-            log(layer=layer, message=f"Parsed {len(u)} out of {len(contents)} movies from downloaded file")
+            count += len(u)
+            log(layer=layer, message=f"Parsed {count} out of {len(contents)} movies from downloaded file")
 
         a = len(movies_to_add)
         log(layer=layer, message=f"{a} movies will be persisted")

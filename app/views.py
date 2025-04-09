@@ -50,6 +50,7 @@ def import_status(request):
                                         "fetched": row['Fetched'],
                                         "percentageDone": row['Percentage']}),
                             content_type='application/json')
+    return HttpResponse(json.dumps({"total": 0, "fetched": 0, "percentageDone": 0}))
 
 
 @csrf_exempt
