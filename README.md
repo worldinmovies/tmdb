@@ -35,7 +35,7 @@ deactivate
 
 pip install -r requirements.txt
 
-./manage.py behave
+DOCKER_HOST=unix:///Users/daveri/.docker/run/docker.sock ./manage.py behave
 
 MONGO_URL=localhost:27017 gunicorn --config=gunicorn.config.py -k uvicorn.workers.UvicornWorker --reload settings.asgi
 

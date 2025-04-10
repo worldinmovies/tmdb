@@ -1,3 +1,7 @@
 venv
 title.akas.tsv.gz
 title.ratings.tsv.gz
+db.sqlite3
+LICENSE
+*.gz
+*.iml

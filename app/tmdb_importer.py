@@ -22,6 +22,7 @@ def base_import():
     import_genres()
     import_countries()
     import_languages()
+    import_providers()
     __send_data_to_channel("Base import is done")
 
 

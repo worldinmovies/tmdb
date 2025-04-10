@@ -1,5 +1,5 @@
 import sys
-
+import sentry_sdk
 import mongoengine
 import os
 import sentry_sdk
@@ -15,6 +15,15 @@ TIME_ZONE = 'Europe/Stockholm'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+sentry_url = os.getenv('SENTRY_URL')
+sentry_sdk.init(
+    dsn=sentry_url,
+    # Add data like request headers and IP for users;
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+    release='backend-0.0.1'
+)
 
 # Application definition
 
