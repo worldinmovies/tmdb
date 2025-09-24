@@ -261,7 +261,7 @@ class Movie(DynamicDocument):
     providers = ListField(EmbeddedDocumentField(ProvidersByCountry))
     guessed_country = StringField()
 
-    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country'],
+    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country', ('guessed_country', '-weighted_rating')],
             'queryset_class': CustomQuerySet}
 
     def add_fetched_info(self, movie: dict, all_genres: dict[Genre],

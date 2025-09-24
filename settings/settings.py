@@ -108,7 +108,7 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 ROOT_URLCONF = 'settings.urls'
 ASGI_APPLICATION = 'settings.asgi.application'
 BROKER_URL = CELERY_BROKER_URL
-REDIS_URL = os.environ.get('REDIS_CONNECTION', 'redis')
+REDIS_URL = os.environ.get('REDIS_CONNECTION', 'redis://redis')
 if 'test' in sys.argv or 'behave' in sys.argv:
     CHANNEL_LAYERS = {
         "default": {

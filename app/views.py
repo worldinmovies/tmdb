@@ -67,99 +67,40 @@ def get_best_movies_from_country(request, country_code):
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
 
-    no_of_countries = list(Movie.objects.aggregate([
-        {
-            '$group': {
-                '_id': '$guessed_country',
-                'count': {
-                    '$sum': 1
-                }
-            }
-        }, {
-            '$group': {
-                '_id': None,
-                'unique_values': {
-                    '$sum': 1
-                }
-            }
-        }
-    ]))[0]['unique_values']
+    no_of_countries = len(Movie.objects.distinct('guessed_country'))
     countries_skip = movies % no_of_countries
     movie_skip = int(movies / no_of_countries)
 
+    print("NO OF COUNTRIES: %s" % no_of_countries)
     movies = Movie.objects.aggregate([
-        {
-            '$match': {
-                'guessed_country': {
-                    '$ne': None
-                }
-            }
-        }, {
-            '$project': {
-                '_id': 1,
-                'guessed_country': 1,
-                'weighted_rating': 1
-            }
-        }, {
-            '$sort': {
-                'guessed_country': 1,
-                'weighted_rating': -1
-            }
-        }, {
-            '$group': {
-                '_id': '$guessed_country',
-                'movies': {
-                    '$push': {
-                        '_id': '$_id'
-                    }
-                }
-            }
-        }, {
-            '$sort': {
-                '_id': 1
-            }
-        }, {
-            '$skip': countries_skip
-        }, {
-            '$limit': limit
-        }, {
-            '$project': {
-                'movies': {
-                    '$slice': [
-                        '$movies', movie_skip, 1
-                    ]
-                }
-            }
-        }, {
-            '$unwind': '$movies'
-        }, {
-            '$replaceRoot': {
-                'newRoot': '$movies'
-            }
-        }, {
-            '$lookup': {
-                'from': 'movie',
-                'localField': '_id',
-                'foreignField': '_id',
-                'as': 'movie'
-            }
-        }, {
-            '$unwind': '$movie'
-        }, {
-            '$project': {
-                '_id': '$movie._id',
-                'imdb_id': '$movie.imdb_id',
-                'original_title': '$movie.original_title',
-                'overview': '$movie.overview',
-                'poster_path': '$movie.poster_path',
-                'vote_average': '$movie.vote_average',
-                'vote_count': '$movie.vote_count',
-                'imdb_vote_average': '$movie.imdb_vote_average',
-                'imdb_vote_count': '$movie.imdb_vote_count',
-                'guessed_country': '$movie.guessed_country'
+    {"$match": {"guessed_country": {"$ne": None}}},
+    {"$group": {
+        "_id": "$guessed_country",
+        "topMovies": {
+            "$topN": {
+                "sortBy": {"weighted_rating": -1},
+                "output": {
+                    "_id": "$_id",
+                    "imdb_id": "$imdb_id",
+                    "original_title": "$original_title",
+                    "overview": "$overview",
+                    "poster_path": "$poster_path",
+                    "vote_average": "$vote_average",
+                    "vote_count": "$vote_count",
+                    "imdb_vote_average": "$imdb_vote_average",
+                    "imdb_vote_count": "$imdb_vote_count",
+                    "guessed_country": "$guessed_country"
+                },
+                "n": movie_skip + 1
             }
         }
-    ])
+    }},
+    {"$sort": {"_id": 1}},
+    {"$skip": countries_skip},
+    {"$limit": limit},
+    {"$project": {"movie": {"$arrayElemAt": ["$topMovies", movie_skip]}}},
+    {"$replaceRoot": {"newRoot": "$movie"}}
+])
     return HttpResponse(json.dumps(list(movies)), content_type='application/json')
 
 
