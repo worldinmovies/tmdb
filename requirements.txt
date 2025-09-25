@@ -16,6 +16,7 @@ pytz==2025.2
 pycountry==24.6.1
 
 pymongo[snappy,rsrv,tls]==4.15.1
+# for using mongodb+srv:// URIs
 dnspython==2.8.0
 mongoengine==0.29.1
 
