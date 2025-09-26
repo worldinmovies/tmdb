@@ -89,7 +89,9 @@ def get_best_randoms(request, movies=0):
                     "vote_count": "$vote_count",
                     "imdb_vote_average": "$imdb_vote_average",
                     "imdb_vote_count": "$imdb_vote_count",
-                    "guessed_country": "$guessed_country"
+                    "guessed_country": "$guessed_country",
+                    "credits": "$credits",   # keep credits so we can filter later
+                    "year": "$release_date"
                 },
                 "n": movie_skip + 1
             }
@@ -99,7 +101,26 @@ def get_best_randoms(request, movies=0):
     {"$skip": countries_skip},
     {"$limit": limit},
     {"$project": {"movie": {"$arrayElemAt": ["$topMovies", movie_skip]}}},
-    {"$replaceRoot": {"newRoot": "$movie"}}
+    {"$replaceRoot": {"newRoot": "$movie"}},
+    # NOW extract director from the limited credits
+    {"$addFields": {
+        "director": {
+            "$first": {
+                "$map": {
+                    "input": {
+                        "$filter": {
+                            "input": "$credits.crew",
+                            "as": "c",
+                            "cond": {"$eq": ["$$c.job", "Director"]}
+                        }
+                    },
+                    "as": "d",
+                    "in": "$$d.name"
+                }
+            }
+        }
+    }},
+    {"$project": {"credits": 0}}
 ])
     return HttpResponse(json.dumps(list(movies)), content_type='application/json')
 
