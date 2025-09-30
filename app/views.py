@@ -75,8 +75,6 @@ def get_best_randoms(request, movies=0):
     countries_skip = movies % no_of_countries
     movie_skip = int(movies / no_of_countries)
     
-    print(f"NO OF COUNTRIES: {no_of_countries}")
-    
     # Use MongoDB aggregation pipeline
     pipeline = [
         {"$match": {"estimated_country": {"$ne": None}}},
