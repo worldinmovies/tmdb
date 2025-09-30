@@ -24,8 +24,11 @@ urlpatterns = [
     path('dump/countries',                  views.dump_countries),
     path('redo/guestimation',               views.redo_guestimation),
     path('view/best/<str:country_code>',    views.get_best_movies_from_country),
+    path('view/random/<str:country_code>',  views.get_random_movies_by_country),
     path('view/random/best/<int:movies>',   views.get_best_randoms),
     path('movie/<str:ids>',                 views.fetch_movie_data),
+
+    path('redo/populatediscovery',          views.populate_discovery),
     re_path(r'^status$',                    views.import_status),
     re_path(r'^health/',                    include('health_check.urls'))  # Should remove to mitigate ddos-risk
 ]

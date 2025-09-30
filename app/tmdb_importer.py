@@ -11,6 +11,7 @@ from mongoengine import DoesNotExist
 from requests.adapters import HTTPAdapter
 import sentry_sdk
 from urllib3.util.retry import Retry
+from app.celery_tasks import populate_discovery_movie_task
 
 from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log, get_statics
 from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, WatchProvider
@@ -215,6 +216,40 @@ def import_languages():
     else:
         log(f"Error importing languages: {response.status_code} - {response.content}")
 
+
+
+def populate_discovery_movies():
+    """
+    Main function to populate the DiscoveryMovie collection from Movie collection.
+    Processes movies in chunks and delegates to Celery workers.
+    """
+    layer = get_channel_layer()
+    log(layer=layer, message="Starting DiscoveryMovie population")
+    
+    # Get all movie IDs that should be in DiscoveryMovie
+    qs = Movie.objects.filter(
+        fetched=True,
+        guessed_country__ne=None
+    ).only('id')
+
+    # Get total count without materializing all docs
+    total_movies = qs.count()
+    log(layer=layer, message=f"Found {total_movies} movies to process")
+
+    processed_count = 0
+    chunk_size = 500
+
+    # Iterate lazily in chunks
+    for chunk in chunks(qs.scalar('id'), chunk_size):
+        chunk_list = list(chunk)
+        populate_discovery_movie_task.delay(chunk_list)
+        processed_count += len(chunk_list)
+
+        if processed_count % 1000 == 0:
+            log(layer=layer, message=f"Queued {processed_count}/{total_movies} movies")
+
+    log(layer=layer, message=f"Finished queuing {total_movies} movies for processing")
+    print("Done - all tasks queued")
 
 def import_providers():
     log("Importing providers")

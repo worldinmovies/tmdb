@@ -9,8 +9,8 @@ from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
-    base_import, check_which_movies_needs_update, import_providers
-from app.models import Movie, Genre, SpokenLanguage, ProductionCountries
+    base_import, check_which_movies_needs_update, import_providers, populate_discovery_movies
+from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, DiscoveryMovie
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -67,73 +67,68 @@ def get_best_movies_from_country(request, country_code):
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
 
-    no_of_countries = len(Movie.objects.distinct('guessed_country'))
+        # Get distinct countries
+    countries = DiscoveryMovie.objects.distinct('estimated_country')
+    countries = [c for c in countries if c is not None]
+    no_of_countries = len(countries) if len(countries ) != 0 else 1
+    
     countries_skip = movies % no_of_countries
     movie_skip = int(movies / no_of_countries)
-
-    print("NO OF COUNTRIES: %s" % no_of_countries)
-    movies = Movie.objects.aggregate([
-    {"$match": {"guessed_country": {"$ne": None}}},
-    {"$group": {
-        "_id": "$guessed_country",
-        "topMovies": {
-            "$topN": {
-                "sortBy": {"weighted_rating": -1},
-                "output": {
-                    "_id": "$_id",
-                    "imdb_id": "$imdb_id",
-                    "original_title": "$original_title",
-                    "overview": "$overview",
-                    "poster_path": "$poster_path",
-                    "vote_average": "$vote_average",
-                    "vote_count": "$vote_count",
-                    "imdb_vote_average": "$imdb_vote_average",
-                    "imdb_vote_count": "$imdb_vote_count",
-                    "guessed_country": "$guessed_country",
-                    "credits": "$credits",   # keep credits so we can filter later
-                    "year": "$release_date"
-                },
-                "n": movie_skip + 1
-            }
-        }
-    }},
-    {"$sort": {"_id": 1}},
-    {"$skip": countries_skip},
-    {"$limit": limit},
-    {"$project": {"movie": {"$arrayElemAt": ["$topMovies", movie_skip]}}},
-    {"$replaceRoot": {"newRoot": "$movie"}},
-    # NOW extract director from the limited credits
-    {"$addFields": {
-        "director": {
-            "$first": {
-                "$map": {
-                    "input": {
-                        "$filter": {
-                            "input": "$credits.crew",
-                            "as": "c",
-                            "cond": {"$eq": ["$$c.job", "Director"]}
-                        }
-                    },
-                    "as": "d",
-                    "in": "$$d.name"
+    
+    print(f"NO OF COUNTRIES: {no_of_countries}")
+    
+    # Use MongoDB aggregation pipeline
+    pipeline = [
+        {"$match": {"estimated_country": {"$ne": None}}},
+        {"$group": {
+            "_id": "$estimated_country",
+            "topMovies": {
+                "$topN": {
+                    "sortBy": {"weighted_rating": -1},
+                    "output": "$$ROOT",
+                    "n": movie_skip + 1
                 }
             }
-        }
-    }},
-    {"$project": {"credits": 0}}
-])
-    return HttpResponse(json.dumps(list(movies)), content_type='application/json')
+        }},
+        {"$sort": {"_id": 1}},
+        {"$skip": countries_skip},
+        {"$limit": limit},
+        {"$project": {"movie": {"$arrayElemAt": ["$topMovies", movie_skip]}}},
+        {"$replaceRoot": {"newRoot": "$movie"}}
+    ]
+    
+    results = list(DiscoveryMovie.objects.aggregate(pipeline))
+
+    return HttpResponse(json.dumps(results), content_type='application/json')
 
 
 def get_movies_from_country_codes(country_codes, limit, skip):
-    return (Movie.objects(guessed_country__in=country_codes)
-            .order_by('-weighted_rating')
-            .limit(limit)
-            .skip(skip))
+    return DiscoveryMovie.objects.filter(
+        estimated_country__in=country_codes
+    ).order_by('-weighted_rating').skip(skip).limit(limit)
+
+
+def get_random_movies_by_country(country_code, count=10):
+    """
+    Get random movies from a specific country.
+    Useful for "discover" features.
+    
+    Args:
+        country_code: ISO country code
+        count: Number of random movies to return
+    
+    Returns:
+        List of DiscoveryMovie documents
+    """
+    pipeline = [
+        {"$match": {"estimated_country": country_code}},
+        {"$sample": {"size": count}}
+    ]
+    
+    return list(DiscoveryMovie.objects.aggregate(pipeline))
 
 
 # Imports
-
 
 def download_file(request):
     return HttpResponse(start_background_process(download_files, 'download_files', 'TMDB downloads'))
@@ -204,6 +199,13 @@ def redo_guestimation(request):
             redo_countries.delay(list(chunk))
 
     return HttpResponse(start_background_process(work, 'guestimate_countries', 'Redoing Guestimation Of Countries'))
+
+
+def populate_discovery(request):
+    def work():
+        populate_discovery_movies()
+
+    return HttpResponse(start_background_process(work, 'discovery_index', 'Indexing Discovery Movie Collection'))
 
 
 @csrf_exempt

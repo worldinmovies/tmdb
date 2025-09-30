@@ -261,7 +261,12 @@ class Movie(DynamicDocument):
     providers = ListField(EmbeddedDocumentField(ProvidersByCountry))
     guessed_country = StringField()
 
-    meta = {'indexes': ['imdb_id', 'weighted_rating', 'guessed_country', ('guessed_country', '-weighted_rating')],
+    meta = {'indexes': [
+        'imdb_id', 
+        'weighted_rating', 
+        'guessed_country', 
+        ('guessed_country', '-weighted_rating'),
+        ('fetched', 'guessed_country', '_id')],
             'queryset_class': CustomQuerySet}
 
     def add_fetched_info(self, movie: dict, all_genres: dict[Genre],
@@ -474,3 +479,26 @@ class Log(DynamicDocument):
 
     def __str__(self):
         return f"id:{self.pk}, type:{self.type}, message:{self.message}, timestamp: {self.timestamp}, ttl: {self.ttl}"
+
+
+class DiscoveryMovie(DynamicDocument):
+    id = IntField(primary_key=True, required=True)
+    imdb_id = StringField()
+    original_title = StringField()
+    english_title = StringField()
+    poster_path = StringField()
+    vote_average = FloatField()
+    vote_count = IntField()
+    estimated_country = StringField()
+    year = StringField()
+    director = StringField()
+    genres = ListField(StringField())
+    weighted_rating = FloatField(default=0)
+    overview = StringField()
+    
+    meta = {'collection': 'discoverymovie',
+            'indexes': [
+                'imdb_id', 
+                'weighted_rating', 
+                'estimated_country', 
+                ('estimated_country', '-weighted_rating')]}
