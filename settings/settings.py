@@ -121,6 +121,8 @@ else:
             'BACKEND': "channels_redis.core.RedisChannelLayer",
             'CONFIG': {
                 'hosts': [REDIS_URL],
+                "capacity": 1500,  # default 100
+                "expiry": 10
             }
         }
     }
