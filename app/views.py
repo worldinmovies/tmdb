@@ -4,7 +4,7 @@ import datetime
 import json
 import threading
 
-from app.celery_tasks import redo_countries
+from app.celery_tasks import redo_countries, index_movies
 from app.helper import chunks, convert_country_code, start_background_process
 from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
 from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
@@ -13,6 +13,7 @@ from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, impo
 from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, DiscoveryMovie
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from app.meilisearch_client import client
 
 
 def import_status(request):
@@ -171,12 +172,19 @@ def check_tmdb_for_changes(request):
         return HttpResponse(json.dumps({"Message": "TMDB changes process already started"}))
 
 
-def fetch_movie_data(request, ids):
+def fetch_movies_data(request, ids):
     data_list = Movie.objects(pk__in=map(lambda x: int(x), ids.split(','))).exclude(
         'fetched',
         'fetched_date',
         'data').to_json()
     return HttpResponse(list(data_list), content_type='application/json')
+
+def fetch_movie_data(request, id):
+    try:
+        data = Movie.objects.get(id=id).to_json()
+    except Movie.DoesNotExist:
+        data = None
+    return HttpResponse(data, content_type='application/json')
 
 
 def dump_genres(request):
@@ -206,6 +214,52 @@ def populate_discovery(request):
     return HttpResponse(start_background_process(work, 'discovery_index', 'Indexing Discovery Movie Collection'))
 
 
+def index_meilisearch(request):
+    def work():
+        index = client.index("movies")
+        index.delete_all_documents()
+        index.update_settings({
+            "searchableAttributes": [
+                "title",
+                "original_title",
+                "alternative_titles",
+                "directors"
+            ],
+            "filterableAttributes": [
+                "guessed_country",
+                "original_language"
+            ],
+            "sortableAttributes": [
+                "weighted_rating",
+                "vote_average",
+                "vote_count"
+            ],
+            "displayedAttributes": [
+                "id",
+                "title",
+                "original_title",
+                "overview",
+                "directors",
+                "weighted_rating",
+                "vote_average",
+                "vote_count",
+                "guessed_country",
+                "original_language",
+                "poster",
+                "year"
+            ]
+        })
+        for chunk in chunks(Movie.objects().all().values_list('id'), 100):
+            index_movies.delay(list(chunk))
+
+    return HttpResponse(start_background_process(work, 'discovery_index', 'Indexing Discovery Movie Collection'))
+
+
+def search_movies(request, query):
+    index = client.index("movies")
+    return HttpResponse(json.dumps(index.search(query)), content_type='application/json')
+
+
 @csrf_exempt
 def ratings(request):
     """This should map incoming imdb ratings file, and try to match it with our dataset,
@@ -214,7 +268,6 @@ def ratings(request):
         curl 'http://localhost:8000/ratings' -X POST -H
         'Content-Type: multipart/form-data' -F file=@testdata/ratings.csv
     """
-    print("Receiving stuff")
     if request.method == 'POST':
         if 'file' in request.FILES:
             file = request.FILES['file']

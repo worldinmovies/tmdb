@@ -1,9 +1,12 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
 
-from app.helper import log, chunks
+from app.helper import log
 from app.models import Movie, Title, AlternativeTitles, DiscoveryMovie
 from django.db import transaction
+from app.meilisearch_client import client
+# app/tasks.py
+
 
 
 @shared_task
@@ -154,4 +157,44 @@ def populate_discovery_movie_task(chunk):
         log(message=error_msg, e=e)
         raise
 
+
+
+def extract_directors(crew):
+    return [member.name for member in crew if member.job == "Director"]
+
+def extract_alternative_titles(alt_titles):
+    if not alt_titles:
+        return []
+    return [title.title for title in alt_titles.titles if title.title]
+
+
+@shared_task
+def index_movies(chunk):
+    index = client.index("movies")
+    try:
+        movies = Movie.objects.filter(
+                id__in=chunk
+            )
+        documents = [
+            {
+            "id": movie.id,
+            "title": movie.title,
+            "original_title": movie.original_title,
+            "alternative_titles": extract_alternative_titles(movie.alternative_titles),
+            "overview": movie.overview,
+            "directors": extract_directors(movie.credits.crew) if movie.credits else [],
+            "weighted_rating": movie.weighted_rating,
+            "vote_average": (movie.vote_average + movie.imdb_vote_average) / 2,
+            "vote_count": movie.vote_count + movie.imdb_vote_count,
+            "guessed_country": movie.guessed_country,
+            "original_language": movie.original_language,
+            "poster": movie.poster_path,
+            "year": movie.release_date
+        }
+            for movie in movies
+        ]
+        index.add_documents(documents)
+        log(message=f"Indexed {len(chunk)} movies")
+    except Exception as e:
+        log(message="Failed to index due to error: %s" % e, e=e)
 

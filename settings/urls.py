@@ -14,6 +14,9 @@ urlpatterns = [
     path('import/tmdb/providers',           views.fetch_providers),
     path('import/tmdb/changes',             views.check_tmdb_for_changes),
 
+    path('index/movies',                    views.index_meilisearch),
+    path('search/movies/<str:query>',                   views.search_movies),
+
     # IMDB
     path('import/imdb/ratings',             views.fetch_imdb_ratings),
     path('import/imdb/titles',              views.fetch_imdb_titles),
@@ -26,7 +29,8 @@ urlpatterns = [
     path('view/best/<str:country_code>',    views.get_best_movies_from_country),
     path('view/random/<str:country_code>',  views.get_random_movies_by_country),
     path('view/random/best/<int:movies>',   views.get_best_randoms),
-    path('movie/<str:ids>',                 views.fetch_movie_data),
+    path('movies/<str:ids>',                views.fetch_movies_data),
+    path('movie/<str:id>',                  views.fetch_movie_data),
 
     path('redo/populatediscovery',          views.populate_discovery),
     re_path(r'^status$',                    views.import_status),

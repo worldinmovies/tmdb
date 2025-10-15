@@ -2,10 +2,11 @@ import sys
 import sentry_sdk
 import mongoengine
 import os
-import sentry_sdk
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://meilisearch:7700")
+MEILISEARCH_API_KEY = os.getenv("MEILISEARCH_API_KEY", "")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '!xr(&l&-)*&!$kfj_&!ku#@%z8+ox4kb$y(k$nh8ur8b5wjshj')
@@ -62,6 +63,7 @@ CRONJOBS = [
     ('0 9 * * *', 'app.tmdb_importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
     ('0 10 * * *', 'app.tmdb_importer.base_import', '>> /tmp/scheduled_job.log'),
     ('0 */2 * * *', 'app.tmdb_importer.fetch_tmdb_data_concurrently', '>> /tmp/scheduled_job.log'),
+    ('0 0 * * 1', 'app.tmdb_importer.populate_discovery_movies', '>> /tmp/scheduled_job.log'),
     # IMDB
     ('0 1 * * *', 'app.imdb_importer.import_imdb_ratings', '>> /tmp/scheduled_job.log'),
     ('0 0 * * 1', 'app.imdb_importer.import_imdb_alt_titles', '>> /tmp/scheduled_job.log'),
