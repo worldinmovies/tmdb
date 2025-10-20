@@ -1,4 +1,4 @@
-from app import views
+from apps.api import views
 from django.urls import path, re_path, include
 
 urlpatterns = [
@@ -15,7 +15,7 @@ urlpatterns = [
     path('import/tmdb/changes',             views.check_tmdb_for_changes),
 
     path('index/movies',                    views.index_meilisearch),
-    path('search/movies/<str:query>',                   views.search_movies),
+    path('search/movies/<str:query>',       views.search_movies),
 
     # IMDB
     path('import/imdb/ratings',             views.fetch_imdb_ratings),

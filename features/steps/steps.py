@@ -9,8 +9,8 @@ import codecs
 
 from mongoengine import DoesNotExist
 
-from app.helper import get_statics
-from app.models import SpokenLanguage, ProductionCountries, Genre, Movie, WatchProvider
+from apps.app.helper import get_statics
+from apps.app.db_models import SpokenLanguage, ProductionCountries, Genre, Movie, WatchProvider
 from behave import given, then, step
 
 

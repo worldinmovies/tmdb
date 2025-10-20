@@ -5,9 +5,9 @@ import sys
 from sentry_sdk.crons import monitor
 from channels.layers import get_channel_layer
 
-from app.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
-from app.helper import chunks, __unzip_file, log
-from app.models import Log, Movie
+from apps.worker.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
+from apps.app.helper import chunks, __unzip_file, log
+from apps.app.db_models import Log, Movie
 
 
 @monitor(monitor_slug='import_imdb_ratings')

@@ -4,12 +4,12 @@ import pytz
 from channels.generic.websocket import AsyncWebsocketConsumer
 from websockets.exceptions import ConnectionClosedOK
 
-from app.models import Log
+from apps.app.db_models import Log
 
 tz = pytz.timezone('Europe/Stockholm')
 
 
-class TextRoomConsumer(AsyncWebsocketConsumer):
+class Consumer(AsyncWebsocketConsumer):
     groupId = 'group'
 
     """

@@ -1,12 +1,10 @@
 from celery import shared_task
 from channels.layers import get_channel_layer
-
-from app.helper import log
-from app.models import Movie, Title, AlternativeTitles, DiscoveryMovie
 from django.db import transaction
-from app.meilisearch_client import client
-# app/tasks.py
 
+from apps.app.helper import log
+from apps.app.db_models import Movie, Title, AlternativeTitles, DiscoveryMovie
+from apps.app.meilisearch_client import client
 
 
 @shared_task

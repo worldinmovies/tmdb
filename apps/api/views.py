@@ -3,17 +3,19 @@ import csv
 import datetime
 import json
 import threading
+import random
+import time
 
-from app.celery_tasks import redo_countries, index_movies
-from app.helper import chunks, convert_country_code, start_background_process
-from app.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
-from app.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
+from apps.worker.celery_tasks import redo_countries, index_movies
+from apps.app.helper import chunks, convert_country_code, start_background_process
+from apps.imdb.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
+from apps.tmdb.tmdb_importer import download_files, fetch_tmdb_data_concurrently, import_genres, import_countries, \
     import_languages, \
     base_import, check_which_movies_needs_update, import_providers, populate_discovery_movies
-from app.models import Movie, Genre, SpokenLanguage, ProductionCountries, DiscoveryMovie
+from apps.app.db_models import Movie, Genre, SpokenLanguage, ProductionCountries, DiscoveryMovie
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from app.meilisearch_client import client
+from apps.app.meilisearch_client import client
 
 
 def import_status(request):
@@ -67,18 +69,33 @@ def get_best_movies_from_country(request, country_code):
 # then reset the country-list, go through everything again but get the next best film, and so on...
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
+    seed = int(request.GET.get('seed', int(time.time() * 1000)))
 
         # Get distinct countries
     countries = DiscoveryMovie.objects.distinct('estimated_country')
     countries = [c for c in countries if c is not None]
-    no_of_countries = len(countries) if len(countries ) != 0 else 1
+
+    if not countries:
+        return HttpResponse(json.dumps({"seed": seed, "results": []}), content_type='application/json')
+
+    no_of_countries = len(countries)
     
-    countries_skip = movies % no_of_countries
-    movie_skip = int(movies / no_of_countries)
-    
-    # Use MongoDB aggregation pipeline
+    # trunk-ignore(bandit/B311)
+    rng = random.Random(seed)
+    rng.shuffle(countries)
+
+    countries_skip = int(movies) % no_of_countries
+    movie_skip = int(movies) // no_of_countries
+
+    # Build wrap-around selection of `limit` countries starting at countries_skip
+    # This handles cases where limit > no_of_countries (it will repeat countries)
+    selected_countries = [
+        countries[(countries_skip + i) % no_of_countries]
+        for i in range(limit)
+    ]
+
     pipeline = [
-        {"$match": {"estimated_country": {"$ne": None}}},
+        {"$match": {"estimated_country": {"$in": selected_countries}}},
         {"$group": {
             "_id": "$estimated_country",
             "topMovies": {
@@ -90,13 +107,13 @@ def get_best_randoms(request, movies=0):
             }
         }},
         {"$sort": {"_id": 1}},
-        {"$skip": countries_skip},
         {"$limit": limit},
         {"$project": {"movie": {"$arrayElemAt": ["$topMovies", movie_skip]}}},
         {"$replaceRoot": {"newRoot": "$movie"}}
     ]
     
     results = list(DiscoveryMovie.objects.aggregate(pipeline))
+    print("RESULT: %s" % results)
 
     return HttpResponse(json.dumps(results), content_type='application/json')
 
@@ -249,7 +266,7 @@ def index_meilisearch(request):
                 "year"
             ]
         })
-        for chunk in chunks(Movie.objects().all().values_list('id'), 100):
+        for chunk in chunks(Movie.objects().all().values_list('id'), 50):
             index_movies.delay(list(chunk))
 
     return HttpResponse(start_background_process(work, 'discovery_index', 'Indexing Discovery Movie Collection'))

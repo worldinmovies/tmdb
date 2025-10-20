@@ -2,7 +2,7 @@ import os
 
 from django.db import transaction
 from django.conf import settings
-from app.models import Movie
+from apps.app.db_models import Movie
 from behave.fixture import use_fixture
 from behave import fixture
 

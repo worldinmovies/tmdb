@@ -10,7 +10,7 @@ RUN \
  apk add --no-cache tzdata  && \
  apk add --no-cache --virtual .build-deps gcc libffi-dev g++ snappy-dev krb5-pkinit krb5-dev krb5
 
-ADD requirements.txt .
+COPY requirements.txt .
 
 RUN pip install --prefix=/install --no-cache-dir -r requirements.txt && \
     apk --purge del .build-deps
@@ -26,7 +26,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 COPY --from=builder /install /usr/local
 RUN apk --no-cache add libpq curl
 
-ADD .. /app
+COPY .. /app
 
 WORKDIR /app
 

@@ -8,7 +8,7 @@ from itertools import chain, islice
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from app.models import Genre, SpokenLanguage, ProductionCountries
+from apps.app.db_models import Genre, SpokenLanguage, ProductionCountries
 
 
 def convert_country_code(country_code):

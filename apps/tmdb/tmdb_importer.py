@@ -11,10 +11,11 @@ from mongoengine import DoesNotExist
 from requests.adapters import HTTPAdapter
 import sentry_sdk
 from urllib3.util.retry import Retry
-from app.celery_tasks import populate_discovery_movie_task
 
-from app.helper import __send_data_to_channel, __log_progress, __unzip_file, log, get_statics
-from app.models import Movie, SpokenLanguage, Genre, ProductionCountries, WatchProvider
+from apps.worker.celery_tasks import populate_discovery_movie_task
+
+from apps.app.helper import __send_data_to_channel, __log_progress, __unzip_file, log, get_statics
+from apps.app.db_models import Movie, SpokenLanguage, Genre, ProductionCountries, WatchProvider
 
 
 @sentry_sdk.monitor(monitor_slug='base_import')
