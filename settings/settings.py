@@ -83,22 +83,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-ALLOWED_HOSTS = ['*', ]
-# ALLOWED_HOSTS = ['*']
-# CORS_ORIGIN_WHITELIST = (
-#    'http://localhost:3000',
-#    'https://webapp.localhost'
-# )
-
-# CSRF_ALLOWED_ORIGINS = ['https://worldinmovies.duckdns.org',
-#                        'http://127.0.0.1:3000',
-#                        'http://localhost:3000',
-#                        'https://webapp.localhost']
-# CSRF_TRUSTED_ORIGINS = ['https://worldinmovies.duckdns.org',
-#                        'http://127.0.0.1:3000',
-#                        'http://localhost:3000',
-#                        'https://webapp.localhost']
+# CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_HOSTS = ['*']
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https?://localhost(:\d+)?$',   # dev
+    r'^https://worldinmovies\.labb\.site$', # prod
+    r'^capacitor://localhost$',       # mobile app
+]
 
 environment = os.environ.get('ENVIRONMENT', 'docker')
 
