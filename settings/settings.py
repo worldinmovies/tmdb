@@ -63,13 +63,13 @@ TEMPLATES = [
 ]
 CRONJOBS = [
     # TMDB
-    ('0 9 * * *', 'app.tmdb_importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
-    ('0 10 * * *', 'app.tmdb_importer.base_import', '>> /tmp/scheduled_job.log'),
-    ('0 */2 * * *', 'app.tmdb_importer.fetch_tmdb_data_concurrently', '>> /tmp/scheduled_job.log'),
-    ('0 0 * * 1', 'app.tmdb_importer.populate_discovery_movies', '>> /tmp/scheduled_job.log'),
+    ('0 9 * * *', 'apps.tmdb.tmdb_importer.cron_endpoint_for_checking_updateable_movies', '>> /tmp/scheduled_job.log'),
+    ('0 10 * * *', 'apps.tmdb.tmdb_importer.base_import', '>> /tmp/scheduled_job.log'),
+    ('0 */2 * * *', 'apps.tmdb.tmdb_importer.fetch_tmdb_data_concurrently', '>> /tmp/scheduled_job.log'),
+    ('0 0 * * 1', 'apps.tmdb.tmdb_importer.populate_discovery_movies', '>> /tmp/scheduled_job.log'),
     # IMDB
-    ('0 1 * * *', 'app.imdb_importer.import_imdb_ratings', '>> /tmp/scheduled_job.log'),
-    ('0 0 * * 1', 'app.imdb_importer.import_imdb_alt_titles', '>> /tmp/scheduled_job.log'),
+    ('0 1 * * *', 'apps.imdb.imdb_importer.import_imdb_ratings', '>> /tmp/scheduled_job.log'),
+    ('0 0 * * 1', 'apps.imdb.imdb_importer.import_imdb_alt_titles', '>> /tmp/scheduled_job.log'),
 ]
 STATIC_URL = '/static/'
 

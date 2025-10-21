@@ -9,8 +9,8 @@ from django.db import transaction
 from itertools import chain, islice
 from mongoengine import DoesNotExist
 from requests.adapters import HTTPAdapter
-import sentry_sdk
 from urllib3.util.retry import Retry
+from sentry_sdk.crons import monitor
 
 from apps.worker.celery_tasks import populate_discovery_movie_task
 
@@ -18,7 +18,7 @@ from apps.app.helper import __send_data_to_channel, __log_progress, __unzip_file
 from apps.app.db_models import Movie, SpokenLanguage, Genre, ProductionCountries, WatchProvider
 
 
-@sentry_sdk.monitor(monitor_slug='base_import')
+@monitor(monitor_slug='base_import')
 def base_import():
     download_files()
     import_genres()
@@ -32,7 +32,7 @@ def download_files():
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
     yesterday_formatted = yesterday.strftime("%m_%d_%Y")
     daily_export_url = "http://files.tmdb.org/p/exports/movie_ids_%s.json.gz" % yesterday_formatted
-    response = requests.get(daily_export_url)
+    response = requests.get(daily_export_url, timeout=120)
 
     layer = get_channel_layer()
     if response.status_code == 200:
@@ -132,7 +132,7 @@ def __fetch_movie_with_id(movie_id, index):
         raise Exception("Response: %s, Content: %s" % (response.status_code, response.content))
 
 
-@sentry_sdk.monitor(monitor_slug='fetch_tmdb_data_concurrently')
+@monitor(monitor_slug='fetch_tmdb_data_concurrently')
 def fetch_tmdb_data_concurrently():
     movie_ids = Movie.objects.filter(fetched__exact=False).values_list('id')
     length = len(movie_ids)
@@ -162,7 +162,7 @@ def import_genres():
     log("Importing genres")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/genre/movie/list?api_key={api_key}&language=en-US"
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=10)
     layer = get_channel_layer()
     if response.status_code == 200:
         genres_from_json = json.loads(response.content)['genres']
@@ -182,7 +182,7 @@ def import_countries():
     print("Importing countries")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/configuration/countries?api_key={api_key}"
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=10)
     layer = get_channel_layer()
     if response.status_code == 200:
         countries_from_json = json.loads(response.content)
@@ -202,7 +202,7 @@ def import_languages():
     log("Importing languages")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/configuration/languages?api_key={api_key}"
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=10)
     layer = get_channel_layer()
     if response.status_code == 200:
         languages_from_json = json.loads(response.content)
@@ -256,7 +256,7 @@ def import_providers():
     log("Importing providers")
     api_key = os.getenv('TMDB_API', 'test')
     url = f"https://api.themoviedb.org/3/watch/providers/movie?language=en-US?api_key={api_key}"
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=10)
     layer = get_channel_layer()
     if response.status_code == 200:
         providers_from_json = json.loads(response.content)['results']
@@ -287,7 +287,7 @@ def check_which_movies_needs_update(start_date, end_date):
     page = 1
     url = (f"https://api.themoviedb.org/3/movie/changes?api_key={api_key}&"
            f"start_date={start_date}&end_date={end_date}&page={page}")
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=20)
     layer = get_channel_layer()
     if response.status_code == 200:
         data = json.loads(response.content)
@@ -306,7 +306,7 @@ def check_which_movies_needs_update(start_date, end_date):
         log(f"Response: {response.status_code}:{response.content}")
 
 
-@sentry_sdk.monitor(monitor_slug='cron_endpoint_for_checking_updateable_movies')
+@monitor(monitor_slug='cron_endpoint_for_checking_updateable_movies')
 def cron_endpoint_for_checking_updateable_movies():
     start_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     end_date = (datetime.date.today()).strftime("%Y-%m-%d")

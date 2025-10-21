@@ -31,6 +31,7 @@ urlpatterns = [
     path('view/random/best/<int:movies>',   views.get_best_randoms),
     path('movies/<str:ids>',                views.fetch_movies_data),
     path('movie/<str:id>',                  views.fetch_movie_data),
+    path('genres',                          views.get_genres),
 
     path('redo/populatediscovery',          views.populate_discovery),
     re_path(r'^status$',                    views.import_status),

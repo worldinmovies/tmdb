@@ -1,5 +1,4 @@
 import csv
-
 import datetime
 import json
 import threading
@@ -65,15 +64,30 @@ def get_best_movies_from_country(request, country_code):
     return HttpResponse(data.to_json(), content_type='application/json')
 
 
+def get_genres(request):
+    return HttpResponse(json.dumps(Genre.objects.distinct('name')), content_type='application/json')
+
 # Get the best movie from each country until you've gone through all countries,
 # then reset the country-list, go through everything again but get the next best film, and so on...
 def get_best_randoms(request, movies=0):
     limit = int(request.GET.get('limit', 4))
     seed = int(request.GET.get('seed', int(time.time() * 1000)))
 
-        # Get distinct countries
-    countries = DiscoveryMovie.objects.distinct('estimated_country')
-    countries = [c for c in countries if c is not None]
+    # Get genre filter from request (can be comma-separated list)
+    genre_filter = request.GET.get('genres', None)
+    genre_list = None
+
+    if genre_filter:
+        # Split and strip whitespace
+        genre_list = [g.strip() for g in genre_filter.split(',') if g.strip()]
+
+    # Get distinct countries with genre filter applied
+    # Use MongoEngine query syntax, not raw MongoDB
+    query = DiscoveryMovie.objects(estimated_country__ne=None)
+    if genre_list:
+        query = query(genres__in=genre_list)
+
+    countries = query.distinct('estimated_country')
 
     if not countries:
         return HttpResponse(json.dumps({"seed": seed, "results": []}), content_type='application/json')
@@ -88,14 +102,18 @@ def get_best_randoms(request, movies=0):
     movie_skip = int(movies) // no_of_countries
 
     # Build wrap-around selection of `limit` countries starting at countries_skip
-    # This handles cases where limit > no_of_countries (it will repeat countries)
     selected_countries = [
         countries[(countries_skip + i) % no_of_countries]
         for i in range(limit)
     ]
 
+    # Build pipeline match query
+    pipeline_match = {"estimated_country": {"$in": selected_countries}}
+    if genre_list:
+        pipeline_match["genres"] = {"$in": genre_list}
+
     pipeline = [
-        {"$match": {"estimated_country": {"$in": selected_countries}}},
+        {"$match": pipeline_match},
         {"$group": {
             "_id": "$estimated_country",
             "topMovies": {
@@ -113,9 +131,9 @@ def get_best_randoms(request, movies=0):
     ]
     
     results = list(DiscoveryMovie.objects.aggregate(pipeline))
-    print("RESULT: %s" % results)
 
     return HttpResponse(json.dumps(results), content_type='application/json')
+
 
 
 def get_movies_from_country_codes(country_codes, limit, skip):

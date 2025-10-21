@@ -10,7 +10,6 @@ from apps.app.helper import chunks, __unzip_file, log
 from apps.app.db_models import Log, Movie
 
 
-@monitor(monitor_slug='import_imdb_ratings')
 def import_imdb_ratings():
     """Data-dump of imdbs ratings of all films
        TSV Headers are: tconst, averageRating, numVotes
@@ -18,7 +17,7 @@ def import_imdb_ratings():
        While we only have around 450k rows in our database.
     """
     url = 'https://datasets.imdbws.com/title.ratings.tsv.gz'
-    response = requests.get(url)
+    response = requests.get(url, timeout=300)
     layer = get_channel_layer()
     log(layer=layer, message=f"Downloading file: {url}")
     if response.status_code == 200:
@@ -49,7 +48,7 @@ def import_imdb_alt_titles():
     url = 'https://datasets.imdbws.com/title.akas.tsv.gz'
     layer = get_channel_layer()
     log(layer=layer, message=f"Downloading file: {url}")
-    response = requests.get(url)
+    response = requests.get(url, timeout=300)
     with open('title.akas.tsv.gz', 'wb') as f:
         f.write(response.content)
     if response.status_code == 200:
