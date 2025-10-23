@@ -41,6 +41,7 @@ def parse_user_watched(file):
                     'country_code': country
                 })
         print("Processed: %s" % count)
+    return result
 
 
 
