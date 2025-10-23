@@ -223,15 +223,3 @@ class ImdbImportMovie:
         self.vote_average = vote_average
         self.vote_count = vote_count
         self.country_code = country_code
-    
-    def map(movie: Movie):
-        return {
-                    'id': movie.id,
-                    'imdb_id': movie.imdb_id,
-                    'original_title': movie.original_title,
-                    'release_date': movie.release_date,
-                    'poster_path': movie.poster_path,
-                    'vote_average': movie.vote_average,
-                    'vote_count': movie.vote_count,
-                    'country_code': movie.guessed_country
-               }

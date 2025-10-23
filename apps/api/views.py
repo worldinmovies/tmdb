@@ -5,6 +5,7 @@ import threading
 import random
 import time
 
+from apps.letterboxd import letterboxd
 from apps.worker.celery_tasks import redo_countries, index_movies
 from apps.app.helper import chunks, convert_country_code, start_background_process
 from apps.imdb.imdb_importer import import_imdb_ratings, import_imdb_alt_titles
@@ -12,6 +13,7 @@ from apps.tmdb.tmdb_importer import download_files, fetch_tmdb_data_concurrently
     import_languages, \
     base_import, check_which_movies_needs_update, import_providers, populate_discovery_movies
 from apps.app.db_models import Movie, Genre, SpokenLanguage, ProductionCountries, DiscoveryMovie
+from apps.imdb import imdb_importer
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from apps.app.meilisearch_client import client
@@ -295,52 +297,7 @@ def search_movies(request, query):
     return HttpResponse(json.dumps(index.search(query)), content_type='application/json')
 
 
-@csrf_exempt
-def ratings(request):
-    """This should map incoming imdb ratings file, and try to match it with our dataset,
-        and return it in a format we can use in frontend
-
-        curl 'http://localhost:8000/ratings' -X POST -H
-        'Content-Type: multipart/form-data' -F file=@testdata/ratings.csv
-    """
-    if request.method == 'POST':
-        if 'file' in request.FILES:
-            file = request.FILES['file']
-            csv_as_dicts = csv.DictReader(file.read().decode('utf8').splitlines())
-            # Const,Your Rating,Date Rated,Title,URL,Title Type,IMDb Rating,
-            # Runtime (mins),Year,Genres,Num Votes,Release Date,Directors
-            result = {'found': {}, 'not_found': []}
-            data = {}
-            for i in [json.loads(json.dumps(x)) for x in csv_as_dicts]:
-                data[i['Const']] = {"title": i['Title'], "year": i['Year']}
-
-            count = 0
-            for i in chunks(data.items(), 100):
-                u = [x[0] for x in i]
-                count = count + len(u)
-                matches = Movie.objects(imdb_id__in=u).only('guessed_country', 'imdb_id',
-                                                            'id', 'original_title',
-                                                            'release_date', 'poster_path',
-                                                            'vote_average', 'vote_count')
-                for match in matches:
-                    if match.guessed_country:
-                        country = match.guessed_country
-                        result['found'].setdefault(country, []).append({
-                            'imdb_id': match.imdb_id,
-                            'id': match.id,
-                            'original_title': match.original_title,
-                            'release_date': match.release_date,
-                            'poster_path': match.poster_path,
-                            'vote_average': match.vote_average,
-                            'vote_count': match.vote_count,
-                            'country_code': country
-                        })
-                print("Processed: %s" % count)
-
-            return HttpResponse(json.dumps(result), content_type='application/json')
-
-    return HttpResponse("Method: %s, not allowed" % request.method, status=400)
-
+# IMDB
 
 # Imports
 def fetch_imdb_ratings(request):
@@ -349,3 +306,45 @@ def fetch_imdb_ratings(request):
 
 def fetch_imdb_titles(request):
     return HttpResponse(start_background_process(import_imdb_alt_titles, 'import_imdb_titles', 'IMDB titles'))
+
+@csrf_exempt
+def parse_user_imdb_ratings(request):
+    """This should map incoming imdb ratings file, and try to match it with our dataset,
+        and return it in a format we can use in frontend
+
+        curl 'http://localhost:8000/imdb/ratings' -X POST -H
+        'Content-Type: multipart/form-data' -F file=@testdata/ratings.csv
+    """
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            file = request.FILES['file']
+            result = imdb_importer.parse_user_watched(file)
+            return HttpResponse(json.dumps(result), content_type='application/json')
+
+    return HttpResponse("Method: %s, not allowed" % request.method, status=400)
+
+
+@csrf_exempt
+def parse_user_letterboxd_ratings(request):
+    """This should map incoming letterboxd ratings file, and try to match it with our dataset,
+        and return it in a format we can use in frontend
+
+        curl 'http://localhost:8020/letterboxd/ratings' -X POST -H \
+            'Content-Type: multipart/form-data' -F file=@testdata/letterboxd-watched.csv
+    """
+    #index = client.index("movies")
+    #index.update_settings({
+    #        "filterableAttributes": [
+    #            "guessed_country",
+    #            "original_language",
+    #            "year"
+    #        ]
+    #    })
+
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            file = request.FILES['file']
+            result = letterboxd.parse_user_watched(file)
+            return HttpResponse(json.dumps(result), content_type='application/json')
+
+    return HttpResponse("Method: %s, not allowed" % request.method, status=400)

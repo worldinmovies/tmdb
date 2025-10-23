@@ -187,7 +187,7 @@ def index_movies(chunk):
             "guessed_country": movie.guessed_country,
             "original_language": movie.original_language,
             "poster": movie.poster_path,
-            "year": movie.release_date
+            "year": movie.release_date[:4]
         }
             for movie in movies
         ]

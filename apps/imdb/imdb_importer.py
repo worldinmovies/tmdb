@@ -1,4 +1,5 @@
 import csv
+import json
 import requests
 import sys
 
@@ -8,6 +9,39 @@ from channels.layers import get_channel_layer
 from apps.worker.celery_tasks import import_imdb_ratings_task, import_imdb_titles_task
 from apps.app.helper import chunks, __unzip_file, log
 from apps.app.db_models import Log, Movie
+
+
+def parse_user_watched(file):
+    csv_as_dicts = csv.DictReader(file.read().decode('utf8').splitlines())
+    # Const,Your Rating,Date Rated,Title,URL,Title Type,IMDb Rating,
+    # Runtime (mins),Year,Genres,Num Votes,Release Date,Directors
+    result = {'found': {}, 'not_found': []}
+    data = {}
+    for i in [json.loads(json.dumps(x)) for x in csv_as_dicts]:
+        data[i['Const']] = {"title": i['Title'], "year": i['Year']}
+    count = 0
+    for i in chunks(data.items(), 100):
+        u = [x[0] for x in i]
+        count = count + len(u)
+        matches = Movie.objects(imdb_id__in=u).only('guessed_country', 'imdb_id',
+                                                    'id', 'original_title',
+                                                    'release_date', 'poster_path',
+                                                    'vote_average', 'vote_count')
+        for match in matches:
+            if match.guessed_country:
+                country = match.guessed_country
+                result['found'].setdefault(country, []).append({
+                    'imdb_id': match.imdb_id,
+                    'id': match.id,
+                    'original_title': match.original_title,
+                    'release_date': match.release_date,
+                    'poster_path': match.poster_path,
+                    'vote_average': match.vote_average,
+                    'vote_count': match.vote_count,
+                    'country_code': country
+                })
+        print("Processed: %s" % count)
+
 
 
 def import_imdb_ratings():

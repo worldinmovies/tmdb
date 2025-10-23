@@ -20,7 +20,9 @@ urlpatterns = [
     # IMDB
     path('import/imdb/ratings',             views.fetch_imdb_ratings),
     path('import/imdb/titles',              views.fetch_imdb_titles),
-    path('imdb/ratings',                    views.ratings),
+    path('imdb/ratings',                    views.parse_user_imdb_ratings),
+
+    path('letterboxd/ratings',              views.parse_user_letterboxd_ratings),
 
     path('dump/genres',                     views.dump_genres),
     path('dump/langs',                      views.dump_langs),
