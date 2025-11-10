@@ -1,5 +1,4 @@
 django==5.2.7
-gunicorn==23.0.0
 requests==2.31
 sentry-sdk[django]==2.38.0
 simplejson==3.20.1
@@ -7,8 +6,6 @@ django-cors-headers==4.9.0
 django-crontab==0.7.1
 django-health-check==3.20.0
 channels==4.3.1
-daphne==4.2.1
-uvicorn==0.37.0
 websockets==15.0.1
 channels_redis==4.3.0
 #pykerberos==1.2.4
@@ -37,4 +34,6 @@ testcontainers==4.13.0
 # For dev
 pylint-django==2.6.1
 ruff==0.13.1
-line-profiler==5.0.0
+
+# For hypercorn
+hypercorn==0.18.0

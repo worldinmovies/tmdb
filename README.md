@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 DOCKER_HOST=unix:///Users/daveri/.docker/run/docker.sock ./manage.py behave
 
-MONGO_URL=localhost:27017 gunicorn --config=gunicorn.config.py -k uvicorn.workers.UvicornWorker --reload settings.asgi
+MONGO_URL=localhost:27017 hypercorn --config=gunicorn.config.py --reload settings.asgi:application
 
 docker buildx build --platform linux/amd64,linux/arm64 -t seppaleinen/worldinmovies_tmdb:latest .
 ```
